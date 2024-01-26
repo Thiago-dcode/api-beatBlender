@@ -19,7 +19,8 @@ class AppController {
     const router = express.Router()
     const routes = (await import('../routes.js')).default
     for (const route in routes) {
-      this.app.use(`/${route}`, routes[route](router))
+      console.log(`/${route === '/' ? '' : route}`)
+      this.app.use(`/${route === '/' ? '' : route}`, routes[route](router))
     }
   }
 }

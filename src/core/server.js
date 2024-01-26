@@ -1,7 +1,7 @@
 import app from './app.js'
 
-export default function start (port) {
+export default function start (port = 3000) {
   app.listen(port, () => {
-    console.log('App listening on port 3000')
+    console.log(`App listening on port http://localhost:${port}`)
   })
 }
