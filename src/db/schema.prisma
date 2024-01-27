@@ -12,12 +12,13 @@ datasource db {
 
 model User {
   id        Int        @id @default(autoincrement())
-  name      String?
   username  String     @unique
-  email     String     @unique
+  email     String?    @unique
   avatar    String?
+  name      String?
   biography String?
   isActive  Boolean    @default(true)
+  isAdmin   Boolean    @default(false)
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt
   sound     Sound[]
@@ -46,13 +47,15 @@ model Key {
   createdAt    DateTime    @default(now())
   updatedAt    DateTime    @updatedAt
   letter       String
+  categories   Category[]
   author       User        @relation(fields: [authorId], references: [id])
   authorId     Int
-  categories   Category[]
   Keyboard     Keyboard?   @relation(fields: [keyboardId], references: [id])
   keyboardId   Int?
   Design_key   Design_key? @relation(fields: [design_keyId], references: [id])
   design_keyId Int?
+  Sound        Sound?      @relation(fields: [soundId], references: [id])
+  soundId      Int?
 }
 
 model Sound {
@@ -60,6 +63,7 @@ model Sound {
   name       String
   path       String
   categories Category[]
+  keys       Key[]
   author     User       @relation(fields: [authorId], references: [id])
   authorId   Int
 }
@@ -71,8 +75,8 @@ model Record {
   categories Category[]
   author     User       @relation(fields: [authorId], references: [id])
   authorId   Int
-  Keyboard   Keyboard?  @relation(fields: [keyboardId], references: [id])
-  keyboardId Int?
+  Keyboard   Keyboard  @relation(fields: [keyboardId], references: [id])
+  keyboardId Int
 }
 
 model Design_keyboard {
@@ -94,10 +98,8 @@ model Category {
   name      String
   keyboards Keyboard[]
   keys      Key[]
-  Sound     Sound?     @relation(fields: [soundId], references: [id])
-  soundId   Int?
-  Record    Record?    @relation(fields: [recordId], references: [id])
-  recordId  Int?
+  Sound     Sound[]
+  Record    Record[]
 }
 
 model Color {
