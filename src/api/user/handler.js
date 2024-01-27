@@ -1,13 +1,19 @@
-import User from './user.js'
+import UserRepository from './repository.js'
+import { db } from '../../db/db.js'
 
+const user = new UserRepository(await db())
 class UserHandler {
-  index (req, res) {
-    res.json(User.all())
+  async index (req, res) {
+    const all = await user.all()
+    res.status(200).json(all)
   }
 
-  create (req, res) {
-    // validate req.body
-    const user = new User()
+  async create (req, res) {
+    const body = req.body
+
+    const result = await user.new(body)
+
+    res.send(result)
   }
 }
 
