@@ -7,7 +7,7 @@ export default {
     })
     return router
   },
-  user: (router) => {
+  users: (router) => {
     return userRoutes(router)
   }
 
