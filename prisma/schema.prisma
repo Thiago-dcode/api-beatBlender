@@ -1,0 +1,110 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        Int        @id @default(autoincrement())
+  name      String?
+  username  String     @unique
+  email     String     @unique
+  avatar    String?
+  biography String?
+  isActive  Boolean    @default(true)
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  sound     Sound[]
+  keys      Key[]
+  Keyboard  Keyboard[]
+  Record    Record[]
+}
+
+model Keyboard {
+  id                Int              @id @default(autoincrement())
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+  name              String
+  private           Boolean          @default(false)
+  keys              Key[]
+  records           Record[]
+  categories        Category[]
+  author            User             @relation(fields: [authorId], references: [id])
+  authorId          Int
+  Design_keyboard   Design_keyboard? @relation(fields: [design_keyboardId], references: [id])
+  design_keyboardId Int?
+}
+
+model Key {
+  id           Int         @id @default(autoincrement())
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+  letter       String
+  author       User        @relation(fields: [authorId], references: [id])
+  authorId     Int
+  categories   Category[]
+  Keyboard     Keyboard?   @relation(fields: [keyboardId], references: [id])
+  keyboardId   Int?
+  Design_key   Design_key? @relation(fields: [design_keyId], references: [id])
+  design_keyId Int?
+}
+
+model Sound {
+  id         Int        @id @default(autoincrement())
+  name       String
+  path       String
+  categories Category[]
+  author     User       @relation(fields: [authorId], references: [id])
+  authorId   Int
+}
+
+model Record {
+  id         Int        @id @default(autoincrement())
+  name       String
+  path       String
+  categories Category[]
+  author     User       @relation(fields: [authorId], references: [id])
+  authorId   Int
+  Keyboard   Keyboard?  @relation(fields: [keyboardId], references: [id])
+  keyboardId Int?
+}
+
+model Design_keyboard {
+  id        Int        @id @default(autoincrement())
+  name      String
+  keyboards Keyboard[]
+  colors    Color[]
+}
+
+model Design_key {
+  id        Int     @id @default(autoincrement())
+  name      String
+  keyboards Key[]
+  colors    Color[]
+}
+
+model Category {
+  id        Int        @id @default(autoincrement())
+  name      String
+  keyboards Keyboard[]
+  keys      Key[]
+  Sound     Sound?     @relation(fields: [soundId], references: [id])
+  soundId   Int?
+  Record    Record?    @relation(fields: [recordId], references: [id])
+  recordId  Int?
+}
+
+model Color {
+  id                Int              @id @default(autoincrement())
+  color             String
+  Design_keyboard   Design_keyboard? @relation(fields: [design_keyboardId], references: [id])
+  design_keyboardId Int?
+  Design_key        Design_key?      @relation(fields: [design_keyId], references: [id])
+  design_keyId      Int?
+}
