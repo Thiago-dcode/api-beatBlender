@@ -1,7 +1,7 @@
-import { config } from 'dotenv'
+import { config } from "dotenv"
 config()
 export const env = {
-  get: (key) => {
+  get: (key:string) :any=> {
     return process.env[key]
   }
 }

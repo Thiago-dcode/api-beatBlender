@@ -1,12 +1,12 @@
 {
   "name": "beatblender.api",
   "version": "1.0.0",
-  "type": "module",
   "description": "blender your own keyboards",
-  "main": "index.js",
+ "type": "module",
   "scripts": {
-    "dev": "nodemon src/index.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "nodemon build/index.js",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "tsc -w"
   },
   "author": "thiago D.code",
   "license": "MIT",
@@ -23,12 +23,17 @@
     "schema": "./src/db/schema.prisma"
   },
   "devDependencies": {
+    "@types/cors": "^2.8.17",
+    "@types/express": "^4.17.21",
+    "@types/node": "^20.11.8",
     "eslint": "^8.56.0",
     "eslint-config-standard": "^17.1.0",
     "eslint-plugin-import": "^2.29.1",
     "eslint-plugin-n": "^16.6.2",
     "eslint-plugin-promise": "^6.1.1",
     "nodemon": "^3.0.3",
-    "prisma": "^5.8.1"
+    "prisma": "^5.8.1",
+    "ts-node-dev": "^2.0.0",
+    "typescript": "^5.3.3"
   }
 }
