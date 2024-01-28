@@ -1,4 +1,3 @@
-// should interact with db
 import { PrismaClient } from "@prisma/client";
 interface User {
   username: string;
