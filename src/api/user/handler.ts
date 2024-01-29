@@ -1,15 +1,22 @@
 import { Request, Response } from "express";
 import UserRepository from "./repository.js";
-import { validateCreate } from "./validate.js";
 import { db } from "../../db/db.js";
+import { validateCreate } from "./validate.js";
 import { handleError } from "../../error/handleError.js";
 import bcrypt from "bcryptjs";
 const user = new UserRepository(db());
 class UserHandler {
   constructor() {}
   async index(req: Request, res: Response) {
-    const all = await user.all();
-    res.status(200).json(all);
+    try {
+      const all = await user.all();
+      res.status(200).json(all);
+    } catch (error) {
+      const err = handleError(error);
+      return res.status(err.code || 500).json({
+        [err.target]: [err.message],
+      });
+    }
   }
 
   async create(req: Request, res: Response) {
@@ -24,14 +31,10 @@ class UserHandler {
       const userCreateResult = await user.new(result.data);
       res.json(userCreateResult);
     } catch (error) {
-      if (error instanceof Error) {
-        const err = handleError(error);
-        return res.status(err.code || 500).json({
-          [err.target]: [err.message],
-        });
-      }
-      return res.status(500).json({
-        server: ["Server error, error is not a instanceof Error"],
+      console.log("Error in UserHandler.create:", error);
+      const err = handleError(error);
+      return res.status(err.code || 500).json({
+        [err.target]: [err.message],
       });
     }
   }

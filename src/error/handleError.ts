@@ -5,12 +5,16 @@ type error = {
   message: string;
   code: number;
 };
-export const handleError = (error: Error) => {
+export const handleError = (error: unknown) => {
   let _error: error = {
     code: 500,
-    target: 'server',
-    message: 'Server error'
+    target: "server",
+    message: "Server error",
   };
+  if (!(error instanceof Error)) {
+    return _error;
+  }
+
   if (error instanceof Prisma.PrismaClientKnownRequestError) {
     switch (error.code) {
       case "P2002":
@@ -29,14 +33,8 @@ export const handleError = (error: Error) => {
         break;
     }
   } else if (error instanceof Prisma.PrismaClientInitializationError) {
-    _error.code = 500;
-    _error.message = "Server error";
-    _error.target = "server";
-  } else {
-    _error.code = 500;
-    _error.message = error.message;
-    _error.target = "server";
-  }
+   
+  } 
 
   return _error;
 };
