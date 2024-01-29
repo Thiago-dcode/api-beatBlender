@@ -17,6 +17,7 @@ model User {
   avatar    String?
   name      String?
   biography String?
+  password String
   isActive  Boolean    @default(true)
   isAdmin   Boolean    @default(false)
   createdAt DateTime   @default(now())

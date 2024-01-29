@@ -16,11 +16,10 @@ class AppController {
     // this.app.use(bodyParser.json());
   }
 
-  routes() {
-    const router = express.Router();
+   routes() {
     for (const route in routes) {
       console.log(`/${route === "/" ? "" : route}`);
-      this.app.use(`/${route === "/" ? "" : route}`, routes[route]);
+      this.app.use(`/${route === "/" ? "" : route}`,  routes[route]);
     }
   }
 }

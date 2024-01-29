@@ -1,7 +1,7 @@
 import { Router } from "express";
 import userRoutes from "./api/user/routes.js";
 import keyRoutes from "./api/key/routes.js";
-//home
+
 const homeRouter = Router();
 
 homeRouter.get("/", (req, res) => {
@@ -10,7 +10,7 @@ homeRouter.get("/", (req, res) => {
 
 const routes: { [key: string]: Router } = {
   "/": homeRouter,
-  users: userRoutes,
+  users: userRoutes(),
   keys: keyRoutes,
 };
 

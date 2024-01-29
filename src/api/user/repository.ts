@@ -1,4 +1,3 @@
-// should interact with db
 import { PrismaClient } from "@prisma/client";
 interface User {
   username: string;
@@ -10,6 +9,7 @@ export default class UserRepository {
   db: PrismaClient;
   constructor(db: PrismaClient) {
     this.db = db;
+    this.db.$connect();
   }
 
   async all(options = {}) {
@@ -25,6 +25,6 @@ export default class UserRepository {
   }
 
   getById(id: number) {
-    // call persistence.js
+    return id
   }
 }
