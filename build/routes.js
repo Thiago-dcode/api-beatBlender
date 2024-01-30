@@ -1,6 +1,6 @@
 import logger from "./services/logger/logger.js";
 import { Router } from "express";
-import userRoutes from "./api/user/routes.js";
+import userRoutes from "./api/user/index.js";
 import keyRoutes from "./api/key/routes.js";
 const homeRouter = Router();
 homeRouter.get("/", (req, res) => {
@@ -9,7 +9,7 @@ homeRouter.get("/", (req, res) => {
 });
 const routes = {
     "/": homeRouter,
-    users: userRoutes(),
+    users: userRoutes,
     keys: keyRoutes,
 };
 export default routes;

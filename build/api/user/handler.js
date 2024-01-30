@@ -1,42 +1,57 @@
-import UserRepository from "./repository.js";
-import { db } from "../../db/db.js";
-import { validateCreate } from "./validate.js";
-import { handleError } from "../../error/handleError.js";
-import bcrypt from "bcryptjs";
-const user = new UserRepository(db());
+import { validateCreate, validateUpdate } from "./validate.js";
+import { handleError } from "../../errors/handleErrors.js";
 class UserHandler {
-    constructor() { }
-    async index(req, res) {
-        try {
-            const all = await user.all();
-            res.status(200).json(all);
-        }
-        catch (error) {
-            const err = handleError(error);
-            return res.status(err.code || 500).json({
-                [err.target]: [err.message],
-            });
-        }
-    }
-    async create(req, res) {
-        try {
-            const result = validateCreate(req.body);
-            if (!result.success) {
-                return res.status(422).json(result.error.flatten().fieldErrors);
+    constructor(userService) {
+        this.userService = userService;
+        this.index = async (req, res) => {
+            try {
+                const all = await this.userService.getAll();
+                res.status(200).json(all);
             }
-            //TODO: hash password
-            const passwordHashed = await bcrypt.hash(result.data.password, 10);
-            result.data.password = passwordHashed;
-            const userCreateResult = await user.new(result.data);
-            res.json(userCreateResult);
-        }
-        catch (error) {
-            console.log("Error in UserHandler.create:", error);
-            const err = handleError(error);
-            return res.status(err.code || 500).json({
-                [err.target]: [err.message],
-            });
-        }
+            catch (error) {
+                console.error("Error fetching all users", error);
+                const err = handleError(error);
+                return res.status(err.code).json({
+                    [err.target]: [err.message],
+                });
+            }
+        };
+        this.create = async (req, res) => {
+            try {
+                const result = validateCreate(req.body);
+                if (!result.success) {
+                    return res.status(422).json(result.error.flatten().fieldErrors);
+                }
+                const userCreateResult = await this.userService.create(result.data);
+                res.json(userCreateResult);
+            }
+            catch (error) {
+                const err = handleError(error);
+                return res.status(err.code).json({
+                    [err.target]: [err.message],
+                });
+            }
+        };
+        this.update = async (req, res) => {
+            try {
+                const username = req.params.username;
+                const result = validateUpdate(req.body);
+                if (!result.success) {
+                    return res.status(422).json(result.error.flatten().fieldErrors);
+                }
+                const updateResult = await this.userService.update(username, result.data);
+                res.json(updateResult);
+            }
+            catch (error) {
+                console.error("Error updating user", error);
+                const err = handleError(error);
+                return res.status(err.code).json({
+                    [err.target]: [err.message],
+                });
+            }
+        };
+        this.index = this.index.bind(this);
+        this.create = this.create.bind(this);
     }
 }
-export default new UserHandler();
+export default UserHandler;

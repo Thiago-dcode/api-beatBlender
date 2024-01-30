@@ -18,5 +18,5 @@ export const validateCreate = (data: unknown) => {
 };
 
 export const validateUpdate = (data: unknown) => {
-  return User.optional().safeParse(data);
+  return User.partial().safeParse(data);
 };

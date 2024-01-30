@@ -1,6 +1,5 @@
 import winston from "winston";
 import DailyRotateFile from "winston-daily-rotate-file";
-import { Transports } from "winston/lib/winston/transports/index.js";
 const { combine, timestamp, json, printf } = winston.format;
 const timestampFormat = "MMM-DD-YYYY HH:mm:ss";
 type TransportKey = "daily" | "console" | "file";
@@ -47,21 +46,7 @@ const logger = {
       transports: [transportMap.file(filename)],
     });
   },
-  // custom: (drives:Array<TransportKey>)=>{
 
-  //   return winston.createLogger({
-  //     format,
-  //     transports: drives.map(drive =>{
-  //       const transport = transportMap[drive]
-  //       if(transport instanceof  TransformStream){
-  //         return transport
-  //       }
-  //       return transportMap['daily']
-        
-  //     }) ,
-  //   });
-    
-  // }
 };
 
 export default logger;

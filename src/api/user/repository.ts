@@ -1,10 +1,6 @@
 import { PrismaClient } from "@prisma/client";
-interface User {
-  username: string;
-  email?: string;
-  name?: string;
-  password: string;
-}
+import { CreateUser, UpdateUser } from "./types.js";
+
 export default class UserRepository {
   db: PrismaClient;
   constructor(db: PrismaClient) {
@@ -17,14 +13,38 @@ export default class UserRepository {
     return users;
   }
 
-  async new(data: User) {
+  async new(data: CreateUser) {
     const user = await this.db.user.create({
+      data,
+    });
+    return user;
+  }
+  async updateByUsername(username: string, data: UpdateUser) {
+   
+    const user = await this.db.user.update({
+      where: {
+        username,
+      },
       data,
     });
     return user;
   }
 
   getById(id: number) {
-    return id
+    return id;
+  }
+  async findByUsername(username: string) {
+    return await this.db.user.findFirst({
+      where: {
+        username,
+      },
+    });
+  }
+  async findByEmail(email: string) {
+    return await this.db.user.findFirst({
+      where: {
+        email,
+      },
+    });
   }
 }

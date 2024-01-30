@@ -13,7 +13,30 @@ export default class UserRepository {
         });
         return user;
     }
+    async updateByUsername(username, data) {
+        const user = await this.db.user.update({
+            where: {
+                username,
+            },
+            data,
+        });
+        return user;
+    }
     getById(id) {
         return id;
+    }
+    async findByUsername(username) {
+        return await this.db.user.findFirst({
+            where: {
+                username,
+            },
+        });
+    }
+    async findByEmail(email) {
+        return await this.db.user.findFirst({
+            where: {
+                email,
+            },
+        });
     }
 }

@@ -15,5 +15,5 @@ export const validateCreate = (data) => {
     return result;
 };
 export const validateUpdate = (data) => {
-    return User.optional().safeParse(data);
+    return User.partial().safeParse(data);
 };
