@@ -1,23 +1,25 @@
 import { Prisma } from "@prisma/client";
-import { EntityAlreadyExistsError, EntityNotFoundError } from "./db/db.js";
+import { CustomError } from "./CustomError.js";
+
 type errorObj = {
   target: string;
   message: string;
   code: number;
 };
-export const handleError = (error: unknown) => {
+
+export const handleError = (error: unknown): errorObj => {
   let errorObj: errorObj = {
     code: 500,
     target: "server",
     message: "Server error",
   };
+
   if (!(error instanceof Error)) {
     return errorObj;
   }
-  if (
-    error instanceof EntityAlreadyExistsError ||
-    error instanceof EntityNotFoundError
-  ) {
+
+  // Custom errors
+  if (error instanceof CustomError) {
     errorObj.code = error.statusCode;
     errorObj.message = error.message;
     errorObj.target = "error";
@@ -29,10 +31,9 @@ export const handleError = (error: unknown) => {
           ? error.meta?.target[0]
           : "field";
         errorObj.target = target;
-        errorObj.message = "Already exist";
+        errorObj.message = "Already exists";
         errorObj.code = 422;
         break;
-
       default:
         errorObj.target = error.code;
         errorObj.message = error.message;
@@ -40,6 +41,10 @@ export const handleError = (error: unknown) => {
         break;
     }
   } else if (error instanceof Prisma.PrismaClientInitializationError) {
+    // Handle Prisma initialization error
+    errorObj.target = "prismaInitialization";
+    errorObj.message = "Prisma initialization error";
+    errorObj.code = 500;
   } else {
     errorObj.target = "server";
     errorObj.message = "Server error";
