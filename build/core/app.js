@@ -1,6 +1,7 @@
 import express from "express";
 import routes from "../routes.js";
-// import cors from 'cors'
+import cors from "cors";
+import bodyParser from "body-parser";
 class AppController {
     constructor() {
         this.app = express(); // Use the imported 'express' module directly
@@ -9,8 +10,8 @@ class AppController {
     }
     middlewares() {
         this.app.use(express.json());
-        // this.app.use(cors()); // Enable CORS middleware
-        // this.app.use(bodyParser.json());
+        this.app.use(cors()); // Enable CORS middleware
+        this.app.use(bodyParser.json());
     }
     routes() {
         for (const route in routes) {

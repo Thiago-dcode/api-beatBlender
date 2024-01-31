@@ -1,5 +1,6 @@
 import { Prisma } from "@prisma/client";
 import { CustomError } from "./CustomError.js";
+import { Response } from "express";
 
 type errorObj = {
   target: string;
@@ -53,3 +54,14 @@ export const handleError = (error: unknown): errorObj => {
 
   return errorObj;
 };
+
+export function sendErrResponse(
+  res: Response,
+  error: unknown,
+  errorCallback: (error: unknown) => errorObj
+) {
+  const err = errorCallback(error);
+  return res.status(err.code).json({
+    [err.target]: [err.message],
+  });
+}

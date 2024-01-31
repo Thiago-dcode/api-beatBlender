@@ -1,6 +1,7 @@
 import express from "express";
 import routes from "../routes.js";
-// import cors from 'cors'
+import cors from "cors";
+import bodyParser from "body-parser";
 
 class AppController {
   app: express.Application;
@@ -12,14 +13,14 @@ class AppController {
 
   middlewares() {
     this.app.use(express.json());
-    // this.app.use(cors()); // Enable CORS middleware
-    // this.app.use(bodyParser.json());
+    this.app.use(cors()); // Enable CORS middleware
+    this.app.use(bodyParser.json());
   }
 
-   routes() {
+  routes() {
     for (const route in routes) {
       console.log(`/${route === "/" ? "" : route}`);
-      this.app.use(`/${route === "/" ? "" : route}`,  routes[route]);
+      this.app.use(`/${route === "/" ? "" : route}`, routes[route]);
     }
   }
 }

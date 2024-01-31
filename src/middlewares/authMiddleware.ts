@@ -1,39 +1,53 @@
 import { Request, Response, NextFunction } from "express";
 import JWT from "jsonwebtoken";
 import { AuthorizationError } from "../errors/auth/auth.js";
-import { handleError } from "../errors/handleErrors.js";
-import { env } from "../utils/utils.js";
+import { handleError, sendErrResponse } from "../errors/handleErrors.js";
+import { env, getJWTpayLoad, getTokenData } from "../utils/utils.js";
 import { EnvVarNotFoundError } from "../errors/general/general.js";
-env;
-interface AuthenticatedRequest extends Request {
-  user?: string | JWT.JwtPayload | undefined;
+declare global {
+  namespace Express {
+    interface Request {
+      user?: string | JWT.JwtPayload | undefined;
+    }
+  }
 }
-function verifyToken(
-  req: AuthenticatedRequest,
+export function verifyToken(
+  req: Request,
   res: Response,
   next: NextFunction
-) {
-  const token = req.header("Authorization");
-  if (!token) throw new AuthorizationError("Unauthenticated", 401);
-  const secretKey = env.get("JWT_KEY");
-  if (!(typeof secretKey === "string")) throw new EnvVarNotFoundError('JWT_KEY env not found',500);
+): void {
   try {
-    JWT.verify(token, secretKey, (err, decoded) => {
-      if (err) {
-        return res.status(403).json({
-          auth: "Forbidden",
-        });
-      }
-      //success
-      req.user = decoded;
-      next();
-    });
+    const { token, secretKey } = getTokenData(req);
+    req.user = getJWTpayLoad(token, secretKey);
+
+    return next();
   } catch (error) {
-    const err = handleError(error);
-    return res.status(err.code).json({
-      [err.target]: [err.message],
-    });
+    sendErrResponse(res, error, handleError);
   }
 }
 
-module.exports = verifyToken;
+// export async function cookieSession(
+//   req: Request,
+//   res: Response,
+//   next: NextFunction
+// ): Promise<void> {
+//   const SID = req.cookies.SID;
+
+//   if (!SID) {
+//     throw new AuthorizationError("Unauthenticated", 401);
+//   }
+
+//   try {
+//     // Access Redis
+//     const session = await redis.get(`sid:${SID}`);
+
+//     if (!session) {
+//       throw new AuthorizationError("Unauthenticated", 401);
+//     }
+
+//     return next();
+//   } catch (error) {
+//     console.error(`Error in cookieSession middleware: ${error}`);
+//     sendErrResponse(res, error, handleError);
+//   }
+// }

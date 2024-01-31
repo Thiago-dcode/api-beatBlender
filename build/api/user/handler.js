@@ -1,5 +1,5 @@
 import { validateCreate, validateUpdate } from "./validate.js";
-import { handleError } from "../../errors/handleErrors.js";
+import { handleError, sendErrResponse } from "../../errors/handleErrors.js";
 class UserHandler {
     constructor(userService) {
         this.userService = userService;
@@ -10,10 +10,7 @@ class UserHandler {
             }
             catch (error) {
                 console.error("Error fetching all users", error);
-                const err = handleError(error);
-                return res.status(err.code).json({
-                    [err.target]: [err.message],
-                });
+                sendErrResponse(res, error, handleError);
             }
         };
         this.create = async (req, res) => {
@@ -27,15 +24,13 @@ class UserHandler {
             }
             catch (error) {
                 console.error("Error creating user", error);
-                const err = handleError(error);
-                return res.status(err.code).json({
-                    [err.target]: [err.message],
-                });
+                sendErrResponse(res, error, handleError);
             }
         };
         this.update = async (req, res) => {
             try {
                 const username = req.params.username;
+                console.log('JWT BODY', req.user);
                 const result = validateUpdate(req.body);
                 if (!result.success) {
                     return res.status(422).json(result.error.flatten().fieldErrors);
@@ -45,10 +40,7 @@ class UserHandler {
             }
             catch (error) {
                 console.error("Error updating user", error);
-                const err = handleError(error);
-                return res.status(err.code).json({
-                    [err.target]: [err.message],
-                });
+                sendErrResponse(res, error, handleError);
             }
         };
         this.index = this.index.bind(this);
