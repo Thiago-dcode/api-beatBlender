@@ -1,9 +1,7 @@
 import { Request, Response } from "express";
 import { validateCreate, validateUpdate } from "./validate.js";
 import { handleError } from "../../errors/handleErrors.js";
-import logger from "../../services/logger/logger.js";
 import UserService from "./userService.js";
-import { EntityAlreadyExistsError } from "../../errors/db/db.js";
 
 class UserHandler {
   constructor(readonly userService: UserService) {
@@ -33,6 +31,7 @@ class UserHandler {
       const userCreateResult = await this.userService.create(result.data);
       res.json(userCreateResult);
     } catch (error) {
+      console.error("Error creating user", error);
       const err = handleError(error);
       return res.status(err.code).json({
         [err.target]: [err.message],
