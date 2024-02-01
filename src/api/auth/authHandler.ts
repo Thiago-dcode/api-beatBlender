@@ -17,7 +17,7 @@ class AuthHandler {
         throw new EntityNotFoundError("Invalid credentials", 404);
       }
       const userAuthenticated = await this.authService.authJWT(result.data);
-      res.cookie("refreshToken", userAuthenticated.refreshToken, {
+      res.cookie("refresh_token", userAuthenticated.refreshToken, {
         httpOnly: true,
         sameSite: "strict",
         secure: true,
@@ -25,10 +25,31 @@ class AuthHandler {
 
       res.json({
         user: userAuthenticated.user,
-        token: userAuthenticated.token,
+        accessToken: userAuthenticated.accessToken,
       });
     } catch (error) {
       console.error("Error authenticating user", error);
+      sendErrResponse(res, error, handleError);
+    }
+  };
+  refreshToken = async (req: Request, res: Response) => {
+    try {
+      const refreshToken = req.cookies?.refresh_token ?? "";
+      console.log('refreshToken',req.cookies);
+      const { newAccessToken, newRefreshToken } =
+        await this.authService.refreshToken(refreshToken);
+
+      res.cookie("refresh_token", newRefreshToken, {
+        httpOnly: true,
+        sameSite: "strict",
+        secure: true,
+      });
+
+      res.json({
+        accessToken: newAccessToken,
+      });
+    } catch (error) {
+      console.error("Error Refreshing Token user", error);
       sendErrResponse(res, error, handleError);
     }
   };

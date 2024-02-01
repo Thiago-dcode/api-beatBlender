@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from "express";
 import JWT from "jsonwebtoken";
 import { handleError, sendErrResponse } from "../errors/handleErrors.js";
 import {
-  getJWTpayLoad,
+  getJWTpayLoadOrError,
   getSecretJWT,
   getTokenFromHeader,
 } from "../utils/utils.js";
@@ -19,7 +19,11 @@ export function verifyToken(
   next: NextFunction
 ): void {
   try {
-    const payload = getJWTpayLoad(JWT, getTokenFromHeader(req), getSecretJWT());
+    const payload = getJWTpayLoadOrError(
+      JWT,
+      getTokenFromHeader(req),
+      getSecretJWT()
+    );
     if (typeof payload === "object" && payload !== null && "id" in payload) {
       // Assigning to the user property after ensuring it has an 'id' property
       req.user = { id: payload.id };

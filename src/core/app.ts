@@ -2,7 +2,7 @@ import express from "express";
 import routes from "../routes.js";
 import cors from "cors";
 import bodyParser from "body-parser";
-
+import cookieParser from "cookie-parser";
 class AppController {
   app: express.Application;
   constructor() {
@@ -15,6 +15,7 @@ class AppController {
     this.app.use(express.json());
     this.app.use(cors()); // Enable CORS middleware
     this.app.use(bodyParser.json());
+    this.app.use(cookieParser());
   }
 
   routes() {

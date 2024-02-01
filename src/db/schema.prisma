@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -17,16 +14,16 @@ model User {
   avatar    String?
   name      String?
   biography String?
-  password  String
   isActive  Boolean    @default(true)
   isAdmin   Boolean    @default(false)
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt
+  password  String
   token     String?
-  sound     Sound[]
   keys      Key[]
   Keyboard  Keyboard[]
   Record    Record[]
+  sound     Sound[]
 }
 
 model Keyboard {
@@ -35,13 +32,13 @@ model Keyboard {
   updatedAt         DateTime         @updatedAt
   name              String
   private           Boolean          @default(false)
-  keys              Key[]
-  records           Record[]
-  categories        Category[]
-  author            User             @relation(fields: [authorId], references: [id])
   authorId          Int
-  Design_keyboard   Design_keyboard? @relation(fields: [design_keyboardId], references: [id])
   design_keyboardId Int?
+  keys              Key[]
+  author            User             @relation(fields: [authorId], references: [id])
+  Design_keyboard   Design_keyboard? @relation(fields: [design_keyboardId], references: [id])
+  records           Record[]
+  categories        Category[]       @relation("CategoryToKeyboard")
 }
 
 model Key {
@@ -49,66 +46,66 @@ model Key {
   createdAt    DateTime    @default(now())
   updatedAt    DateTime    @updatedAt
   letter       String
-  categories   Category[]
-  author       User        @relation(fields: [authorId], references: [id])
   authorId     Int
-  Keyboard     Keyboard?   @relation(fields: [keyboardId], references: [id])
   keyboardId   Int?
-  Design_key   Design_key? @relation(fields: [design_keyId], references: [id])
   design_keyId Int?
-  Sound        Sound?      @relation(fields: [soundId], references: [id])
   soundId      Int?
+  author       User        @relation(fields: [authorId], references: [id])
+  Design_key   Design_key? @relation(fields: [design_keyId], references: [id])
+  Keyboard     Keyboard?   @relation(fields: [keyboardId], references: [id])
+  Sound        Sound?      @relation(fields: [soundId], references: [id])
+  categories   Category[]  @relation("CategoryToKey")
 }
 
 model Sound {
   id         Int        @id @default(autoincrement())
   name       String
   path       String
-  categories Category[]
+  authorId   Int
   keys       Key[]
   author     User       @relation(fields: [authorId], references: [id])
-  authorId   Int
+  categories Category[] @relation("CategoryToSound")
 }
 
 model Record {
   id         Int        @id @default(autoincrement())
   name       String
   path       String
-  categories Category[]
-  author     User       @relation(fields: [authorId], references: [id])
   authorId   Int
-  Keyboard   Keyboard   @relation(fields: [keyboardId], references: [id])
   keyboardId Int
+  author     User       @relation(fields: [authorId], references: [id])
+  Keyboard   Keyboard   @relation(fields: [keyboardId], references: [id])
+  categories Category[] @relation("CategoryToRecord")
 }
 
 model Design_keyboard {
   id        Int        @id @default(autoincrement())
   name      String
-  keyboards Keyboard[]
   colors    Color[]
+  keyboards Keyboard[]
 }
 
 model Design_key {
   id        Int     @id @default(autoincrement())
   name      String
-  keyboards Key[]
   colors    Color[]
+  keyboards Key[]
 }
 
 model Category {
   id        Int        @id @default(autoincrement())
   name      String
-  keyboards Keyboard[]
-  keys      Key[]
-  Sound     Sound[]
-  Record    Record[]
+  keys      Key[]      @relation("CategoryToKey")
+  keyboards Keyboard[] @relation("CategoryToKeyboard")
+  Record    Record[]   @relation("CategoryToRecord")
+  Sound     Sound[]    @relation("CategoryToSound")
 }
 
 model Color {
   id                Int              @id @default(autoincrement())
   color             String
-  Design_keyboard   Design_keyboard? @relation(fields: [design_keyboardId], references: [id])
   design_keyboardId Int?
-  Design_key        Design_key?      @relation(fields: [design_keyId], references: [id])
   design_keyId      Int?
+  Design_key        Design_key?      @relation(fields: [design_keyId], references: [id])
+  Design_keyboard   Design_keyboard? @relation(fields: [design_keyboardId], references: [id])
 }

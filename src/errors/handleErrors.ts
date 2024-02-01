@@ -48,7 +48,7 @@ export const handleError = (error: unknown): errorObj => {
     errorObj.code = 500;
   } else {
     errorObj.target = "server";
-    errorObj.message = "Server error";
+    errorObj.message = error.message;
     errorObj.code = 500;
   }
 

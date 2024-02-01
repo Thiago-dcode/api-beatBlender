@@ -25,3 +25,11 @@ export class RedisError extends CustomError {
     Object.setPrototypeOf(this, RedisError.prototype);
   }
 }
+export class UnknowDbError extends CustomError {
+  constructor(message: string, statusCode: number = 500) {
+    super(message, statusCode);
+
+    // Set the prototype explicitly to ensure the correct behavior
+    Object.setPrototypeOf(this, UnknowDbError.prototype);
+  }
+}

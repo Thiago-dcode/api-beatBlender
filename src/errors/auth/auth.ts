@@ -8,3 +8,12 @@ export class AuthorizationError extends CustomError {
     Object.setPrototypeOf(this, AuthorizationError.prototype);
   }
 }
+
+export class PayLoadNotFoundError extends CustomError {
+  constructor(message: string, statusCode: number = 403) {
+    super(message, statusCode);
+
+    // Set the prototype explicitly to ensure the correct behavior
+    Object.setPrototypeOf(this, PayLoadNotFoundError.prototype);
+  }
+}

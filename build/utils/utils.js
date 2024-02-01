@@ -28,7 +28,7 @@ export function getSecretJWT() {
         throw new EnvVarNotFoundError("JWT_KEY env not found", 500);
     return secretKey;
 }
-export function getJWTpayLoad(JWT, token, secretKey) {
+export function getJWTpayLoadOrError(JWT, token, secretKey) {
     let payload;
     JWT.verify(token, secretKey, (err, decoded) => {
         if (err) {

@@ -32,7 +32,7 @@ export function getSecretJWT() {
 
   return secretKey;
 }
-export function getJWTpayLoad(
+export function getJWTpayLoadOrError(
   JWT: JwtPayload,
   token: string,
   secretKey: string
@@ -45,6 +45,7 @@ export function getJWTpayLoad(
       if (err) {
         throw new AuthorizationError("Forbidden");
       }
+
       payload = decoded;
     }
   );
