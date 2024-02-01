@@ -1,13 +1,15 @@
 import { Request, Response, NextFunction } from "express";
 import JWT from "jsonwebtoken";
-import { AuthorizationError } from "../errors/auth/auth.js";
 import { handleError, sendErrResponse } from "../errors/handleErrors.js";
-import { env, getJWTpayLoad, getTokenData } from "../utils/utils.js";
-import { EnvVarNotFoundError } from "../errors/general/general.js";
+import {
+  getJWTpayLoad,
+  getSecretJWT,
+  getTokenFromHeader,
+} from "../utils/utils.js";
 declare global {
   namespace Express {
     interface Request {
-      user?: string | JWT.JwtPayload | undefined;
+      user?: { id: number } | undefined;
     }
   }
 }
@@ -17,8 +19,13 @@ export function verifyToken(
   next: NextFunction
 ): void {
   try {
-    const { token, secretKey } = getTokenData(req);
-    req.user = getJWTpayLoad(token, secretKey);
+    const payload = getJWTpayLoad(JWT, getTokenFromHeader(req), getSecretJWT());
+    if (typeof payload === "object" && payload !== null && "id" in payload) {
+      // Assigning to the user property after ensuring it has an 'id' property
+      req.user = { id: payload.id };
+    } else {
+      req.user = undefined;
+    }
 
     return next();
   } catch (error) {

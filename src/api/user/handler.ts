@@ -2,6 +2,10 @@ import { Request, Response } from "express";
 import { validateCreate, validateUpdate } from "./validate.js";
 import { handleError, sendErrResponse } from "../../errors/handleErrors.js";
 import UserService from "./userService.js";
+import { json } from "body-parser";
+import { parse } from "path";
+import { number } from "zod";
+import { AuthorizationError } from "../../errors/auth/auth.js";
 
 class UserHandler {
   constructor(readonly userService: UserService) {
@@ -34,8 +38,13 @@ class UserHandler {
   };
   update = async (req: Request, res: Response) => {
     try {
+      const userId = req.user?.id;
+      if (typeof userId === "undefined") {
+        throw new AuthorizationError("User id missing in request");
+      }
       const username = req.params.username;
-      console.log('JWT BODY', req.user)
+      // Check authorization before proceeding with the update
+      await this.userService.throwErrorIfUserNotAuthToUpdate(userId, username);
       const result = validateUpdate(req.body);
       if (!result.success) {
         return res.status(422).json(result.error.flatten().fieldErrors);

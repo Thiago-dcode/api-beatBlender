@@ -20,7 +20,6 @@ export default class UserRepository {
     return user;
   }
   async updateByUsername(username: string, data: UpdateUser) {
-   
     const user = await this.db.user.update({
       where: {
         username,
@@ -30,20 +29,10 @@ export default class UserRepository {
     return user;
   }
 
-  getById(id: number) {
-    return id;
-  }
-  async findByUsername(username: string) {
+  async findByColumn(column: "id" | "username" | "email", value: any) {
     return await this.db.user.findFirst({
       where: {
-        username,
-      },
-    });
-  }
-  async findByEmail(email: string) {
-    return await this.db.user.findFirst({
-      where: {
-        email,
+        [column]: value,
       },
     });
   }

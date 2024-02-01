@@ -17,11 +17,12 @@ model User {
   avatar    String?
   name      String?
   biography String?
-  password String
+  password  String
   isActive  Boolean    @default(true)
   isAdmin   Boolean    @default(false)
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt
+  token     String?
   sound     Sound[]
   keys      Key[]
   Keyboard  Keyboard[]
@@ -76,7 +77,7 @@ model Record {
   categories Category[]
   author     User       @relation(fields: [authorId], references: [id])
   authorId   Int
-  Keyboard   Keyboard  @relation(fields: [keyboardId], references: [id])
+  Keyboard   Keyboard   @relation(fields: [keyboardId], references: [id])
   keyboardId Int
 }
 

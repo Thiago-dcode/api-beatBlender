@@ -3,7 +3,7 @@ import bcrypt from "bcryptjs";
 import { Request } from "express";
 import { AuthorizationError } from "../errors/auth/auth.js";
 import { EnvVarNotFoundError } from "../errors/general/general.js";
-import JWT from "jsonwebtoken";
+import { JwtPayload } from "jsonwebtoken";
 config();
 export const env = {
   get: (key: string): any => {
@@ -19,25 +19,34 @@ export async function comparePassword(plaintextPassword: string, hash: string) {
   return result;
 }
 
-export function getTokenData(req: Request) {
+export function getTokenFromHeader(req: Request) {
   const token = req.header("Authorization")?.split(" ")[1];
   if (!token) throw new AuthorizationError("Unauthenticated", 401);
+
+  return token;
+}
+export function getSecretJWT() {
   const secretKey = env.get("JWT_KEY");
   if (!(typeof secretKey === "string"))
     throw new EnvVarNotFoundError("JWT_KEY env not found", 500);
 
-  return {
+  return secretKey;
+}
+export function getJWTpayLoad(
+  JWT: JwtPayload,
+  token: string,
+  secretKey: string
+) {
+  let payload: string | JwtPayload | undefined;
+  JWT.verify(
     token,
     secretKey,
-  };
-}
-export function getJWTpayLoad(token: string, secretKey: string) {
-  let payload :string | JWT.JwtPayload | undefined;
- JWT.verify(token, secretKey, (err, decoded) => {
-    if (err) {
-      throw new AuthorizationError("Forbidden");
+    (err: any, decoded: string | JwtPayload | undefined) => {
+      if (err) {
+        throw new AuthorizationError("Forbidden");
+      }
+      payload = decoded;
     }
-    payload = decoded;
-  });
-  return payload
+  );
+  return payload;
 }

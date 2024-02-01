@@ -1,3 +1,4 @@
+import { AuthorizationError } from "../../errors/auth/auth.js";
 import {
   EntityAlreadyExistsError,
   EntityNotFoundError,
@@ -5,7 +6,7 @@ import {
 import { hashPassword } from "../../utils/utils.js";
 import UserRepository from "./repository.js";
 import { CreateUser, UpdateUser } from "./types.js";
-import bcrypt from "bcryptjs";
+
 export default class UserService {
   private userRepo;
   constructor(userRepo: UserRepository) {
@@ -15,8 +16,32 @@ export default class UserService {
     const users = await this.userRepo.all(options);
     return users;
   }
+  async get(id: number) {
+    const user = await this.userRepo.findByColumn("id", id);
+    return user;
+  }
+  async throwErrorIfUserNotAuthToUpdate(
+    id: number,
+    username: string
+  ): Promise<void> {
+    const user = await this.userRepo.findByColumn("id", id);
+
+    if (!user) {
+      throw new AuthorizationError(`Forbidden - User not found`, 403);
+    }
+    if (user.username !== username) {
+      throw new AuthorizationError(
+        `User not authorized to update - Invalid username`,
+        403
+      );
+    }
+  }
+
   async create(data: CreateUser) {
-    const userExist = await this.userRepo.findByUsername(data.username);
+    const userExist = await this.userRepo.findByColumn(
+      "username",
+      data.username
+    );
     if (userExist) {
       throw new EntityAlreadyExistsError(
         `Already exist a username ${data.username},try with another one`
@@ -28,12 +53,16 @@ export default class UserService {
     return newUser;
   }
   async update(username: string, data: UpdateUser) {
-    const userExist = await this.userRepo.findByUsername(username);
+    const userExist = await this.userRepo.findByColumn(
+      "username",
+      data.username
+    );
     if (!userExist) {
       throw new EntityNotFoundError(`User ${username} not found`, 404);
     }
     if (data.username && data.username !== username) {
-      const userExistUsername = await this.userRepo.findByUsername(
+      const userExistUsername = await this.userRepo.findByColumn(
+        "username",
         data.username
       );
       if (userExistUsername) {
@@ -43,7 +72,10 @@ export default class UserService {
       }
     }
     if (data.email) {
-      const userExistEmail = await this.userRepo.findByEmail(data.email);
+      const userExistEmail = await this.userRepo.findByColumn(
+        "email",
+        data.email
+      );
 
       if (userExistEmail && userExistEmail.username !== username) {
         throw new EntityAlreadyExistsError(

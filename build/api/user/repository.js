@@ -22,20 +22,10 @@ export default class UserRepository {
         });
         return user;
     }
-    getById(id) {
-        return id;
-    }
-    async findByUsername(username) {
+    async findByColumn(column, value) {
         return await this.db.user.findFirst({
             where: {
-                username,
-            },
-        });
-    }
-    async findByEmail(email) {
-        return await this.db.user.findFirst({
-            where: {
-                email,
+                [column]: value,
             },
         });
     }
