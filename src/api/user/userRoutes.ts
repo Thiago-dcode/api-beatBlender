@@ -5,8 +5,10 @@ const router = Router();
 
 export default function userRoute(handler: UserHandler) {
   router.get("/", handler.index);
+  router.get("/:username", handler.show);
   router.post("/", handler.create);
   router.patch("/:username", verifyToken, handler.update);
+  router.delete("/:username",verifyToken, handler.delete);
 
   return router;
 }

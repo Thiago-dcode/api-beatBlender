@@ -1,5 +1,6 @@
-import { PrismaClient } from "@prisma/client";
+import { Prisma, PrismaClient } from "@prisma/client";
 import { CreateUser, UpdateUser } from "./types.js";
+import { PrismaClientOptions } from "@prisma/client/runtime/library.js";
 
 export default class UserRepository {
   db: PrismaClient;
@@ -30,10 +31,14 @@ export default class UserRepository {
   }
 
   async findByColumn(column: "id" | "username" | "email", value: any) {
+    const where = { [column]: value };
     return await this.db.user.findFirst({
-      where: {
-        [column]: value,
-      },
+      where,
+    });
+  }
+  async deleteWhere(where: Prisma.UserWhereUniqueInput) {
+    return await this.db.user.delete({
+      where,
     });
   }
 }

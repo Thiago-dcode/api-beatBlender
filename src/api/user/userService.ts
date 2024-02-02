@@ -16,28 +16,39 @@ export default class UserService {
     const users = await this.userRepo.all(options);
     return users;
   }
-  async get(id: number) {
+  async getByIdOrError(id: number) {
     const user = await this.userRepo.findByColumn("id", id);
+    if (!user) throw new EntityNotFoundError(`User with ${id} id not found`);
     return user;
   }
-  async throwErrorIfUserNotAuthToUpdate(
-    id: number,
+  async getByUserNameOrError(username: string) {
+    const user = await this.userRepo.findByColumn("username", username);
+    if (!user)
+      throw new EntityNotFoundError(`User with ${username} username not found`);
+    return user;
+  }
+  async throwErrorIfUserNotAuth(
+    id: number | undefined,
     username: string
   ): Promise<void> {
+    if (typeof id === "undefined") {
+      throw new AuthorizationError("User id missing in request");
+    }
+
     const user = await this.userRepo.findByColumn("id", id);
 
     if (!user) {
-      throw new AuthorizationError(`Forbidden - User not found`, 403);
+      throw new AuthorizationError(`User ${username} not found`, 403);
     }
     if (user.username !== username) {
       throw new AuthorizationError(
-        `User not authorized to update - Invalid username`,
+        `User not authorized to do that operation - Invalid username`,
         403
       );
     }
   }
 
-  async create(data: CreateUser) {
+  async createOrError(data: CreateUser) {
     const userExist = await this.userRepo.findByColumn(
       "username",
       data.username
@@ -52,12 +63,9 @@ export default class UserService {
     const newUser = await this.userRepo.new(data);
     return newUser;
   }
-  async update(username: string, data: UpdateUser) {
+  async updateOrError(username: string, data: UpdateUser) {
     //check if the username requested to update exist
-    const userExist = await this.userRepo.findByColumn(
-      "username",
-      username
-    );
+    const userExist = await this.userRepo.findByColumn("username", username);
     if (!userExist) {
       throw new EntityNotFoundError(`User ${username} not found`, 404);
     }
@@ -92,5 +100,17 @@ export default class UserService {
     data.updatedAt = new Date();
     const userUpdate = await this.userRepo.updateByUsername(username, data);
     return userUpdate;
+  }
+  async deleteByUserNameOrError(username: string) {
+    const result = await this.userRepo.deleteWhere({
+      username,
+    });
+
+    if (!result) {
+      throw new EntityNotFoundError(
+        `Error deleting user with ${username} username`,
+        404
+      );
+    }
   }
 }
