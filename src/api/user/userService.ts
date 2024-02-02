@@ -17,12 +17,12 @@ export default class UserService {
     return users;
   }
   async getByIdOrError(id: number) {
-    const user = await this.userRepo.findByColumn("id", id);
+    const user = await this.userRepo.findFirstWhere({ id });
     if (!user) throw new EntityNotFoundError(`User with ${id} id not found`);
     return user;
   }
   async getByUserNameOrError(username: string) {
-    const user = await this.userRepo.findByColumn("username", username);
+    const user = await this.userRepo.findFirstWhere({ username });
     if (!user)
       throw new EntityNotFoundError(`User with ${username} username not found`);
     return user;
@@ -35,10 +35,10 @@ export default class UserService {
       throw new AuthorizationError("User id missing in request");
     }
 
-    const user = await this.userRepo.findByColumn("id", id);
+    const user = await this.userRepo.findFirstWhere({ id });
 
     if (!user) {
-      throw new AuthorizationError(`User ${username} not found`, 403);
+      throw new AuthorizationError(`User not found`, 403);
     }
     if (user.username !== username) {
       throw new AuthorizationError(
@@ -49,10 +49,8 @@ export default class UserService {
   }
 
   async createOrError(data: CreateUser) {
-    const userExist = await this.userRepo.findByColumn(
-      "username",
-      data.username
-    );
+    const { username, password } = data;
+    const userExist = await this.userRepo.findFirstWhere({ username });
     if (userExist) {
       throw new EntityAlreadyExistsError(
         `Already exist a username ${data.username},try with another one`
@@ -65,16 +63,15 @@ export default class UserService {
   }
   async updateOrError(username: string, data: UpdateUser) {
     //check if the username requested to update exist
-    const userExist = await this.userRepo.findByColumn("username", username);
+    const userExist = await this.userRepo.findFirstWhere({ username });
     if (!userExist) {
       throw new EntityNotFoundError(`User ${username} not found`, 404);
     }
     //check if the username request given is unique ignorin the actual user
     if (data.username && data.username !== username) {
-      const userExistUsername = await this.userRepo.findByColumn(
-        "username",
-        data.username
-      );
+      const userExistUsername = await this.userRepo.findFirstWhere({
+        username: data.username,
+      });
       if (userExistUsername) {
         throw new EntityAlreadyExistsError(
           `Already exist a username ${data.username},try with another one`
@@ -82,10 +79,9 @@ export default class UserService {
       }
     }
     if (data.email) {
-      const userExistEmail = await this.userRepo.findByColumn(
-        "email",
-        data.email
-      );
+      const userExistEmail = await this.userRepo.findFirstWhere({
+        email: data.email,
+      });
 
       if (userExistEmail && userExistEmail.username !== username) {
         throw new EntityAlreadyExistsError(

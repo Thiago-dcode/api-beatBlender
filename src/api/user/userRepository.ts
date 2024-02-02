@@ -1,7 +1,11 @@
 import { Prisma, PrismaClient } from "@prisma/client";
 import { CreateUser, UpdateUser } from "./types.js";
 import { PrismaClientOptions } from "@prisma/client/runtime/library.js";
-
+type whereUnique = {
+  id?: number;
+  username?: string;
+  email?: string;
+};
 export default class UserRepository {
   db: PrismaClient;
   constructor(db: PrismaClient) {
@@ -32,6 +36,11 @@ export default class UserRepository {
 
   async findByColumn(column: "id" | "username" | "email", value: any) {
     const where = { [column]: value };
+    return await this.db.user.findFirst({
+      where,
+    });
+  }
+  async findFirstWhere(where: whereUnique) {
     return await this.db.user.findFirst({
       where,
     });
