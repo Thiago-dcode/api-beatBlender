@@ -42,7 +42,7 @@ class UserHandler {
       if (typeof userId === "undefined") {
         throw new AuthorizationError("User id missing in request");
       }
-      const username = req.params.username;
+      const username = req.params.username.toLowerCase();
       // Check authorization before proceeding with the update
       await this.userService.throwErrorIfUserNotAuthToUpdate(userId, username);
       const result = validateUpdate(req.body);

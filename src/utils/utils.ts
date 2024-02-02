@@ -19,13 +19,13 @@ export async function comparePassword(plaintextPassword: string, hash: string) {
   return result;
 }
 
-export function getTokenFromHeader(req: Request) {
+export function getTokenFromHeaderOrError(req: Request) {
   const token = req.header("Authorization")?.split(" ")[1];
   if (!token) throw new AuthorizationError("Unauthenticated", 401);
 
   return token;
 }
-export function getSecretJWT() {
+export function getSecretJWTOrError() {
   const secretKey = env.get("JWT_KEY");
   if (!(typeof secretKey === "string"))
     throw new EnvVarNotFoundError("JWT_KEY env not found", 500);
@@ -43,7 +43,7 @@ export function getJWTpayLoadOrError(
     secretKey,
     (err: any, decoded: string | JwtPayload | undefined) => {
       if (err) {
-        throw new AuthorizationError("Forbidden");
+        throw new AuthorizationError("Token invalid");
       }
 
       payload = decoded;

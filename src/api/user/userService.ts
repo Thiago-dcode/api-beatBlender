@@ -4,7 +4,7 @@ import {
   EntityNotFoundError,
 } from "../../errors/db/db.js";
 import { hashPassword } from "../../utils/utils.js";
-import UserRepository from "./repository.js";
+import UserRepository from "./userRepository.js";
 import { CreateUser, UpdateUser } from "./types.js";
 
 export default class UserService {
@@ -53,13 +53,15 @@ export default class UserService {
     return newUser;
   }
   async update(username: string, data: UpdateUser) {
+    //check if the username requested to update exist
     const userExist = await this.userRepo.findByColumn(
       "username",
-      data.username
+      username
     );
     if (!userExist) {
       throw new EntityNotFoundError(`User ${username} not found`, 404);
     }
+    //check if the username request given is unique ignorin the actual user
     if (data.username && data.username !== username) {
       const userExistUsername = await this.userRepo.findByColumn(
         "username",

@@ -4,7 +4,7 @@ import {
   comparePassword,
   env,
   getJWTpayLoadOrError,
-  getSecretJWT,
+  getSecretJWTOrError,
 } from "../../utils/utils.js";
 import authRepository from "./authRepository.js";
 import { LogginUser } from "./types.js";
@@ -32,11 +32,11 @@ export default class AuthService {
     if (!validPassword) {
       throw new EntityNotFoundError(`Wrong credentiales`, 404);
     }
-
-    const accessToken = JWT.sign({ id: userExist.id }, getSecretJWT(), {
+    const secretKey = getSecretJWTOrError();
+    const accessToken = JWT.sign({ id: userExist.id }, secretKey, {
       expiresIn: "15m",
     });
-    const refreshToken = JWT.sign({ id: userExist.id }, getSecretJWT(), {
+    const refreshToken = JWT.sign({ id: userExist.id }, secretKey, {
       expiresIn: "3h",
     });
     //set refreshToken to user table
@@ -44,7 +44,6 @@ export default class AuthService {
     const user = await (
       await this.authRepo.setRefreshToken(userExist.id, refreshToken)
     ).findByUsername(data.username);
-    console.log("USER TOKEN", user);
     return {
       user: userExist,
       accessToken,
@@ -59,8 +58,8 @@ export default class AuthService {
   async refreshToken(refreshToken: string) {
     if (!refreshToken)
       throw new AuthorizationError("No refreshToken given", 403);
-
-    const payload = getJWTpayLoadOrError(JWT, refreshToken, getSecretJWT());
+    const secretKey = getSecretJWTOrError();
+    const payload = getJWTpayLoadOrError(JWT, refreshToken, secretKey);
 
     if (!(typeof payload === "object" && "id" in payload))
       throw new PayLoadNotFoundError("Payload refreshToken not found", 403);
@@ -72,10 +71,10 @@ export default class AuthService {
     if (user.token !== refreshToken)
       throw new AuthorizationError("Refresh token mismatch user db token", 403);
 
-    const newAccessToken = JWT.sign({ id: user.id }, getSecretJWT(), {
+    const newAccessToken = JWT.sign({ id: user.id }, secretKey, {
       expiresIn: "15m",
     });
-    const newRefreshToken = JWT.sign({ id: user.id }, getSecretJWT(), {
+    const newRefreshToken = JWT.sign({ id: user.id }, secretKey, {
       expiresIn: "3h",
     });
     await this.authRepo.setRefreshToken(user.id, newRefreshToken);

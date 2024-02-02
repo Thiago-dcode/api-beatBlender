@@ -3,8 +3,9 @@ import JWT from "jsonwebtoken";
 import { handleError, sendErrResponse } from "../errors/handleErrors.js";
 import {
   getJWTpayLoadOrError,
-  getSecretJWT,
-  getTokenFromHeader,
+  getSecretJWTOrError,
+  
+  getTokenFromHeaderOrError,
 } from "../utils/utils.js";
 declare global {
   namespace Express {
@@ -21,8 +22,8 @@ export function verifyToken(
   try {
     const payload = getJWTpayLoadOrError(
       JWT,
-      getTokenFromHeader(req),
-      getSecretJWT()
+      getTokenFromHeaderOrError(req),
+      getSecretJWTOrError()
     );
     if (typeof payload === "object" && payload !== null && "id" in payload) {
       // Assigning to the user property after ensuring it has an 'id' property
