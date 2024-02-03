@@ -6,11 +6,15 @@ import {
 import { hashPassword } from "../../utils/utils.js";
 import UserRepository from "./userRepository.js";
 import { CreateUser, UpdateUser } from "./types.js";
+import StorageService from "../../services/logger/storage/storage.js";
+import { StorageError } from "../../errors/general/general.js";
 
 export default class UserService {
   private userRepo;
-  constructor(userRepo: UserRepository) {
+  private readonly storage;
+  constructor(userRepo: UserRepository, storage: StorageService) {
     this.userRepo = userRepo;
+    this.storage = storage;
   }
   async getAll(options = {}) {
     const users = await this.userRepo.all(options);
@@ -18,31 +22,60 @@ export default class UserService {
   }
   async getByIdOrError(id: number) {
     const user = await this.userRepo.findFirstWhere({ id });
-    if (!user) throw new EntityNotFoundError(`User with ${id} id not found`);
+    if (!user) throw new EntityNotFoundError(`User with ${id} id not found`,{});
     return user;
   }
   async getByUserNameOrError(username: string) {
     const user = await this.userRepo.findFirstWhere({ username });
     if (!user)
-      throw new EntityNotFoundError(`User with ${username} username not found`);
+      throw new EntityNotFoundError(`User with ${username} username not found`,{});
     return user;
+  }
+  async storeAvatarOrError(
+    avatar: {
+      key: string;
+      body: Buffer;
+      contentType: string;
+    },
+    previousAvatar: string | undefined = undefined
+  ) {
+    try {
+      if (previousAvatar) {
+        //remove the previousAvatar
+      }
+      const result = await this.storage.store(avatar);
+      return result;
+    } catch (error) {
+      console.log(
+        "Error uploading avatar file " +
+          (error instanceof Error ? error.message : "")
+      );
+      throw new StorageError(
+        "Error uploading avatar file " +
+          (error instanceof Error ? error.message : ""),
+        {},
+        500
+      );
+    }
   }
   async throwErrorIfUserNotAuth(
     id: number | undefined,
     username: string
   ): Promise<void> {
     if (typeof id === "undefined") {
-      throw new AuthorizationError("User id missing in request");
+      throw new AuthorizationError("User not auth to do this operations", {
+      });
     }
 
     const user = await this.userRepo.findFirstWhere({ id });
 
     if (!user) {
-      throw new AuthorizationError(`User not found`, 403);
+      throw new AuthorizationError(`User not found`, {}, 403);
     }
     if (user.username !== username) {
       throw new AuthorizationError(
         `User not authorized to do that operation - Invalid username`,
+        {},
         403
       );
     }
@@ -53,7 +86,10 @@ export default class UserService {
     const userExist = await this.userRepo.findFirstWhere({ username });
     if (userExist) {
       throw new EntityAlreadyExistsError(
-        `Already exist a username ${data.username},try with another one`
+        `Already exist a username ${data.username},try with another one`,
+        {
+          username: "Already exist",
+        }
       );
     }
     const passwordHashed = await hashPassword(data.password);
@@ -61,11 +97,15 @@ export default class UserService {
     const newUser = await this.userRepo.new(data);
     return newUser;
   }
-  async updateOrError(username: string, data: UpdateUser) {
+  async updateOrError(
+    username: string,
+    data: UpdateUser,
+    file: Express.Multer.File | undefined
+  ) {
     //check if the username requested to update exist
     const userExist = await this.userRepo.findFirstWhere({ username });
     if (!userExist) {
-      throw new EntityNotFoundError(`User ${username} not found`, 404);
+      throw new EntityNotFoundError(`User ${username} not found`, {}, 404);
     }
     //check if the username request given is unique ignorin the actual user
     if (data.username && data.username !== username) {
@@ -74,7 +114,10 @@ export default class UserService {
       });
       if (userExistUsername) {
         throw new EntityAlreadyExistsError(
-          `Already exist a username ${data.username},try with another one`
+          `Already exist a username ${data.username},try with another one`,
+          {
+            username: `Already exist a username ${data.username},try with another one`,
+          }
         );
       }
     }
@@ -85,7 +128,10 @@ export default class UserService {
 
       if (userExistEmail && userExistEmail.username !== username) {
         throw new EntityAlreadyExistsError(
-          `The email provided is not valid, try with another one`
+          `The email provided is not valid, try with another one`,
+          {
+            email: `Already exist a email ${data.email},try with another one`,
+          }
         );
       }
     }
@@ -94,6 +140,16 @@ export default class UserService {
       data.password = passwordHashed;
     }
     data.updatedAt = new Date();
+
+    if (file) {
+      const key = `avatar/user-${userExist.id}/avatar`;
+      await this.storeAvatarOrError({
+        key,
+        body: file.buffer,
+        contentType: file.mimetype,
+      });
+      data.avatar = key;
+    }
     const userUpdate = await this.userRepo.updateByUsername(username, data);
     return userUpdate;
   }
@@ -104,7 +160,7 @@ export default class UserService {
 
     if (!result) {
       throw new EntityNotFoundError(
-        `Error deleting user with ${username} username`,
+        `Error deleting user with ${username} username`,{},
         404
       );
     }

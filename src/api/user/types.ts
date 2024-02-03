@@ -12,5 +12,5 @@ export interface UpdateUser {
   biography?: string;
   password?: string;
   avatar?: string;
-  updatedAt?: Date
+  updatedAt?: Date;
 }

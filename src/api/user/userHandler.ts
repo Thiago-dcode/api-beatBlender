@@ -1,4 +1,4 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import { validateCreate, validateUpdate } from "./validate.js";
 import { handleError, sendErrResponse } from "../../errors/handleErrors.js";
 import UserService from "./userService.js";
@@ -6,19 +6,19 @@ import { json } from "body-parser";
 import { parse } from "path";
 import { number } from "zod";
 import { AuthorizationError } from "../../errors/auth/auth.js";
+import { uuid4 } from "../../utils/utils.js";
 
 class UserHandler {
   constructor(readonly userService: UserService) {
     this.index = this.index.bind(this);
     this.create = this.create.bind(this);
   }
-  index = async (req: Request, res: Response) => {
+  index = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const all = await this.userService.getAll();
       res.status(200).json(all);
     } catch (error) {
-      console.error("Error fetching all users", error);
-      sendErrResponse(res, error, handleError);
+      next(error);
     }
   };
   show = async (req: Request, res: Response) => {
@@ -31,7 +31,7 @@ class UserHandler {
       sendErrResponse(res, error, handleError);
     }
   };
-  create = async (req: Request, res: Response) => {
+  create = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const result = validateCreate(req.body);
       if (!result.success) {
@@ -42,31 +42,40 @@ class UserHandler {
       );
       res.json(userCreateResult);
     } catch (error) {
-      console.error("Error creating user", error);
-      sendErrResponse(res, error, handleError);
+      next(error);
     }
   };
-  update = async (req: Request, res: Response) => {
+  update = async (req: Request, res: Response, next: NextFunction) => {
     try {
+      //get data from request
       const userId = req.user?.id;
+      const file = req.file;
+      const body = req.body;
       const username = req.params.username.toLowerCase();
-      // Check authorization before proceeding with the update
+      // Check if the user logged in is the same who is attempt to update
       await this.userService.throwErrorIfUserNotAuth(userId, username);
-      const result = validateUpdate(req.body);
+      const result = validateUpdate(body);
       if (!result.success) {
         return res.status(422).json(result.error.flatten().fieldErrors);
       }
+      const dataToUpdate = result.data;
+      let fileName: string = "";
+
+      if (file) {
+        fileName = uuid4();
+        dataToUpdate.avatar = fileName;
+      }
       const updateResult = await this.userService.updateOrError(
         username,
-        result.data
+        dataToUpdate,
+        file
       );
       res.json(updateResult);
     } catch (error) {
-      console.error("Error updating user", error);
-      sendErrResponse(res, error, handleError);
+      next(error);
     }
   };
-  delete = async (req: Request, res: Response) => {
+  delete = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const userId = req.user?.id;
       const username = req.params.username.toLowerCase();
@@ -76,8 +85,7 @@ class UserHandler {
         success: true,
       });
     } catch (error) {
-      console.error("Error fetching user", error);
-      sendErrResponse(res, error, handleError);
+      next(error);
     }
   };
 }

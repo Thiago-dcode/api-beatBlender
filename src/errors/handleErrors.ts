@@ -3,7 +3,7 @@ import { CustomError } from "./CustomError.js";
 import { Response } from "express";
 
 type errorObj = {
-  target: string;
+  errors: { [key: string]: string };
   message: string;
   code: number;
 };
@@ -11,19 +11,17 @@ type errorObj = {
 export const handleError = (error: unknown): errorObj => {
   let errorObj: errorObj = {
     code: 500,
-    target: "server",
+    errors: {},
     message: "Server error",
   };
 
   if (!(error instanceof Error)) {
     return errorObj;
   }
-
-  // Custom errors
   if (error instanceof CustomError) {
     errorObj.code = error.statusCode;
     errorObj.message = error.message;
-    errorObj.target = "error";
+    errorObj.errors = error.errors;
   } else if (error instanceof Prisma.PrismaClientKnownRequestError) {
     switch (error.code) {
       case "P2002":
@@ -31,23 +29,24 @@ export const handleError = (error: unknown): errorObj => {
         let target = Array.isArray(error.meta?.target)
           ? error.meta?.target[0]
           : "field";
-        errorObj.target = target;
-        errorObj.message = "Already exists";
+        errorObj.errors = {};
+        errorObj.message =
+          "Duplicate key violation in the database of " + target;
         errorObj.code = 422;
         break;
       default:
-        errorObj.target = error.code;
+        errorObj.errors = {};
         errorObj.message = error.message;
         errorObj.code = 422;
         break;
     }
   } else if (error instanceof Prisma.PrismaClientInitializationError) {
     // Handle Prisma initialization error
-    errorObj.target = "prismaInitialization";
+    errorObj.errors = {};
     errorObj.message = "Prisma initialization error";
     errorObj.code = 500;
   } else {
-    errorObj.target = "server";
+    errorObj.errors = {};
     errorObj.message = error.message;
     errorObj.code = 500;
   }
@@ -62,6 +61,7 @@ export function sendErrResponse(
 ) {
   const err = errorCallback(error);
   return res.status(err.code).json({
-    [err.target]: [err.message],
+    errors: err.errors,
+    message: err.message
   });
 }

@@ -1,4 +1,4 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import { validateLoggin } from "./validate.js";
 import { handleError, sendErrResponse } from "../../errors/handleErrors.js";
 import AuthService from "./authService.js";
@@ -9,12 +9,12 @@ class AuthHandler {
     this.loggin = this.loggin.bind(this);
   }
 
-  loggin = async (req: Request, res: Response) => {
+  loggin = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const result = validateLoggin(req.body);
 
       if (!result.success) {
-        throw new EntityNotFoundError("Invalid credentials", 404);
+        throw new EntityNotFoundError("Invalid credentials",{}, 404);
       }
       const userAuthenticated = await this.authService.authJWT(result.data);
       res.cookie("refresh_token", userAuthenticated.refreshToken, {
@@ -28,14 +28,13 @@ class AuthHandler {
         accessToken: userAuthenticated.accessToken,
       });
     } catch (error) {
-      console.error("Error authenticating user", error);
-      sendErrResponse(res, error, handleError);
+      next(error);
     }
   };
-  refreshToken = async (req: Request, res: Response) => {
+  refreshToken = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const refreshToken = req.cookies?.refresh_token ?? "";
-      console.log('refreshToken',req.cookies);
+      console.log("refreshToken", req.cookies);
       const { newAccessToken, newRefreshToken } =
         await this.authService.refreshToken(refreshToken);
 
@@ -49,8 +48,7 @@ class AuthHandler {
         accessToken: newAccessToken,
       });
     } catch (error) {
-      console.error("Error Refreshing Token user", error);
-      sendErrResponse(res, error, handleError);
+      next(error);
     }
   };
 }

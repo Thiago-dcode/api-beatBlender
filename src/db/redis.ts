@@ -27,7 +27,7 @@ class RedisService {
       throw new RedisError(
         error instanceof Error
           ? error?.message
-          : "Unexpected error getting value in redis"
+          : "Unexpected error getting value in redis",{}
       ); // Re-throw the error for proper handling in the calling code
     }
   }
@@ -39,7 +39,7 @@ class RedisService {
       throw new RedisError(
         error instanceof Error
           ? error?.message
-          : "Unexpected error setting value in redis"
+          : "Unexpected error setting value in redis",{}
       );
     }
   }
