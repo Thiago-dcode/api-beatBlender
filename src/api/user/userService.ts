@@ -8,7 +8,10 @@ import UserRepository from "./userRepository.js";
 import { CreateUser, UpdateUser } from "./types.js";
 import StorageService from "../../services/logger/storage/storage.js";
 import { StorageError } from "../../errors/general/general.js";
-
+import { User } from "@prisma/client";
+interface UserWithAvatarUrl extends User {
+  avatarUrl: string;
+}
 export default class UserService {
   private userRepo;
   private readonly storage;
@@ -18,7 +21,18 @@ export default class UserService {
   }
   async getAll(options = {}) {
     const users = await this.userRepo.all(options);
-    return users;
+  
+    const usersWithAvatarUrl: UserWithAvatarUrl[] = await Promise.all(
+      users.map(async (user) => {
+        let url = "";
+        if (user.avatar) {
+          url = await this.getAvatarUrlOrError(user.avatar);
+        }
+        return { ...user, avatarUrl: url };
+      })
+    );
+  
+    return usersWithAvatarUrl;
   }
   async getByIdOrError(id: number) {
     const user = await this.userRepo.findFirstWhere({ id });
@@ -33,17 +47,46 @@ export default class UserService {
         `User with ${username} username not found`,
         {}
       );
-    return user;
+    let userWithAvatarUrl: UserWithAvatarUrl = { ...user, avatarUrl: "" };
+    if (user.avatar) {
+      const avatarUrl = await this.getAvatarUrlOrError(user.avatar);
+      userWithAvatarUrl.avatarUrl = avatarUrl;
+    } else {
+      //fetchdefault avatar
+    }
+    return userWithAvatarUrl;
   }
-  async storeAvatarOrError(avatar: {
+  async getAvatarUrlOrError(avatar: string) {
+    try {
+      const url = await this.storage.get(avatar);
+      return url;
+    } catch (error) {
+      console.log(
+        "Error fetching avatar URL " +
+          (error instanceof Error ? error.message : "")
+      );
+      throw new StorageError(
+        "Error fetching avatar URL " +
+          (error instanceof Error ? error.message : ""),
+        {},
+        500
+      );
+    }
+  }
+  async deleteAvatarOrError(avatar: string) {
+    //TODO:handle delete avatar image
+  }
+  async storeAvatarOrError(avatarFile: {
     key: string;
     body: Buffer;
     contentType: string;
   }) {
     try {
-      const result = await (await this.storage.resize(avatar,350,350,'cover')).store();
+      const result = await (
+        await this.storage.resize(avatarFile, 350, 350, "cover")
+      ).store();
       // const result = await this.storage.store(avatar);
-      console.log('RESULT OF STORING AVATAR', result)
+      console.log("RESULT OF STORING AVATAR", result);
       return result;
     } catch (error) {
       console.log(
@@ -141,7 +184,7 @@ export default class UserService {
     data.updatedAt = new Date();
 
     if (file) {
-      console.log('FILE', file.size)
+      console.log("FILE", file.size);
       const key = `avatar/user-${userExist.id}/avatar`;
       await this.storeAvatarOrError({
         key,

@@ -1,8 +1,12 @@
-import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
+import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
+import {
+  S3Client,
+  PutObjectCommand,
+  GetObjectCommand,
+} from "@aws-sdk/client-s3";
 import { StorageError } from "../../../errors/general/general.js";
 import ResizeService from "../../resize/resize.js";
 import { Fit } from "../../../types/index.js";
-import { fit } from "sharp";
 type Obj = {
   key: string;
   body: Buffer;
@@ -24,10 +28,10 @@ class StorageService {
     this.bucketName = bucketName;
     this.bucketRegion = bucketRegion;
   }
-  async resize(obj: Obj, height: number, width: number, fit: Fit='contain') {
+  async resize(obj: Obj, height: number, width: number, fit: Fit = "contain") {
     try {
       let buffer = (
-        await this.resizeService.resizeByBuffer(obj.body,height,width,fit)
+        await this.resizeService.resizeByBuffer(obj.body, height, width, fit)
       ).getBuffer();
       if (!buffer) {
         console.log("ERROR RESIZING IMAGE: " + obj.key);
@@ -59,6 +63,14 @@ class StorageService {
 
     const result = await this.s3.send(command);
     return result;
+  }
+  async get(key: string) {
+    const command = new GetObjectCommand({
+      Bucket: this.bucketName,
+      Key: key,
+    });
+    const url = await getSignedUrl(this.s3, command, { expiresIn: 900 });
+    return url;
   }
 }
 
