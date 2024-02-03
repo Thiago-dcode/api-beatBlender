@@ -22,28 +22,28 @@ export default class UserService {
   }
   async getByIdOrError(id: number) {
     const user = await this.userRepo.findFirstWhere({ id });
-    if (!user) throw new EntityNotFoundError(`User with ${id} id not found`,{});
+    if (!user)
+      throw new EntityNotFoundError(`User with ${id} id not found`, {});
     return user;
   }
   async getByUserNameOrError(username: string) {
     const user = await this.userRepo.findFirstWhere({ username });
     if (!user)
-      throw new EntityNotFoundError(`User with ${username} username not found`,{});
+      throw new EntityNotFoundError(
+        `User with ${username} username not found`,
+        {}
+      );
     return user;
   }
-  async storeAvatarOrError(
-    avatar: {
-      key: string;
-      body: Buffer;
-      contentType: string;
-    },
-    previousAvatar: string | undefined = undefined
-  ) {
+  async storeAvatarOrError(avatar: {
+    key: string;
+    body: Buffer;
+    contentType: string;
+  }) {
     try {
-      if (previousAvatar) {
-        //remove the previousAvatar
-      }
-      const result = await this.storage.store(avatar);
+      const result = await (await this.storage.resize(avatar,350,350,'cover')).store();
+      // const result = await this.storage.store(avatar);
+      console.log('RESULT OF STORING AVATAR', result)
       return result;
     } catch (error) {
       console.log(
@@ -63,8 +63,7 @@ export default class UserService {
     username: string
   ): Promise<void> {
     if (typeof id === "undefined") {
-      throw new AuthorizationError("User not auth to do this operations", {
-      });
+      throw new AuthorizationError("User not auth to do this operations", {});
     }
 
     const user = await this.userRepo.findFirstWhere({ id });
@@ -142,6 +141,7 @@ export default class UserService {
     data.updatedAt = new Date();
 
     if (file) {
+      console.log('FILE', file.size)
       const key = `avatar/user-${userExist.id}/avatar`;
       await this.storeAvatarOrError({
         key,
@@ -160,7 +160,8 @@ export default class UserService {
 
     if (!result) {
       throw new EntityNotFoundError(
-        `Error deleting user with ${username} username`,{},
+        `Error deleting user with ${username} username`,
+        {},
         404
       );
     }

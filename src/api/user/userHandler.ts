@@ -59,12 +59,6 @@ class UserHandler {
         return res.status(422).json(result.error.flatten().fieldErrors);
       }
       const dataToUpdate = result.data;
-      let fileName: string = "";
-
-      if (file) {
-        fileName = uuid4();
-        dataToUpdate.avatar = fileName;
-      }
       const updateResult = await this.userService.updateOrError(
         username,
         dataToUpdate,
