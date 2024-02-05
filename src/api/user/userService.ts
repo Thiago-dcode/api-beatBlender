@@ -9,6 +9,7 @@ import { CreateUser, UpdateUser } from "./types.js";
 import StorageService from "../../services/logger/storage/storage.js";
 import { StorageError } from "../../errors/general/general.js";
 import { User } from "@prisma/client";
+import { S3File } from "../../types/index.js";
 interface UserWithAvatarUrl extends User {
   avatarUrl: string;
 }
@@ -193,14 +194,10 @@ export default class UserService {
     }
   }
 
-  async storeAvatarOrError(avatarFile: {
-    key: string;
-    body: Buffer;
-    contentType: string;
-  }) {
+  async storeAvatarOrError(avatarFile: S3File) {
     try {
       const result = await (
-        await this.storage.resize(avatarFile, 350, 350, "cover")
+        await this.storage.resizeImg(avatarFile, 350, 350, "cover")
       ).store();
 
       console.log("RESULT OF STORING AVATAR", result);

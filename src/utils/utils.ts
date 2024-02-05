@@ -4,7 +4,7 @@ import { Request } from "express";
 import { AuthorizationError } from "../errors/auth/auth.js";
 import { EnvVarNotFoundError } from "../errors/general/general.js";
 import { JwtPayload } from "jsonwebtoken";
-import pkg from "uuidv4";
+import { v4 as uuidv4 } from 'uuid';
 config();
 export const env = {
   get: (key: string): any => {
@@ -53,6 +53,6 @@ export function getJWTpayLoadOrError(
   return payload;
 }
 
-export function uuid4() {
-  return pkg.uuid();
+export function randomString() {
+  return uuidv4()
 }

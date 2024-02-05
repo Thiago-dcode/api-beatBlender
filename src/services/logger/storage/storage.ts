@@ -29,7 +29,7 @@ class StorageService {
     this.bucketName = bucketName;
     this.bucketRegion = bucketRegion;
   }
-  async resize(obj: Obj, height: number, width: number, fit: Fit = "contain") {
+  async resizeImg(obj: Obj, height: number, width: number, fit: Fit = "contain") {
     try {
       let buffer = (
         await this.resizeService.resizeByBuffer(obj.body, height, width, fit)
@@ -45,6 +45,9 @@ class StorageService {
       this.obj = obj;
       return this;
     }
+  }
+  async resizeSound(){
+    //TODO: handle resize sound
   }
   async store(obj: Obj | undefined = undefined) {
     if (obj) this.obj = obj;

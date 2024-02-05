@@ -32,10 +32,10 @@ model Keyboard {
   updatedAt         DateTime         @updatedAt
   name              String
   private           Boolean          @default(false)
-  authorId          Int
+  userId            Int
   design_keyboardId Int?
   keys              Key[]
-  author            User             @relation(fields: [authorId], references: [id])
+  user              User             @relation(fields: [userId], references: [id])
   Design_keyboard   Design_keyboard? @relation(fields: [design_keyboardId], references: [id])
   records           Record[]
   categories        Category[]       @relation("CategoryToKeyboard")
@@ -46,11 +46,11 @@ model Key {
   createdAt    DateTime    @default(now())
   updatedAt    DateTime    @updatedAt
   letter       String
-  authorId     Int
+  userId       Int
   keyboardId   Int?
   design_keyId Int?
   soundId      Int?
-  author       User        @relation(fields: [authorId], references: [id])
+  user         User        @relation(fields: [userId], references: [id])
   Design_key   Design_key? @relation(fields: [design_keyId], references: [id])
   Keyboard     Keyboard?   @relation(fields: [keyboardId], references: [id])
   Sound        Sound?      @relation(fields: [soundId], references: [id])
@@ -59,11 +59,11 @@ model Key {
 
 model Sound {
   id         Int        @id @default(autoincrement())
-  name       String
-  path       String
-  authorId   Int
+  name       String     
+  path       String 
+  userId     Int
   keys       Key[]
-  author     User       @relation(fields: [authorId], references: [id])
+  user       User       @relation(fields: [userId], references: [id])
   categories Category[] @relation("CategoryToSound")
 }
 
@@ -71,9 +71,9 @@ model Record {
   id         Int        @id @default(autoincrement())
   name       String
   path       String
-  authorId   Int
+  userId     Int
   keyboardId Int
-  author     User       @relation(fields: [authorId], references: [id])
+  user       User       @relation(fields: [userId], references: [id])
   Keyboard   Keyboard   @relation(fields: [keyboardId], references: [id])
   categories Category[] @relation("CategoryToRecord")
 }

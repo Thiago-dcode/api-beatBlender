@@ -2,11 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import { validateCreate, validateUpdate } from "./validate.js";
 import { handleError, sendErrResponse } from "../../errors/handleErrors.js";
 import UserService from "./userService.js";
-import { json } from "body-parser";
-import { parse } from "path";
-import { number } from "zod";
-import { AuthorizationError } from "../../errors/auth/auth.js";
-import { uuid4 } from "../../utils/utils.js";
+
 
 class UserHandler {
   constructor(readonly userService: UserService) {

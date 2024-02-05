@@ -2,7 +2,7 @@ import { config } from "dotenv";
 import bcrypt from "bcryptjs";
 import { AuthorizationError } from "../errors/auth/auth.js";
 import { EnvVarNotFoundError } from "../errors/general/general.js";
-import pkg from "uuidv4";
+import { v4 as uuidv4 } from 'uuid';
 config();
 export const env = {
     get: (key) => {
@@ -39,6 +39,6 @@ export function getJWTpayLoadOrError(JWT, token, secretKey) {
     });
     return payload;
 }
-export function uuid4() {
-    return pkg.uuid();
+export function randomString() {
+    return uuidv4();
 }
