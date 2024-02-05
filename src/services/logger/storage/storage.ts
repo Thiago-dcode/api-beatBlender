@@ -3,6 +3,7 @@ import {
   S3Client,
   PutObjectCommand,
   GetObjectCommand,
+  DeleteObjectCommand,
 } from "@aws-sdk/client-s3";
 import { StorageError } from "../../../errors/general/general.js";
 import ResizeService from "../../resize/resize.js";
@@ -71,6 +72,14 @@ class StorageService {
     });
     const url = await getSignedUrl(this.s3, command, { expiresIn: 900 });
     return url;
+  }
+  async delete(key: string) {
+    const command = new DeleteObjectCommand({
+      Bucket: this.bucketName,
+      Key: key,
+    });
+    const result = await this.s3.send(command);
+    return result;
   }
 }
 

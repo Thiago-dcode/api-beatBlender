@@ -21,7 +21,7 @@ export default class UserService {
   }
   async getAll(options = {}) {
     const users = await this.userRepo.all(options);
-  
+
     const usersWithAvatarUrl: UserWithAvatarUrl[] = await Promise.all(
       users.map(async (user) => {
         let url = "";
@@ -31,7 +31,7 @@ export default class UserService {
         return { ...user, avatarUrl: url };
       })
     );
-  
+
     return usersWithAvatarUrl;
   }
   async getByIdOrError(id: number) {
@@ -55,51 +55,6 @@ export default class UserService {
       //fetchdefault avatar
     }
     return userWithAvatarUrl;
-  }
-  async getAvatarUrlOrError(avatar: string) {
-    try {
-      const url = await this.storage.get(avatar);
-      return url;
-    } catch (error) {
-      console.log(
-        "Error fetching avatar URL " +
-          (error instanceof Error ? error.message : "")
-      );
-      throw new StorageError(
-        "Error fetching avatar URL " +
-          (error instanceof Error ? error.message : ""),
-        {},
-        500
-      );
-    }
-  }
-  async deleteAvatarOrError(avatar: string) {
-    //TODO:handle delete avatar image
-  }
-  async storeAvatarOrError(avatarFile: {
-    key: string;
-    body: Buffer;
-    contentType: string;
-  }) {
-    try {
-      const result = await (
-        await this.storage.resize(avatarFile, 350, 350, "cover")
-      ).store();
-      // const result = await this.storage.store(avatar);
-      console.log("RESULT OF STORING AVATAR", result);
-      return result;
-    } catch (error) {
-      console.log(
-        "Error uploading avatar file " +
-          (error instanceof Error ? error.message : "")
-      );
-      throw new StorageError(
-        "Error uploading avatar file " +
-          (error instanceof Error ? error.message : ""),
-        {},
-        500
-      );
-    }
   }
   async throwErrorIfUserNotAuth(
     id: number | undefined,
@@ -185,7 +140,7 @@ export default class UserService {
 
     if (file) {
       console.log("FILE", file.size);
-      const key = `avatar/user-${userExist.id}/avatar`;
+      const key = `user-${userExist.id}/avatar/avatar`;
       await this.storeAvatarOrError({
         key,
         body: file.buffer,
@@ -193,10 +148,21 @@ export default class UserService {
       });
       data.avatar = key;
     }
+    //emit event of avatar stored
     const userUpdate = await this.userRepo.updateByUsername(username, data);
     return userUpdate;
   }
   async deleteByUserNameOrError(username: string) {
+    //get the user attempting to delete
+    const userToDelete = await this.getByUserNameOrError(username);
+    //delete avatar from S3
+    if (userToDelete.avatar) {
+      const resultAvatarDeleted = await this.deleteAvatarOrError(
+        userToDelete.avatar
+      );
+      console.log("RESULT OF DELETING AVATAR:", resultAvatarDeleted);
+    }
+
     const result = await this.userRepo.deleteWhere({
       username,
     });
@@ -208,5 +174,52 @@ export default class UserService {
         404
       );
     }
+  }
+  async getAvatarUrlOrError(avatar: string) {
+    try {
+      const url = await this.storage.get(avatar);
+      return url;
+    } catch (error) {
+      console.log(
+        "Error fetching avatar URL " +
+          (error instanceof Error ? error.message : "")
+      );
+      throw new StorageError(
+        "Error fetching avatar URL " +
+          (error instanceof Error ? error.message : ""),
+        {},
+        500
+      );
+    }
+  }
+
+  async storeAvatarOrError(avatarFile: {
+    key: string;
+    body: Buffer;
+    contentType: string;
+  }) {
+    try {
+      const result = await (
+        await this.storage.resize(avatarFile, 350, 350, "cover")
+      ).store();
+
+      console.log("RESULT OF STORING AVATAR", result);
+      return result;
+    } catch (error) {
+      console.log(
+        "Error uploading avatar file " +
+          (error instanceof Error ? error.message : "")
+      );
+      throw new StorageError(
+        "Error uploading avatar file " +
+          (error instanceof Error ? error.message : ""),
+        {},
+        500
+      );
+    }
+  }
+  async deleteAvatarOrError(avatar: string) {
+    const result = await this.storage.delete(avatar);
+    return result;
   }
 }
