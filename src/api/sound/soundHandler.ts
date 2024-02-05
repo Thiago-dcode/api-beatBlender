@@ -22,18 +22,29 @@ class soundHandler {
   create = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const result = validateSound(req.body);
+      if (!result.success) {
+        return res.status(422).json(result.error.flatten().fieldErrors);
+      }
       const sounds = req.files as Express.Multer.File[];
-    
-      
-      // if (!result.success) {
-      //   return res.status(422).json(result.error.flatten().fieldErrors);
-      // }
-      // const soundsCreated = await this.SoundService.createOrError(
-      //   result.data
-      // );
-      // res.json(soundsCreated);
-
-      res.end();
+      const userId = req.user?.id;
+      const soundsCreated = await this.SoundService.createManyOrError(
+        sounds,
+        userId,
+        result.data
+      );
+      return res.json(soundsCreated);
+    } catch (error) {
+      next(error);
+    }
+  };
+  destroy = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const id = parseInt(req.params.id);
+      const userId = req.user?.id;
+      await this.SoundService.deleteSoundByIdOrError(id,userId);
+      res.status(200).json({
+        success: true,
+      });
     } catch (error) {
       next(error);
     }

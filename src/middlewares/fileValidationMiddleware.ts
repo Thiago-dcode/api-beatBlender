@@ -1,9 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import imageType from "image-type";
-import { Lame } from "node-lame";
 import { ImageFileTypeError, AudioFileTypeError } from "../errors/type/type.js";
-import { error } from "console";
-import multer from "multer";
+import config from "../config/config.js";
 export const imageValidationMiddleware = async (
   req: Request,
   res: Response,
@@ -18,15 +16,9 @@ export const imageValidationMiddleware = async (
         [image.fieldname]: "Must be an image",
       });
     const { ext, mime } = img;
-    const allowedFiles = ["png", "jpeg", "jpg"];
-    const allowedMimeTypes = [
-      "image/png",
-      "image/jpeg",
-      "image/jpg",
-      "image/gif",
-    ];
+    const { maxSize, allowedFiles, allowedMimeTypes } = config.image;
+
     // Allowed file size in mb
-    const maxSize = 5;
 
     // Check if the uploaded file is allowed
     if (!allowedFiles.includes(ext) || !allowedMimeTypes.includes(mime)) {
@@ -59,16 +51,9 @@ export const audioValidationMiddleware = async (
         sound: "The sound field is required",
       });
     }
-
-    const allowedAudioMimeTypes = [
-      "audio/mpeg",
-      "audio/wav",
-      "audio/ogg",
-      "audio/mp4",
-    ];
-    const maxSize = 5;
+    const { maxSize, allowedMimeTypes } = config.sound;
     for (const audio of audios) {
-      if (!allowedAudioMimeTypes.includes(audio.mimetype)) {
+      if (!allowedMimeTypes.includes(audio.mimetype)) {
         throw new ImageFileTypeError("Invalid file", {
           [audio.fieldname]: "Must be a audio file",
         });

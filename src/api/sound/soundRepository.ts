@@ -17,9 +17,16 @@ export default class SoundRepository {
   }
   async createMany(sounds: soundToCreate[]) {
     const result = await this.db.sound.createMany({ data: sounds });
+    return result;
   }
   async findById(id: number) {
     const sound = await this.db.sound.findFirst({ where: { id } });
     return sound;
+  }
+  async deleteById(id: number) {
+    const result = await this.db.sound.delete({
+      where: { id },
+    });
+    return result
   }
 }

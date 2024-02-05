@@ -65,7 +65,7 @@ class UserHandler {
       next(error);
     }
   };
-  delete = async (req: Request, res: Response, next: NextFunction) => {
+  destroy = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const userId = req.user?.id;
       const username = req.params.username.toLowerCase();

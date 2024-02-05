@@ -13,5 +13,6 @@ export default function soundRoutes(handler: SoundHandler) {
     audioValidationMiddleware,
     handler.create
   );
+  router.delete('/:id',verifyToken,handler.destroy)
   return router;
 }

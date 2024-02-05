@@ -16,7 +16,7 @@ export default function userRoute(handler: UserHandler) {
     imageValidationMiddleware,
     handler.update
   );
-  router.delete("/:username", verifyToken, handler.delete);
+  router.delete("/:username", verifyToken, handler.destroy);
 
   return router;
 }

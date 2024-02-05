@@ -8,4 +8,17 @@ export default {
     },
     region: env.get("S3_BUCKET_REGION"),
   },
+  image: {
+    maxSize: 5,
+    allowedFiles: ["png", "jpeg", "jpg"],
+    allowedMimeTypes: ["image/png", "image/jpeg", "image/jpg", "image/gif"],
+  },
+  sound: {
+    maxSize: 5,
+    allowedMimeTypes: ["audio/mpeg", "audio/wav", "audio/ogg", "audio/mp4"],
+  },
+  JWT: {
+    expire: "15m",
+    refreshExpire: "3h",
+  },
 };
