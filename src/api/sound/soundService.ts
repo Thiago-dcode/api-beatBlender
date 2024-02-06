@@ -7,12 +7,13 @@ import SoundRepository from "./soundRepository.js";
 import { soundToCreate } from "./types.js";
 import { randomString } from "../../utils/utils.js";
 import { StorageError } from "../../errors/general/general.js";
-import { Sound } from "@prisma/client";
+import { Sound, Sound_folder } from "@prisma/client";
 import { AuthorizationError } from "../../errors/auth/auth.js";
 import { getFolderAndFileNameFromPath } from "./helper.js";
+import SoundFolderService from "../soundFolder/soundFolderService.js";
 
 type SoundRequestData = {
-  folder?: string;
+  sound_folderId?: number,
   name?: string;
   userId: number;
 };
@@ -23,6 +24,7 @@ export default class SoundService {
   private SoundRepo;
   constructor(
     SoundRepo: SoundRepository,
+    private readonly soundFolderService: SoundFolderService,
     private readonly storage: StorageService
   ) {
     this.SoundRepo = SoundRepo;
@@ -93,51 +95,78 @@ export default class SoundService {
     }
     return result;
   }
-  async createOrError() {}
-  async updateOrError(
-    id: number,
-    data: SoundRequestData,
-    soundFile: Express.Multer.File | undefined
+  async createManyOrError(
+    files: Express.Multer.File[],
+    requestData: SoundRequestData,
   ) {
-    const soundToUpdate = await this.getSoundIfUserIsAuthOrError(
-      id,
-      data.userId
-    );
-    const { folder, fileName } = getFolderAndFileNameFromPath(
-      soundToUpdate.path
-    );
-
-    let path = `user-${soundToUpdate.userId}/sounds/${folder}/${fileName}`;
-
-    if (soundFile || data.folder) {
-      if (data.folder && !soundFile) {
-        //move the file to the new folder
-        path = `user-${soundToUpdate.userId}/sounds/${data.folder}/${fileName}`;
-        const result = await this.storage.move(soundToUpdate.path, path);
-      } else if (soundFile) {
-        const resultAudioDeleted = await this.deleteAudioFileOrError(
-          soundToUpdate?.path
-        );
-        path = data.folder
-          ? `user-${soundToUpdate.userId}/sounds/${
-              data.folder
-            }/${randomString()}`
-          : `user-${soundToUpdate.userId}/sounds/${folder}/${randomString()}`;
-        const s3File: S3File = {
-          key: path,
-          body: soundFile.buffer,
-          contentType: soundFile.mimetype,
+    const { sound_folderId, userId } = requestData;
+    const soundFolder = sound_folderId
+    ? await this.soundFolderService.getByIdOrError(sound_folderId)
+    : await this.soundFolderService.getOrCreateDefaultFolderByUserId(userId);
+    const soundsToCreate: soundToCreate[] = await Promise.all(
+      files.map(async (file) => {
+        const fileName = randomString();
+        const key = `user-${requestData.userId}/sounds/${soundFolder.name}/${fileName}`;
+        await this.storeAudioFileOrError({
+          key,
+          body: file.buffer,
+          contentType: file.mimetype,
+        });
+        return {
+          userId: requestData.userId,
+          name: path.parse(file.originalname).name,
+          path: key,
+          sound_folderId: soundFolder.id,
         };
-
-        const resultAudioStored = await this.storeAudioFileOrError(s3File);
-      }
-    }
-
-    const soundUpdated = await this.SoundRepo.update(id, {
-      name: data.name || soundFile?.originalname || soundToUpdate.name,
-      path,
-    });
+      })
+    );
+    const sounds = await this.SoundRepo.createMany(soundsToCreate);
+    return sounds;
   }
+  // async updateOrError(
+  //   id: number,
+  //   data: SoundRequestData,
+  //   soundFile: Express.Multer.File | undefined
+  // ) {
+  //   const soundToUpdate = await this.getSoundIfUserIsAuthOrError(
+  //     id,
+  //     data.userId
+  //   );
+  //   const { folder, fileName } = getFolderAndFileNameFromPath(
+  //     soundToUpdate.path
+  //   );
+
+  //   let path = `user-${soundToUpdate.userId}/sounds/${folder}/${fileName}`;
+
+  //   if (soundFile || data.folder) {
+  //     if (data.folder && !soundFile) {
+  //       //move the file to the new folder
+  //       path = `user-${soundToUpdate.userId}/sounds/${data.folder}/${fileName}`;
+  //       const result = await this.storage.move(soundToUpdate.path, path);
+  //     } else if (soundFile) {
+  //       const resultAudioDeleted = await this.deleteAudioFileOrError(
+  //         soundToUpdate?.path
+  //       );
+  //       path = data.folder
+  //         ? `user-${soundToUpdate.userId}/sounds/${
+  //             data.folder
+  //           }/${randomString()}`
+  //         : `user-${soundToUpdate.userId}/sounds/${folder}/${randomString()}`;
+  //       const s3File: S3File = {
+  //         key: path,
+  //         body: soundFile.buffer,
+  //         contentType: soundFile.mimetype,
+  //       };
+
+  //       const resultAudioStored = await this.storeAudioFileOrError(s3File);
+  //     }
+  //   }
+
+  //   const soundUpdated = await this.SoundRepo.update(id, {
+  //     name: data.name || soundFile?.originalname || soundToUpdate.name,
+  //     path,
+  //   });
+  // }
 
   async getAudioFileUrl(sound: string) {
     try {
@@ -177,32 +206,5 @@ export default class SoundService {
   async deleteAudioFileOrError(sound: string) {
     const result = await this.storage.delete(sound);
     return result;
-  }
-
-  async createManyOrError(
-    files: Express.Multer.File[],
-    requestData: SoundRequestData
-  ) {
-    const folderS3 = requestData.folder || "no-categorized";
-     const soundsToCreate: soundToCreate[] = await Promise.all(
-      files.map(async (file) => {
-        const key = `user-${
-          requestData.userId
-        }/sounds/${folderS3}/${randomString()}`;
-        await this.storeAudioFileOrError({
-          key,
-          body: file.buffer,
-          contentType: file.mimetype,
-        });
-        return {
-          userId: requestData.userId,
-          name: path.parse(file.originalname).name,
-          path: key,
-        };
-      })
-    );
-
-    const sounds = await this.SoundRepo.createMany(soundsToCreate);
-    return sounds;
   }
 }

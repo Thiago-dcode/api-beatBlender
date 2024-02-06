@@ -6,9 +6,10 @@ import { env } from "../../utils/utils.js";
 import ResizeService from "../../services/resize/resize.js";
 import { db } from "../../db/db.js";
 import config from "../../config/config.js";
-
 import SoundHandler from "./soundHandler.js";
 import SoundService from "./soundService.js";
+import SoundFolderRepository from "../soundFolder/soundFolderRepository.js";
+import SoundFolderService from "../soundFolder/soundFolderService.js";
 const storageService = new StorageService(
   new S3Client(config.S3Config),
   env.get("S3_BUCKET_NAME"),
@@ -16,7 +17,10 @@ const storageService = new StorageService(
   new ResizeService()
 );
 const soundRepo = new SoundRepository(db());
-const soundService = new SoundService(soundRepo, storageService);
-const soundHandler = new SoundHandler(soundService);
+const soundService = new SoundService(soundRepo, new SoundFolderService(new SoundFolderRepository(db())), storageService);
+const soundHandler = new SoundHandler(
+  soundService,
+ 
+);
 
 export default soundRoutes(soundHandler);

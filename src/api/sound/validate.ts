@@ -1,19 +1,14 @@
 import { z } from "zod";
 
 const Sound = z.object({
-  folder: z
-    .string()
-    .refine((folder) => /^[a-zA-Z0-9-]+$/.test(folder), {
-      message: "Folder must only contain letters, numbers, and '-'",
-    })
-    .optional(),
   name: z
     .string()
     .refine((name) => /^[a-zA-Z0-9-]+$/.test(name), {
       message: "Name must only contain letters, numbers, and '-'",
     })
     .optional(),
-  userId: z.coerce.number().int()
+  userId: z.coerce.number().int(),
+  sound_folderId: z.coerce.number().int().optional(),
 });
 
 export const validateSound = (data: unknown) => {

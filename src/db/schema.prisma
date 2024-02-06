@@ -8,22 +8,23 @@ datasource db {
 }
 
 model User {
-  id        Int        @id @default(autoincrement())
-  username  String     @unique
-  email     String?    @unique
-  avatar    String?
-  name      String?
-  biography String?
-  isActive  Boolean    @default(true)
-  isAdmin   Boolean    @default(false)
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
-  password  String
-  token     String?
-  keys      Key[]
-  Keyboard  Keyboard[]
-  Record    Record[]
-  sound     Sound[]
+  id           Int            @id @default(autoincrement())
+  username     String         @unique
+  email        String?        @unique
+  avatar       String?
+  name         String?
+  biography    String?
+  isActive     Boolean        @default(true)
+  isAdmin      Boolean        @default(false)
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  password     String
+  token        String?
+  sound_folder Sound_folder[]
+  keys         Key[]
+  Keyboard     Keyboard[]
+  record       Record[]
+  sound        Sound[]
 }
 
 model Keyboard {
@@ -69,6 +70,15 @@ model Sound {
   sound_folderId Int?
 }
 
+model Sound_folder {
+  id         Int     @id @default(autoincrement())
+  name       String 
+  is_default Boolean @default(false)
+  Sound      Sound[]
+  User       User?   @relation(fields: [userId], references: [id])
+  userId     Int?
+}
+
 model Record {
   id         Int        @id @default(autoincrement())
   name       String
@@ -92,13 +102,6 @@ model Design_key {
   name      String
   colors    Color[]
   keyboards Key[]
-}
-
-model Sound_folder {
-  id         Int     @id @default(autoincrement())
-  name       String  @unique
-  is_default Boolean @default(false)
-  Sound      Sound[]
 }
 
 model Category {
