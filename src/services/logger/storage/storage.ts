@@ -4,6 +4,7 @@ import {
   PutObjectCommand,
   GetObjectCommand,
   DeleteObjectCommand,
+  CopyObjectCommand,
 } from "@aws-sdk/client-s3";
 import { StorageError } from "../../../errors/general/general.js";
 import ResizeService from "../../resize/resize.js";
@@ -29,7 +30,12 @@ class StorageService {
     this.bucketName = bucketName;
     this.bucketRegion = bucketRegion;
   }
-  async resizeImg(obj: Obj, height: number, width: number, fit: Fit = "contain") {
+  async resizeImg(
+    obj: Obj,
+    height: number,
+    width: number,
+    fit: Fit = "contain"
+  ) {
     try {
       let buffer = (
         await this.resizeService.resizeByBuffer(obj.body, height, width, fit)
@@ -46,7 +52,7 @@ class StorageService {
       return this;
     }
   }
-  async resizeSound(){
+  async resizeSound() {
     //TODO: handle resize sound
   }
   async store(obj: Obj | undefined = undefined) {
@@ -66,6 +72,20 @@ class StorageService {
     });
 
     const result = await this.s3.send(command);
+    return result;
+  }
+  async copy(from: string, to: string) {
+    const command = new CopyObjectCommand({
+      Bucket: this.bucketName,
+      CopySource: `${this.bucketName}/${from}`,
+      Key: to,
+    });
+    const result = await this.s3.send(command);
+    return result;
+  }
+  async move(from: string, to: string) {
+    await this.copy(from, to);
+    const result = await this.delete(from);
     return result;
   }
   async get(key: string) {

@@ -1,6 +1,6 @@
 import { Prisma, PrismaClient, Sound } from "@prisma/client";
 import { UnknowDbError } from "../../errors/db/db.js";
-import { soundToCreate } from "./types.js";
+import { soundToCreate, soundToUpdate } from "./types.js";
 
 export default class SoundRepository {
   db: PrismaClient;
@@ -15,6 +15,13 @@ export default class SoundRepository {
       },
     });
   }
+  async update(id: number, data: soundToUpdate) {
+    const result = await this.db.sound.update({
+      where: { id },
+      data,
+    });
+    return result;
+  }
   async createMany(sounds: soundToCreate[]) {
     const result = await this.db.sound.createMany({ data: sounds });
     return result;
@@ -27,6 +34,6 @@ export default class SoundRepository {
     const result = await this.db.sound.delete({
       where: { id },
     });
-    return result
+    return result;
   }
 }

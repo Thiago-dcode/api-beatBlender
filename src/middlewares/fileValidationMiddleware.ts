@@ -2,6 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import imageType from "image-type";
 import { ImageFileTypeError, AudioFileTypeError } from "../errors/type/type.js";
 import config from "../config/config.js";
+
 export const imageValidationMiddleware = async (
   req: Request,
   res: Response,
@@ -64,6 +65,9 @@ export const audioValidationMiddleware = async (
           [audio.fieldname]: "Exceed max file size of " + maxSize + " mb",
         });
       }
+
+ 
+     
     }
 
     next();

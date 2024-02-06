@@ -58,13 +58,15 @@ model Key {
 }
 
 model Sound {
-  id         Int        @id @default(autoincrement())
-  name       String     
-  path       String 
-  userId     Int
-  keys       Key[]
-  user       User       @relation(fields: [userId], references: [id])
-  categories Category[] @relation("CategoryToSound")
+  id             Int           @id @default(autoincrement())
+  name           String
+  path           String
+  userId         Int
+  keys           Key[]
+  user           User          @relation(fields: [userId], references: [id])
+  categories     Category[]    @relation("CategoryToSound")
+  Sound_folder   Sound_folder? @relation(fields: [sound_folderId], references: [id])
+  sound_folderId Int?
 }
 
 model Record {
@@ -90,6 +92,13 @@ model Design_key {
   name      String
   colors    Color[]
   keyboards Key[]
+}
+
+model Sound_folder {
+  id         Int     @id @default(autoincrement())
+  name       String  @unique
+  is_default Boolean @default(false)
+  Sound      Sound[]
 }
 
 model Category {
