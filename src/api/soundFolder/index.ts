@@ -9,7 +9,7 @@ const storageService = new StorageService(new ResizeService());
 const soundFolderRepository = new SoundFolderRepository(db());
 const soundFolderService = new SoundFolderService(
   soundFolderRepository,
-  storageService
+  storageService,
 );
 const soundFolderHandler = new SoundFolderHandler(soundFolderService);
 

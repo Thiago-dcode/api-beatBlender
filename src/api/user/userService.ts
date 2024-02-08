@@ -10,6 +10,8 @@ import StorageService from "../../services/logger/storage/storage.js";
 import { StorageError } from "../../errors/general/general.js";
 import { User } from "@prisma/client";
 import { S3File } from "../../types/index.js";
+import UserListener from "../../listeners/user/UserListener.js";
+import { UserEvents } from "../../listeners/user/type.js";
 interface UserWithAvatarUrl extends User {
   avatarUrl: string;
 }
@@ -93,6 +95,9 @@ export default class UserService {
     const passwordHashed = await hashPassword(data.password);
     data.password = passwordHashed;
     const newUser = await this.userRepo.new(data);
+    UserListener.emit(UserEvents.Create, {
+      user: newUser,
+    });
     return newUser;
   }
   async updateOrError(

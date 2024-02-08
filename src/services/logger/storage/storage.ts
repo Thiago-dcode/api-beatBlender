@@ -82,7 +82,6 @@ class StorageService {
     });
 
     const result = await this.s3.send(command);
-    console.log("COPY RESULT", command);
     return result;
   }
 
@@ -95,7 +94,6 @@ class StorageService {
     return url;
   }
   async getManyByFolder(folder: string) {
-    console.log("FOLDER", folder);
     const command = new ListObjectsV2Command({
       Bucket: this.bucketName,
       Prefix: folder,
@@ -117,15 +115,18 @@ class StorageService {
     }
   ) {
     const objectsToMove = await this.getManyByFolder(from);
-    if (!objectsToMove.Contents || objectsToMove.Contents.length < 1)
-      return;
-    objectsToMove.Contents.forEach(async (object) => {
-      if (object.Key) {
-        const { filename } = getFilenameAndFolderName(object.Key);
 
-        await this.move(object.Key, to + "/" + filename);
-      }
-    });
+    if (!objectsToMove.Contents || objectsToMove.Contents.length < 1) return;
+
+    const result = await Promise.all(
+      objectsToMove.Contents.map(async (object) => {
+        if (object.Key) {
+          const { filename } = getFilenameAndFolderName(object.Key);
+
+          await this.move(object.Key, to + "/" + filename);
+        }
+      })
+    );
   }
   async delete(key: string) {
     const command = new DeleteObjectCommand({

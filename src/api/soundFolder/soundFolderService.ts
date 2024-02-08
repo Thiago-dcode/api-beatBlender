@@ -1,9 +1,8 @@
 import { AuthorizationError } from "../../errors/auth/auth.js";
-import {
-  EntityAlreadyExistsError,
-  EntityNotFoundError,
-} from "../../errors/db/db.js";
+import { EntityNotFoundError } from "../../errors/db/db.js";
 import { StorageError } from "../../errors/general/general.js";
+import SoundFolderListener from "../../listeners/soundFolder/SoundFolderListener.js";
+import { SoundFolderEvents } from "../../listeners/soundFolder/type.js";
 import StorageService from "../../services/logger/storage/storage.js";
 import { extractFolderAndFileName } from "./helper.js";
 import SoundFolderRepository from "./soundFolderRepository.js";
@@ -93,21 +92,23 @@ export default class SoundFolderService {
 
   async updateWithUniqueNameOrError(id: number, name: string, userId: number) {
     const folderExist = await this.getByIdIfUserIsAuthOrError(id, userId, true);
-  
+
     if (folderExist.name === name) {
       return folderExist;
     }
- 
+
     if (folderExist.sounds.length > 0) {
-     
       const from = `user-${userId}/sounds/${folderExist.name}`;
       const to = `user-${userId}/sounds/${name}`;
-      await this.moveSoundFolderFileOrError(from, to);
-      //emit event to upload the audios
-      
+      const result = await this.moveSoundFolderFileOrError(from, to);
 
-
+      SoundFolderListener.emit(SoundFolderEvents.UpdateStorage, {
+        sounds: folderExist.sounds,
+        userId,
+        foldername: name,
+      });
     }
+
     const folderUpdated = await this.soundFolderRepo.update(id, {
       name,
       is_default: false,

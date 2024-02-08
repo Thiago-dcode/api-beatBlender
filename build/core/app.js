@@ -4,9 +4,11 @@ import cors from "cors";
 import bodyParser from "body-parser";
 import cookieParser from "cookie-parser";
 import { errorHandlerMiddleware } from "../middlewares/errorMiddleware.js";
+import initEvents from "../listeners/initEvents.js";
 class AppController {
     constructor() {
-        this.app = express(); // Use the imported 'express' module directly
+        this.app = express();
+        initEvents();
         this.beforeMiddlewares();
         this.routes();
         this.afterMiddlewares();
