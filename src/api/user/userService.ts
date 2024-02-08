@@ -140,7 +140,6 @@ export default class UserService {
     data.updatedAt = new Date();
 
     if (file) {
-      console.log("FILE", file.size);
       const key = `user-${userExist.id}/avatar/avatar`;
       await this.storeAvatarOrError({
         key,
@@ -151,7 +150,11 @@ export default class UserService {
     }
     //emit event of avatar stored
     const userUpdate = await this.userRepo.updateByUsername(username, data);
-    return userUpdate;
+    let avatarUrl = "";
+    if (userUpdate.avatar) {
+      avatarUrl = await this.getAvatarUrlOrError(userUpdate.avatar);
+    }
+    return { ...userUpdate, avatarUrl };
   }
   async deleteByUserNameOrError(username: string) {
     //get the user attempting to delete
@@ -200,7 +203,6 @@ export default class UserService {
         await this.storage.resizeImg(avatarFile, 350, 350, "cover")
       ).store();
 
-      console.log("RESULT OF STORING AVATAR", result);
       return result;
     } catch (error) {
       console.log(

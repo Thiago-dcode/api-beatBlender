@@ -22,6 +22,13 @@ export default class SoundRepository {
     });
     return result;
   }
+  async updateMany(userId: number, data: soundToUpdate[]) {
+   const result =  await this.db.sound.updateMany({
+      where: { userId },
+      data,
+    });
+    return result
+  }
   async createMany(sounds: soundToCreate[]) {
     const result = await this.db.sound.createMany({ data: sounds });
     return result;

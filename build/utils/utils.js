@@ -2,7 +2,7 @@ import { config } from "dotenv";
 import bcrypt from "bcryptjs";
 import { AuthorizationError } from "../errors/auth/auth.js";
 import { EnvVarNotFoundError } from "../errors/general/general.js";
-import { v4 as uuidv4 } from 'uuid';
+import { v4 as uuidv4 } from "uuid";
 config();
 export const env = {
     get: (key) => {
@@ -41,4 +41,9 @@ export function getJWTpayLoadOrError(JWT, token, secretKey) {
 }
 export function randomString() {
     return uuidv4();
+}
+export function validateUserIdRequest(userId) {
+    if (!userId)
+        throw new AuthorizationError("This user is not authorized to do this operations", {});
+    return userId;
 }

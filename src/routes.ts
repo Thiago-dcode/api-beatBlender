@@ -4,6 +4,7 @@ import userRoutes from "./api/user/index.js";
 import authRoutes from "./api/auth/index.js";
 import keyRoutes from "./api/key/routes.js";
 import soundRoutes from "./api/sound/index.js";
+import soundFolder from "./api/soundFolder/index.js";
 
 const homeRouter = Router();
 
@@ -17,6 +18,7 @@ const routes: { [key: string]: Router } = {
   users: userRoutes,
   auth: authRoutes,
   sounds: soundRoutes,
+  sounds_folder: soundFolder,
   keys: keyRoutes,
 };
 

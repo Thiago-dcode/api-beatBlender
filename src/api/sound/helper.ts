@@ -1,20 +1,20 @@
-interface FolderAndFileName {
-  folder: string;
-  fileName: string;
+import { CustomError } from "../../errors/CustomError.js";
+
+interface PathSegments {
+  filename: string;
+  foldername: string;
 }
 
-export const getFolderAndFileNameFromPath = (
-  path: string
-): FolderAndFileName => {
-  const regex = /\/sounds\/([^\/]+)\/([^\/]+)$/;
-  const match = regex.exec(path);
+export function extractFolderAndFileName(path: string): PathSegments {
+  const segments = path.split("/");
+  const filename = segments.pop() || ""; // Remove and return the last segment
+  const foldername = segments.pop() || ""; // Remove and return the second-to-last segment (folder name)
+  if (!filename || !foldername)
+    throw new CustomError(
+      "Error in: extractFolderAndFileName(), should return a filename and a foldername",
+      {},
+      500
+    );
 
-  // Check if a match is found
-  if (match && match.length > 2) {
-    const folder = match[1];
-    const fileName = match[2];
-    return { folder, fileName };
-  }
-
-  return  {folder:'',fileName:''}
-};
+  return { filename, foldername };
+}

@@ -3,7 +3,6 @@ import { validateCreate, validateUpdate } from "./validate.js";
 import { handleError, sendErrResponse } from "../../errors/handleErrors.js";
 import UserService from "./userService.js";
 
-
 class UserHandler {
   constructor(readonly userService: UserService) {
     this.index = this.index.bind(this);

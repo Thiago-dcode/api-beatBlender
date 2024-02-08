@@ -5,10 +5,15 @@ import {
   GetObjectCommand,
   DeleteObjectCommand,
   CopyObjectCommand,
+  ListObjectsCommand,
+  ListObjectsV2Command,
 } from "@aws-sdk/client-s3";
 import { StorageError } from "../../../errors/general/general.js";
 import ResizeService from "../../resize/resize.js";
 import { Fit } from "../../../types/index.js";
+import config from "../../../config/config.js";
+import { env } from "../../../utils/utils.js";
+import { object } from "zod";
 type Obj = {
   key: string;
   body: Buffer;
@@ -19,16 +24,10 @@ class StorageService {
   private readonly bucketName: string;
   private readonly bucketRegion: string;
   private obj: Obj | undefined;
-  constructor(
-    s3: S3Client,
-    bucketName: string,
-    bucketRegion: string,
-    private readonly resizeService: ResizeService
-  ) {
-    this.s3 = s3;
-
-    this.bucketName = bucketName;
-    this.bucketRegion = bucketRegion;
+  constructor(private readonly resizeService: ResizeService) {
+    this.bucketName = env.get("S3_BUCKET_NAME");
+    this.bucketRegion = env.get("S3_BUCKET_REGION");
+    (this.s3 = new S3Client(config.S3Config)), new ResizeService();
   }
   async resizeImg(
     obj: Obj,
@@ -40,13 +39,14 @@ class StorageService {
       let buffer = (
         await this.resizeService.resizeByBuffer(obj.body, height, width, fit)
       ).getBuffer();
+
       if (!buffer) {
-        console.log("ERROR RESIZING IMAGE: " + obj.key);
+        console.error("ERROR RESIZING IMAGE: " + obj.key);
         buffer = obj.body;
       }
       obj.body = buffer;
-      this.obj = obj;
     } catch (error) {
+      console.error("ERROR RESIZING", error);
     } finally {
       this.obj = obj;
       return this;
@@ -80,14 +80,12 @@ class StorageService {
       CopySource: `${this.bucketName}/${from}`,
       Key: to,
     });
+
     const result = await this.s3.send(command);
+    console.log("COPY RESULT", command);
     return result;
   }
-  async move(from: string, to: string) {
-    await this.copy(from, to);
-    const result = await this.delete(from);
-    return result;
-  }
+
   async get(key: string) {
     const command = new GetObjectCommand({
       Bucket: this.bucketName,
@@ -96,13 +94,58 @@ class StorageService {
     const url = await getSignedUrl(this.s3, command, { expiresIn: 900 });
     return url;
   }
+  async getManyByFolder(folder: string) {
+    console.log("FOLDER", folder);
+    const command = new ListObjectsV2Command({
+      Bucket: this.bucketName,
+      Prefix: folder,
+    });
+    const result = await this.s3.send(command);
+    return result;
+  }
+  async move(from: string, to: string) {
+    await this.copy(from, to);
+    const result = await this.delete(from);
+    return result;
+  }
+  async moveManyByFolder(
+    from: string,
+    to: string,
+    getFilenameAndFolderName: (path: string) => {
+      filename: string;
+      foldername: string;
+    }
+  ) {
+    const objectsToMove = await this.getManyByFolder(from);
+    if (!objectsToMove.Contents || objectsToMove.Contents.length < 1)
+      return;
+    objectsToMove.Contents.forEach(async (object) => {
+      if (object.Key) {
+        const { filename } = getFilenameAndFolderName(object.Key);
+
+        await this.move(object.Key, to + "/" + filename);
+      }
+    });
+  }
   async delete(key: string) {
     const command = new DeleteObjectCommand({
       Bucket: this.bucketName,
       Key: key,
     });
+
     const result = await this.s3.send(command);
     return result;
+  }
+  async deleteManyByFolder(folder: string) {
+    const objectsToDelete = await this.getManyByFolder(folder);
+
+    if (!objectsToDelete.Contents || objectsToDelete.Contents.length < 1)
+      return;
+    objectsToDelete.Contents.forEach(async (object) => {
+      if (object.Key) {
+        await this.delete(object.Key);
+      }
+    });
   }
 }
 

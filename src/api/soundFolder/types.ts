@@ -1,9 +1,9 @@
 export interface SoundFolderToCreate {
   name: string;
   userId: number;
-  isDefault?: boolean
+  is_default?: boolean
 }
 export interface SoundFolderToUpdate {
   name?: string;
-  isDefault?: boolean
+  is_default?: boolean
 }

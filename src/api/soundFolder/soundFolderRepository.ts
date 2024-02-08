@@ -2,9 +2,10 @@ import { PrismaClient } from "@prisma/client";
 import { SoundFolderToCreate, SoundFolderToUpdate } from "./types.js";
 
 type Where = {
+  id?: number;
   userId?: number;
   name?: string;
-  isDefault?: boolean;
+  is_default?: boolean;
 };
 export default class SoundFolderRepository {
   db: PrismaClient;
@@ -17,13 +18,14 @@ export default class SoundFolderRepository {
       where: {
         userId,
       },
-      include: {
-        Sound: true,
-      },
     });
   }
-  async findById(id: number) {
-    return await this.db.sound_folder.findFirst({ where: { id } });
+  async findByIdWithSounds(id: number, includeSounds: boolean = true) {
+    const folder= await this.db.sound_folder.findFirst({
+      where: { id },
+      include: { sounds: includeSounds },
+    });
+    return folder
   }
   async findFirstWhere(where: Where) {
     const sound_folder = await this.db.sound_folder.findFirst({

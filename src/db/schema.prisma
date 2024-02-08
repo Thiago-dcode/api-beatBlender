@@ -36,7 +36,7 @@ model Keyboard {
   userId            Int
   design_keyboardId Int?
   keys              Key[]
-  user              User             @relation(fields: [userId], references: [id])
+  user              User             @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   Design_keyboard   Design_keyboard? @relation(fields: [design_keyboardId], references: [id])
   records           Record[]
   categories        Category[]       @relation("CategoryToKeyboard")
@@ -51,7 +51,7 @@ model Key {
   keyboardId   Int?
   design_keyId Int?
   soundId      Int?
-  user         User        @relation(fields: [userId], references: [id])
+  user         User        @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   Design_key   Design_key? @relation(fields: [design_keyId], references: [id])
   Keyboard     Keyboard?   @relation(fields: [keyboardId], references: [id])
   Sound        Sound?      @relation(fields: [soundId], references: [id])
@@ -59,24 +59,24 @@ model Key {
 }
 
 model Sound {
-  id             Int           @id @default(autoincrement())
+  id             Int          @id @default(autoincrement())
   name           String
   path           String
   userId         Int
   keys           Key[]
-  user           User          @relation(fields: [userId], references: [id])
-  categories     Category[]    @relation("CategoryToSound")
-  Sound_folder   Sound_folder? @relation(fields: [sound_folderId], references: [id])
-  sound_folderId Int?
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  categories     Category[]   @relation("CategoryToSound")
+  Sound_folder   Sound_folder @relation(fields: [sound_folderId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  sound_folderId Int
 }
 
 model Sound_folder {
   id         Int     @id @default(autoincrement())
-  name       String 
+  name       String
   is_default Boolean @default(false)
-  Sound      Sound[]
-  User       User?   @relation(fields: [userId], references: [id])
-  userId     Int?
+  sounds     Sound[]
+  User       User    @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  userId     Int
 }
 
 model Record {
@@ -84,9 +84,9 @@ model Record {
   name       String
   path       String
   userId     Int
-  keyboardId Int
-  user       User       @relation(fields: [userId], references: [id])
-  Keyboard   Keyboard   @relation(fields: [keyboardId], references: [id])
+  keyboardId Int?
+  user       User       @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  Keyboard   Keyboard?  @relation(fields: [keyboardId], references: [id])
   categories Category[] @relation("CategoryToRecord")
 }
 

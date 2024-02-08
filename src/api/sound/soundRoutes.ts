@@ -6,6 +6,7 @@ import { audioValidationMiddleware } from "../../middlewares/fileValidationMiddl
 const router = Router();
 export default function soundRoutes(handler: SoundHandler) {
   router.get("/", verifyToken, handler.index);
+  router.get("/:id", verifyToken, handler.show);
   router.post(
     "/",
     uploadMiddleware.memory.array("sounds"),
@@ -13,6 +14,12 @@ export default function soundRoutes(handler: SoundHandler) {
     audioValidationMiddleware,
     handler.create
   );
-  router.delete('/:id',verifyToken,handler.destroy)
+  router.patch(
+    "/:id",
+    verifyToken,
+    uploadMiddleware.memory.single("sound"),
+    handler.update
+  );
+  router.delete("/:id", verifyToken, handler.destroy);
   return router;
 }

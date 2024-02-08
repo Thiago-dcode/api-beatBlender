@@ -1,22 +1,34 @@
 import { NextFunction, Request, Response } from "express";
 import { validateSound } from "./validate.js";
 import SoundService from "./soundService.js";
-import { AuthorizationError } from "../../errors/auth/auth.js";
-import SoundFolderService from "../soundFolder/soundFolderService.js";
+import { validateUserIdRequest } from "../../utils/utils.js";
 class soundHandler {
-  constructor(
-    private readonly SoundService: SoundService,
-  ) {
+  constructor(private readonly SoundService: SoundService) {
     this.index = this.index.bind(this);
   }
 
   index = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const userId = req.user?.id;
+      const userId = validateUserIdRequest(req.user?.id);
       console.log("req.user", req.user);
       const sounds = await this.SoundService.allByUserOrError(userId);
       res.json({
         sounds,
+      });
+    } catch (error) {
+      next(error);
+    }
+  };
+  show = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const userId = validateUserIdRequest(req.user?.id);
+      const id = parseInt(req.params.id);
+      const sound = await this.SoundService.getSoundIfUserIsAuthOrError(
+        id,
+        userId
+      );
+      res.json({
+        sound,
       });
     } catch (error) {
       next(error);
@@ -28,17 +40,14 @@ class soundHandler {
       if (!result.success) {
         return res.status(422).json(result.error.flatten().fieldErrors);
       }
-      const userIdSession = req.user?.id;
-      if (userIdSession !== result.data.userId)
-        throw new AuthorizationError(
-          "This user is not authorized to do this operations",
-          {}
-        );
+
+      const userId = validateUserIdRequest(req.user?.id);
       const sounds = req.files as Express.Multer.File[];
-      const soundsCreated = await this.SoundService.createManyOrError(
-        sounds,
-        result.data
-      );
+
+      const soundsCreated = await this.SoundService.createManyOrError(sounds, {
+        ...result.data,
+        userId,
+      });
       return res.json(soundsCreated);
     } catch (error) {
       next(error);
@@ -51,20 +60,15 @@ class soundHandler {
       if (!result.success) {
         return res.status(422).json(result.error.flatten().fieldErrors);
       }
-      const userId = req.user?.id;
-      if (userId !== result.data.userId)
-        throw new AuthorizationError(
-          "This user is not authorized to do this operations",
-          {}
-        );
+      const userId = validateUserIdRequest(req.user?.id);
       const id = parseInt(req.params.id);
       const soundFile = req.file;
-      // const soundUpdated = await this.SoundService.updateOrError(
-      //   id,
-      //   result.data,
-      //   soundFile
-      // );
-      // return res.json(soundUpdated);
+      const soundUpdated = await this.SoundService.updateOrError(
+        id,
+        { ...result.data, userId },
+        soundFile
+      );
+      return res.json(soundUpdated);
     } catch (error) {
       next(error);
     }

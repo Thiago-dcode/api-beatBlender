@@ -7,8 +7,7 @@ const Sound = z.object({
       message: "Name must only contain letters, numbers, and '-'",
     })
     .optional(),
-  userId: z.coerce.number().int(),
-  sound_folderId: z.coerce.number().int().optional(),
+  folderId: z.coerce.number().int().optional(),
 });
 
 export const validateSound = (data: unknown) => {
