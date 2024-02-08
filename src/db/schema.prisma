@@ -25,6 +25,10 @@ model User {
   Keyboard     Keyboard[]
   record       Record[]
   sound        Sound[]
+  user_info    User_info?
+  membership   Membership?    @relation(fields: [membershipId], references: [id])
+  membershipId Int            @unique
+  // Membership_status Membership_status?
 }
 
 model Keyboard {
@@ -63,6 +67,7 @@ model Sound {
   name           String
   path           String
   userId         Int
+  size           Float
   keys           Key[]
   user           User         @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   categories     Category[]   @relation("CategoryToSound")
@@ -85,6 +90,9 @@ model Record {
   path       String
   userId     Int
   keyboardId Int?
+  size       Float
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
   user       User       @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   Keyboard   Keyboard?  @relation(fields: [keyboardId], references: [id])
   categories Category[] @relation("CategoryToRecord")
@@ -121,3 +129,46 @@ model Color {
   Design_key        Design_key?      @relation(fields: [design_keyId], references: [id])
   Design_keyboard   Design_keyboard? @relation(fields: [design_keyboardId], references: [id])
 }
+
+model User_info {
+  id                   Int      @id @default(autoincrement())
+  space                Float
+  keyboards            Int
+  sounds               Int
+  membership_id        Int?
+  membership_status_id Int?
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+  user                 User     @relation(fields: [userId], references: [id])
+  userId               Int      @unique
+}
+
+model Membership {
+  id           Int      @id @default(autoincrement())
+  name         String   @unique
+  description  String?
+  keyboards    Int
+  space        Float
+  sounds       Int
+  price        Float?
+  duration     Int? // Duration in days, months, or years
+  auto_renewal Boolean  @default(false)
+  created_at   DateTime @default(now())
+  updated_at   DateTime @updatedAt
+  User         User[]
+  // Membership_status Membership_status?
+}
+
+// model Membership_status {
+//   id             Int        @id @default(autoincrement())
+//   start_date     DateTime   @default(now())
+//   end_date       DateTime?
+//   renewal_status String
+//   auto_renewal   Boolean    @default(false)
+//   created_at     DateTime   @default(now())
+//   updated_at     DateTime   @updatedAt
+//   membership     Membership @relation(fields: [membership_id], references: [id])
+//   membership_id  Int        @unique
+//   user           User       @relation(fields: [userId], references: [id])
+//   userId         Int        @unique
+// }
