@@ -4,8 +4,11 @@ import { db } from "../../../db/db.js";
 const userRepository = new UserRepository(db());
 export default async function onCreate(data: { user: User }) {
   const { username, id } = data.user;
-
-  await userRepository.updateByUsername(username, {
+  userRepository.updateByUsername(username, {
     avatar: `free/avatar/avatar`,
   });
 }
+
+const setInitialUserInfo = (user: User) => {
+      
+};
