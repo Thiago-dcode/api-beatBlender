@@ -21,4 +21,8 @@ export default {
     expire: "1h",
     refreshExpire: "3h",
   },
+  membership:{
+    free: 1,
+
+  }
 };

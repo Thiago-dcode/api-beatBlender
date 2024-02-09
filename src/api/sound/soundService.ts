@@ -24,8 +24,8 @@ export default class SoundService {
   private SoundRepo;
   constructor(
     SoundRepo: SoundRepository,
-    private readonly soundFolderService: SoundFolderService,
-    private readonly storage: StorageService
+    private readonly storage: StorageService,
+    private readonly soundFolderService: SoundFolderService
   ) {
     this.SoundRepo = SoundRepo;
   }

@@ -103,7 +103,7 @@ export default class UserService {
   async updateOrError(
     username: string,
     data: UpdateUser,
-    file: Express.Multer.File | undefined
+    file: Express.Multer.File | undefined = undefined
   ) {
     //check if the username requested to update exist
     const userExist = await this.userRepo.findFirstWhere({ username });

@@ -27,7 +27,7 @@ model User {
   sound        Sound[]
   user_info    User_info?
   membership   Membership?    @relation(fields: [membershipId], references: [id])
-  membershipId Int            @unique
+  membershipId Int?           @unique
   // Membership_status Membership_status?
 }
 
@@ -67,7 +67,7 @@ model Sound {
   name           String
   path           String
   userId         Int
-  size           Float
+  size           Float?
   keys           Key[]
   user           User         @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   categories     Category[]   @relation("CategoryToSound")
@@ -90,7 +90,7 @@ model Record {
   path       String
   userId     Int
   keyboardId Int?
-  size       Float
+  size       Float?
   createdAt  DateTime   @default(now())
   updatedAt  DateTime   @updatedAt
   user       User       @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
