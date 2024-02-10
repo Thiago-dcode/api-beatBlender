@@ -1,30 +1,13 @@
-import { PrismaClient, User_info } from "@prisma/client";
-import { UserInfoToUpdate, userInfoToCreate } from "./types.js";
+import { PrismaClient} from "@prisma/client";
 
-
-
-export default class UserInfoRepository {
+export default class MembershipRepository {
   db: PrismaClient;
   constructor(db: PrismaClient) {
     this.db = db;
     this.db.$connect();
   }
-  async create(data: userInfoToCreate) {
-    return await this.db.user_info.create({ data });
-  }
-  async findFirstByUserId(userId: number) {
-    return await this.db.user_info.findFirst({ where: { userId } });
-  }
 
-  async update(id: number, data: UserInfoToUpdate) {
-    return await this.db.user_info.update({
-      where: { id },
-      data,
-    });
-  }
-  async deleteByUserId(userId: number) {
-    return await this.db.user_info.delete({
-      where: { userId },
-    });
+  async findFirstById(id: number) {
+    return await this.db.membership.findFirst({ where: { id } });
   }
 }

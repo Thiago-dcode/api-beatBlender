@@ -1,8 +1,6 @@
 import { PrismaClient, User_info } from "@prisma/client";
 import { UserInfoToUpdate, userInfoToCreate } from "./types.js";
 
-
-
 export default class UserInfoRepository {
   db: PrismaClient;
   constructor(db: PrismaClient) {
@@ -13,7 +11,10 @@ export default class UserInfoRepository {
     return await this.db.user_info.create({ data });
   }
   async findFirstByUserId(userId: number) {
-    return await this.db.user_info.findFirst({ where: { userId } });
+    return await this.db.user_info.findFirst({
+      where: { userId },
+      include: { membership_status: true },
+    });
   }
 
   async update(id: number, data: UserInfoToUpdate) {

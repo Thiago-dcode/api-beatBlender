@@ -12,7 +12,7 @@ class AuthFacade {
 
   /**
    * Constructs a new instance of AuthFacade.
-   * @param authService The user information service to be used.
+   * @param authService The auth information service to be used.
    */
   constructor(authService: AuthService) {
     this.authService = authService;

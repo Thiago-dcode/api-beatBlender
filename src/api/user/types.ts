@@ -14,5 +14,4 @@ export interface UpdateUser {
   password?: string;
   avatar?: string;
   updatedAt?: Date;
-  membershipId?: number;
-}
+ }

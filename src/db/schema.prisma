@@ -26,24 +26,23 @@ model User {
   record       Record[]
   sound        Sound[]
   user_info    User_info?
-  membership   Membership?    @relation(fields: [membershipId], references: [id])
-  membershipId Int?           @unique
   // Membership_status Membership_status?
 }
 
 model Keyboard {
-  id                Int              @id @default(autoincrement())
-  createdAt         DateTime         @default(now())
-  updatedAt         DateTime         @updatedAt
-  name              String
-  private           Boolean          @default(false)
-  userId            Int
-  design_keyboardId Int?
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  name      String
+  private   Boolean  @default(false)
+
   keys              Key[]
-  user              User             @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  Design_keyboard   Design_keyboard? @relation(fields: [design_keyboardId], references: [id])
   records           Record[]
   categories        Category[]       @relation("CategoryToKeyboard")
+  user              User             @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  userId            Int
+  Design_keyboard   Design_keyboard? @relation(fields: [design_keyboardId], references: [id])
+  design_keyboardId Int?
 }
 
 model Key {
@@ -137,7 +136,7 @@ model User_info {
   sounds            Int
   createdAt         DateTime           @default(now())
   updatedAt         DateTime           @updatedAt
-  user              User               @relation(fields: [userId], references: [id])
+  user              User               @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   userId            Int                @unique
   membership_status Membership_status?
 }
@@ -153,7 +152,6 @@ model Membership {
   duration          Int? // Duration in days, months, or years
   created_at        DateTime            @default(now())
   updated_at        DateTime            @updatedAt
-  User              User[]
   membership_status Membership_status[]
 }
 
@@ -170,8 +168,8 @@ model Membership_status {
   auto_renewal  Boolean    @default(false)
   created_at    DateTime   @default(now())
   updated_at    DateTime   @updatedAt
-  membership    Membership @relation(fields: [membership_id], references: [id])
+  membership    Membership @relation(fields: [membership_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
   membership_id Int        @unique
-  user_info     User_info  @relation(fields: [user_infoId], references: [id])
+  user_info     User_info  @relation(fields: [user_infoId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   user_infoId   Int        @unique
 }

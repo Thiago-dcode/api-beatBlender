@@ -31,7 +31,7 @@ export default class UserService {
         if (user.avatar) {
           url = await this.getAvatarUrlOrError(user.avatar);
         }
-        return { ...user, avatarUrl: url };
+        return { ...user, password: "", token: "", avatarUrl: url };
       })
     );
 
@@ -50,7 +50,12 @@ export default class UserService {
         `User with ${username} username not found`,
         {}
       );
-    let userWithAvatarUrl: UserWithAvatarUrl = { ...user, avatarUrl: "" };
+    let userWithAvatarUrl: UserWithAvatarUrl = {
+      ...user,
+      password: "",
+      token: "",
+      avatarUrl: "",
+    };
     if (user.avatar) {
       const avatarUrl = await this.getAvatarUrlOrError(user.avatar);
       userWithAvatarUrl.avatarUrl = avatarUrl;

@@ -5,17 +5,19 @@ import authRoutes from "./api/auth/index.js";
 import keyRoutes from "./api/key/routes.js";
 import soundRoutes from "./api/sound/index.js";
 import soundFolder from "./api/soundFolder/index.js";
+import userInfoRoute from "./api/userInfo/index.js";
 const homeRouter = Router();
 homeRouter.get("/", (req, res) => {
     logger.daily.info("Accessing home page", { hello: "homepage" });
-    res.send("HELLO FROM HOME");
+    res.send("HOME");
 });
 const routes = {
     "/": homeRouter,
     users: userRoutes,
     auth: authRoutes,
     sounds: soundRoutes,
-    sounds_folder: soundFolder,
+    ["sounds-folder"]: soundFolder,
     keys: keyRoutes,
+    ["user-info"]: userInfoRoute,
 };
 export default routes;
