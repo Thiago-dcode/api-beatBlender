@@ -14,4 +14,17 @@ export interface UpdateUser {
   password?: string;
   avatar?: string;
   updatedAt?: Date;
- }
+}
+export interface whereUnique {
+  id?: number;
+  username?: string;
+  email?: string;
+}
+export interface Include {
+  user_info?: boolean;
+  sounds?: boolean;
+  records?: boolean;
+  keyboards?: boolean;
+  sounds_folder?: boolean;
+  keys?: boolean;
+}

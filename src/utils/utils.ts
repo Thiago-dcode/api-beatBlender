@@ -66,3 +66,7 @@ export function validateUserIdRequest(userId: number | undefined) {
 
   return userId;
 }
+
+export function bytesToMB(bytes: number) {
+  return parseFloat((bytes / 1024 / 1024).toFixed(2));
+}

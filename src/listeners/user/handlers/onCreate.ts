@@ -1,21 +1,18 @@
 import { User } from "@prisma/client";
-import UserRepository from "../../../api/user/userRepository.js";
-import { db } from "../../../db/db.js";
 import userFacade from "../../../core/facade/userFacade.js";
 import userInfoFacade from "../../../core/facade/userInfoFacade.js";
 import membershipFacade from "../../../core/facade/membershipFacade.js";
 import config from "../../../config/config.js";
 import membershipStatusFacade from "../../../core/facade/membershipStatusFacade.js";
-import user from "../../../api/user/index.js";
+import logger from "../../../services/logger/logger.js";
 
-const userRepository = new UserRepository(db());
 export default async function onCreate(data: { user: User }) {
   const { username, id } = data.user;
 
- await userFacade.userService.updateOrError(username, {
+  await userFacade.userService.updateOrError(username, {
     avatar: `free/avatar/avatar`,
   });
-  await setInitialUserInfo(data.user)
+  await setInitialUserInfo(data.user);
 }
 
 const setInitialUserInfo = async (user: User) => {
@@ -35,5 +32,5 @@ const setInitialUserInfo = async (user: User) => {
       membership_id: membership.id,
       user_infoId: userInfo.id,
     });
-  //create new membership_status related to user_info and membership
+  logger.daily.info("User initial setting:", { userInfo });
 };

@@ -13,7 +13,6 @@ import ResizeService from "../../resize/resize.js";
 import { Fit } from "../../../types/index.js";
 import config from "../../../config/config.js";
 import { env } from "../../../utils/utils.js";
-import { object } from "zod";
 type Obj = {
   key: string;
   body: Buffer;

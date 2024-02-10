@@ -47,3 +47,6 @@ export function validateUserIdRequest(userId) {
         throw new AuthorizationError("This user is not authorized to do this operations", {});
     return userId;
 }
+export function bytesToMB(bytes) {
+    return parseFloat((bytes / 1024 / 1024).toFixed(2));
+}

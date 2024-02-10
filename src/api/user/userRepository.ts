@@ -1,11 +1,6 @@
 import { Prisma, PrismaClient } from "@prisma/client";
-import { CreateUser, UpdateUser } from "./types.js";
-import { PrismaClientOptions } from "@prisma/client/runtime/library.js";
-type whereUnique = {
-  id?: number;
-  username?: string;
-  email?: string;
-};
+import { CreateUser, UpdateUser, whereUnique, Include } from "./types.js";
+
 export default class UserRepository {
   db: PrismaClient;
   constructor(db: PrismaClient) {
@@ -40,9 +35,10 @@ export default class UserRepository {
       where,
     });
   }
-  async findFirstWhere(where: whereUnique) {
+  async findFirstWhere(where: whereUnique, include: Include = {}) {
     return await this.db.user.findFirst({
       where,
+      include,
     });
   }
   async deleteWhere(where: Prisma.UserWhereUniqueInput) {

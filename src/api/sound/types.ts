@@ -3,7 +3,7 @@ export interface soundToCreate {
   path: string;
   userId: number;
   sound_folderId: number;
-  size?: number;
+  size: number;
 }
 export interface soundToUpdate {
   id?: number;
@@ -11,4 +11,5 @@ export interface soundToUpdate {
   path?: string;
   userId?: number;
   sound_folderId?: number;
+  size: number;
 }

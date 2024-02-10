@@ -5,12 +5,14 @@ import { S3File } from "../../types/index.js";
 
 import SoundRepository from "./soundRepository.js";
 import { soundToCreate } from "./types.js";
-import { randomString } from "../../utils/utils.js";
+import { bytesToMB, randomString } from "../../utils/utils.js";
 import { StorageError } from "../../errors/general/general.js";
 import { Sound, Sound_folder } from "@prisma/client";
 import { AuthorizationError } from "../../errors/auth/auth.js";
 import { extractFolderAndFileName } from "./helper.js";
 import SoundFolderService from "../soundFolder/soundFolderService.js";
+import SoundListener from "../../listeners/sound/SoundListener.js";
+import { SoundEvents } from "../../listeners/sound/type.js";
 
 type SoundRequestData = {
   folderId?: number;
@@ -91,7 +93,7 @@ export default class SoundService {
       files.map(async (file) => {
         const fileName = randomString();
         const key = `user-${requestData.userId}/sounds/${soundFolder.name}/${fileName}`;
-        await this.storeAudioFileOrError({
+        const storedSound = await this.storeAudioFileOrError({
           key,
           body: file.buffer,
           contentType: file.mimetype,
@@ -101,10 +103,16 @@ export default class SoundService {
           name: path.parse(file.originalname).name,
           path: key,
           sound_folderId: soundFolder.id,
+          size: bytesToMB(file.size),
         };
       })
     );
     const sounds = await this.SoundRepo.createMany(soundsToCreate);
+
+    SoundListener.emit(SoundEvents.CreateMany, {
+      userId,
+    });
+
     return sounds;
   }
   async updateOrError(
@@ -141,6 +149,7 @@ export default class SoundService {
           key: path,
           body: soundFile.buffer,
           contentType: soundFile.mimetype,
+         
         };
 
         await this.storeAudioFileOrError(s3File);
@@ -151,6 +160,7 @@ export default class SoundService {
       name: name || soundToUpdate.name || soundFile?.originalname,
       path,
       sound_folderId: folder?.id || soundToUpdate.sound_folderId,
+      size:soundFile? bytesToMB(soundFile.size): soundToUpdate.size
     });
     return {
       ...soundUpdated,

@@ -5,7 +5,7 @@ import {
 } from "../../errors/db/db.js";
 import { hashPassword } from "../../utils/utils.js";
 import UserRepository from "./userRepository.js";
-import { CreateUser, UpdateUser } from "./types.js";
+import { CreateUser, Include, UpdateUser } from "./types.js";
 import StorageService from "../../services/logger/storage/storage.js";
 import { StorageError } from "../../errors/general/general.js";
 import { User } from "@prisma/client";
@@ -36,6 +36,12 @@ export default class UserService {
     );
 
     return usersWithAvatarUrl;
+  }
+  async getByIdWithRelationsOrError(id: number, include: Include = {}) {
+    const user = await this.userRepo.findFirstWhere({ id }, include);
+    if (!user)
+      throw new EntityNotFoundError(`User with ${id} id not found`, {});
+    return user;
   }
   async getByIdOrError(id: number) {
     const user = await this.userRepo.findFirstWhere({ id });
