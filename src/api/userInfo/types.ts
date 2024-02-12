@@ -1,8 +1,8 @@
 export interface userInfoToCreate {
+  id: number;
   space: number;
   keyboards: number;
   sounds: number;
-  userId: number;
 }
 export interface UserInfoToUpdate {
   space?: number;

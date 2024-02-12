@@ -9,7 +9,6 @@ const User = z.object({
   email: z.string().email().optional(),
   biography: z.string().optional(),
   avatar: z.string().optional(),
-  isAdmin: z.boolean().default(false).optional(),
 });
 
 export const validateCreate = (data: unknown) => {

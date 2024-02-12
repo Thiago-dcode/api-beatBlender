@@ -11,5 +11,5 @@ export interface soundToUpdate {
   path?: string;
   userId?: number;
   sound_folderId?: number;
-  size: number;
+  size?: number;
 }

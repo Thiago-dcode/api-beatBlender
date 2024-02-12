@@ -10,9 +10,9 @@ export default class UserInfoRepository {
   async create(data: userInfoToCreate) {
     return await this.db.user_info.create({ data });
   }
-  async findFirstByUserId(userId: number) {
+  async findFirstById(id: number) {
     return await this.db.user_info.findFirst({
-      where: { userId },
+      where: { id },
       include: { membership_status: true },
     });
   }
@@ -23,9 +23,9 @@ export default class UserInfoRepository {
       data,
     });
   }
-  async deleteByUserId(userId: number) {
+  async delete(id: number) {
     return await this.db.user_info.delete({
-      where: { userId },
+      where: { id },
     });
   }
 }

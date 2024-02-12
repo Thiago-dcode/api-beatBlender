@@ -2,6 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import { validateSound } from "./validate.js";
 import SoundService from "./soundService.js";
 import { validateUserIdRequest } from "../../utils/utils.js";
+import Listener from "../../listeners/Listener.js";
 class soundHandler {
   constructor(private readonly SoundService: SoundService) {
     this.index = this.index.bind(this);
@@ -15,6 +16,7 @@ class soundHandler {
       res.json({
         sounds,
       });
+   
     } catch (error) {
       next(error);
     }
@@ -68,6 +70,7 @@ class soundHandler {
         { ...result.data, userId },
         soundFile
       );
+  
       return res.json(soundUpdated);
     } catch (error) {
       next(error);

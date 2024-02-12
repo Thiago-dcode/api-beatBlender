@@ -5,16 +5,14 @@ import {
 } from "../../errors/db/db.js";
 import { hashPassword } from "../../utils/utils.js";
 import UserRepository from "./userRepository.js";
-import { CreateUser, Include, UpdateUser } from "./types.js";
+import { CreateUser, Include, UpdateUser, UserWithAvatarUrl } from "./types.js";
 import StorageService from "../../services/logger/storage/storage.js";
 import { StorageError } from "../../errors/general/general.js";
 import { User } from "@prisma/client";
 import { S3File } from "../../types/index.js";
 import UserListener from "../../listeners/user/UserListener.js";
 import { UserEvents } from "../../listeners/user/type.js";
-interface UserWithAvatarUrl extends User {
-  avatarUrl: string;
-}
+
 export default class UserService {
   private userRepo;
   private readonly storage;
@@ -109,7 +107,16 @@ export default class UserService {
     UserListener.emit(UserEvents.Create, {
       user: newUser,
     });
-    return newUser;
+
+    return new Promise<User>((resolve, reject) => {
+      UserListener.on(UserEvents.SuccessCreate, () => {
+        resolve(newUser);
+      });
+      UserListener.on(UserEvents.Error, async (error) => {
+        await this.deleteByUserNameOrError(data.username);
+        reject(error);
+      });
+    });
   }
   async updateOrError(
     username: string,
@@ -180,7 +187,6 @@ export default class UserService {
       const resultAvatarDeleted = await this.deleteAvatarOrError(
         userToDelete.avatar
       );
-      console.log("RESULT OF DELETING AVATAR:", resultAvatarDeleted);
     }
 
     const result = await this.userRepo.deleteWhere({
@@ -194,6 +200,7 @@ export default class UserService {
         404
       );
     }
+    UserListener.emit(UserEvents.Delete, { user: userToDelete });
   }
   async getAvatarUrlOrError(avatar: string) {
     try {

@@ -2,15 +2,15 @@
 import SoundRepository from "../../api/sound/soundRepository.js";
 import { db } from "../../db/db.js";
 import SoundService from "../../api/sound/soundService.js";
-import StorageService from "../../services/logger/storage/storage.js";
-import ResizeService from "../../services/resize/resize.js";
 import soundFolderFacade from "./soundFolderFacade.js";
+import membershipStatusFacade from "./membershipStatusFacade.js";
+import storageFacade from "./services/storageFacade.js";
 /**
  * Facade for interacting with sound-related functionality.
  * Provides a simplified interface for accessing sound services.
  */
 class SoundFacade {
-    readonly soundService: SoundService;
+  readonly soundService: SoundService;
 
   /**
    * Constructs a new instance of SoundFacade.
@@ -27,8 +27,9 @@ class SoundFacade {
 const soundFacade = new SoundFacade(
   new SoundService(
     new SoundRepository(db()),
-    new StorageService(new ResizeService()),
-    soundFolderFacade.soundFolderService
+    storageFacade.storageService,
+    soundFolderFacade.soundFolderService,
+    membershipStatusFacade.membershipStatusService
   )
 );
 

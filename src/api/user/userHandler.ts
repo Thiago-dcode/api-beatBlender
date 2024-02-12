@@ -35,7 +35,7 @@ class UserHandler {
       const userCreateResult = await this.userService.createOrError(
         result.data
       );
-      res.json(userCreateResult);
+      res.json({...userCreateResult, password: ''});
     } catch (error) {
       next(error);
     }

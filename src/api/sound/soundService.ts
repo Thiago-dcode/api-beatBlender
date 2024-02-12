@@ -5,14 +5,16 @@ import { S3File } from "../../types/index.js";
 
 import SoundRepository from "./soundRepository.js";
 import { soundToCreate } from "./types.js";
-import { bytesToMB, randomString } from "../../utils/utils.js";
+import { bytesToMB, randomString, sanitizeString } from "../../utils/utils.js";
 import { StorageError } from "../../errors/general/general.js";
-import { Sound, Sound_folder } from "@prisma/client";
+import { Sound } from "@prisma/client";
 import { AuthorizationError } from "../../errors/auth/auth.js";
 import { extractFolderAndFileName } from "./helper.js";
 import SoundFolderService from "../soundFolder/soundFolderService.js";
 import SoundListener from "../../listeners/sound/SoundListener.js";
 import { SoundEvents } from "../../listeners/sound/type.js";
+import MembershipStatusService from "../membershipStatus/MembershipStatusService.js";
+import logger from "../../services/logger/logger.js";
 
 type SoundRequestData = {
   folderId?: number;
@@ -27,7 +29,8 @@ export default class SoundService {
   constructor(
     SoundRepo: SoundRepository,
     private readonly storage: StorageService,
-    private readonly soundFolderService: SoundFolderService
+    private readonly soundFolderService: SoundFolderService,
+    private readonly membershipStatusService: MembershipStatusService
   ) {
     this.SoundRepo = SoundRepo;
   }
@@ -89,6 +92,14 @@ export default class SoundService {
         )
       : await this.soundFolderService.getOrCreateDefaultFolderByUserId(userId);
 
+    //before continue check if user new data meets memebership requirements
+    await this.membershipStatusService.errorIfUserExceedMembership(userId, {
+      increaseSound: files.length,
+      increaseSpace: files.reduce(
+        (total, curr) => total + bytesToMB(curr.size),
+        0
+      ),
+    });
     const soundsToCreate: soundToCreate[] = await Promise.all(
       files.map(async (file) => {
         const fileName = randomString();
@@ -100,7 +111,7 @@ export default class SoundService {
         });
         return {
           userId: requestData.userId,
-          name: path.parse(file.originalname).name,
+          name: sanitizeString(path.parse(file.originalname).name),
           path: key,
           sound_folderId: soundFolder.id,
           size: bytesToMB(file.size),
@@ -113,7 +124,27 @@ export default class SoundService {
       userId,
     });
 
+    SoundListener.on(SoundEvents.Error, (error) => {
+      logger.daily.error("Some error onCreateMany event", error);
+    });
     return sounds;
+  }
+  async updateManyPathOrError(
+    sounds: Sound[],
+    userId: number,
+    folderName: string
+  ) {
+    const soundsUpdated = await Promise.all(
+      sounds.map(async (sound) => {
+        const { filename } = extractFolderAndFileName(sound.path);
+        const result = await this.SoundRepo.update(sound.id, {
+          id: sound.id,
+          path: `user-${userId}/sounds/${folderName}/${filename}`,
+        });
+        return result;
+      })
+    );
+    return soundsUpdated;
   }
   async updateOrError(
     id: number,
@@ -121,7 +152,6 @@ export default class SoundService {
     soundFile: Express.Multer.File | undefined
   ) {
     const soundToUpdate = await this.getSoundIfUserIsAuthOrError(id, userId);
-
     const { filename: previousFilename, foldername: previousFoldername } =
       extractFolderAndFileName(soundToUpdate.path);
 
@@ -140,6 +170,11 @@ export default class SoundService {
         //move the file to the new folder provided
         await this.moveAudioFileOrError(soundToUpdate.path, path);
       } else if (soundFile) {
+        //first check if the new soundFile, exceed the space limit
+        await this.membershipStatusService.errorIfUserExceedMembership(userId, {
+          increaseSpace: bytesToMB(soundFile.size) - soundToUpdate.size,
+        });
+
         await this.deleteAudioFileOrError(soundToUpdate?.path);
         const filename = randomString();
         path = folder
@@ -149,7 +184,6 @@ export default class SoundService {
           key: path,
           body: soundFile.buffer,
           contentType: soundFile.mimetype,
-         
         };
 
         await this.storeAudioFileOrError(s3File);
@@ -160,11 +194,20 @@ export default class SoundService {
       name: name || soundToUpdate.name || soundFile?.originalname,
       path,
       sound_folderId: folder?.id || soundToUpdate.sound_folderId,
-      size:soundFile? bytesToMB(soundFile.size): soundToUpdate.size
+      size: soundFile ? bytesToMB(soundFile.size) : soundToUpdate.size,
+    });
+
+    SoundListener.emit(SoundEvents.Update, {
+      userId,
+      sound: soundUpdated,
+    });
+
+    SoundListener.on(SoundEvents.Error, (error) => {
+      logger.daily.error("Some error onUpdate sound event", error);
     });
     return {
       ...soundUpdated,
-      soundUrl: await this.getAudioFileUrlOrError(path),
+      soundUrl: await this.getAudioFileUrlOrError(soundUpdated.path),
     };
   }
   async deleteSoundByIdOrError(
@@ -189,6 +232,11 @@ export default class SoundService {
         404
       );
     }
+    SoundListener.emit(SoundEvents.Delete, {
+      userId: soundTodelete.userId,
+      soundDeleted: soundTodelete,
+    });
+
     return result;
   }
   async getAudioFileUrlOrError(sound: string) {

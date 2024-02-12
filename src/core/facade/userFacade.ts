@@ -2,8 +2,7 @@
 import UserRepository from "../../api/user/userRepository.js";
 import { db } from "../../db/db.js";
 import UserService from "../../api/user/userService.js";
-import StorageService from "../../services/logger/storage/storage.js";
-import ResizeService from "../../services/resize/resize.js";
+import storageFacade from "./services/storageFacade.js";
 
 /**
  * Facade for interacting with user-related functionality.
@@ -25,11 +24,7 @@ class UserFacade {
 
 // Instantiate UserFacade with dependencies
 const userFacade = new UserFacade(
-  new UserService(
-    new UserRepository(db()),
-    new StorageService(new ResizeService())
-  )
+  new UserService(new UserRepository(db()), storageFacade.storageService)
 );
 
 export default userFacade;
-

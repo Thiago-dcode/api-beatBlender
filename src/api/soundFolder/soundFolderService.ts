@@ -98,6 +98,7 @@ export default class SoundFolderService {
     }
 
     if (folderExist.sounds.length > 0) {
+      //if folder has sounds, perfom moving files in s3, to the new folder name provided
       const from = `user-${userId}/sounds/${folderExist.name}`;
       const to = `user-${userId}/sounds/${name}`;
       const result = await this.moveSoundFolderFileOrError(from, to);
@@ -127,6 +128,9 @@ export default class SoundFolderService {
       const resultOfDeleting = await this.deleteSoundFolderFileOrError(
         folderPath
       );
+      SoundFolderListener.emit(SoundFolderListener.events.DeleteStorage, {
+        userId,
+      });
     }
 
     //delete folder from db
@@ -138,6 +142,7 @@ export default class SoundFolderService {
         404
       );
     }
+   
     return result;
   }
   async moveSoundFolderFileOrError(from: string, to: string) {

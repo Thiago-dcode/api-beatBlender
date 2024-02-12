@@ -2,6 +2,7 @@ export class CustomError extends Error {
   public statusCode: number;
   public errors: { [key: string]: string };
 
+
   constructor(
     message: string,
     errors: { [key: string]: string } = {},

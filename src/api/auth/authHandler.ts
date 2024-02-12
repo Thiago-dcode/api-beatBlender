@@ -24,7 +24,7 @@ class AuthHandler {
       });
 
       res.json({
-        user: userAuthenticated.user,
+        user: {...userAuthenticated.user,token:'',password:''},
         accessToken: userAuthenticated.accessToken,
       });
     } catch (error) {

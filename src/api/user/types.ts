@@ -1,3 +1,5 @@
+import { User } from "@prisma/client";
+
 export interface CreateUser {
   username: string;
   password: string;
@@ -27,4 +29,7 @@ export interface Include {
   keyboards?: boolean;
   sounds_folder?: boolean;
   keys?: boolean;
+}
+export interface UserWithAvatarUrl extends User {
+  avatarUrl: string;
 }

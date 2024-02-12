@@ -2,6 +2,7 @@
 import { db } from "../../db/db.js";
 import MembershipSatusRepository from "../../api/membershipStatus/membershipStatusRepository.js";
 import MembershipStatusService from "../../api/membershipStatus/MembershipStatusService.js";
+import userInfoFacade from "./userInfoFacade.js";
 /**
  * Facade for interacting with membership_Status information-related functionality.
  * Provides a simplified interface for accessing membership_status information services.
@@ -20,7 +21,7 @@ class MembershipStatusFacade {
 
 // Instantiate membershipStatusFacade with dependencies
 const membershipStatusFacade = new MembershipStatusFacade(
-  new MembershipStatusService(new MembershipSatusRepository(db()))
+  new MembershipStatusService(new MembershipSatusRepository(db()),userInfoFacade.userInfoService)
 );
 
 export default membershipStatusFacade;

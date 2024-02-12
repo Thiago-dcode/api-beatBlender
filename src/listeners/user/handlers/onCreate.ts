@@ -5,8 +5,10 @@ import membershipFacade from "../../../core/facade/membershipFacade.js";
 import config from "../../../config/config.js";
 import membershipStatusFacade from "../../../core/facade/membershipStatusFacade.js";
 import logger from "../../../services/logger/logger.js";
+import UserListener from "../UserListener.js";
+import { UserData, UserEvents } from "../type.js";
 
-export default async function onCreate(data: { user: User }) {
+export default async function onCreate(data: UserData[UserEvents.Create]) {
   const { username, id } = data.user;
 
   await userFacade.userService.updateOrError(username, {
@@ -17,20 +19,25 @@ export default async function onCreate(data: { user: User }) {
 
 const setInitialUserInfo = async (user: User) => {
   //get free membership
-  const membership = await membershipFacade.membershipService.getByIdOrError(
-    config.membership.free
-  );
-  //create new user_info related row
-  const userInfo = await userInfoFacade.userInfoService.createOrError({
-    sounds: 0,
-    space: 0,
-    keyboards: 0,
-    userId: user.id,
-  });
-  const membershipStatus =
-    await membershipStatusFacade.membershipStatusService.createOrError({
-      membership_id: membership.id,
-      user_infoId: userInfo.id,
+  try {
+    const membership = await membershipFacade.membershipService.getByIdOrError(
+      config.membership.free
+    );
+    //create new user_info related row
+    const userInfo = await userInfoFacade.userInfoService.createOrError({
+      id: user.id,
+      sounds: 0,
+      space: 0,
+      keyboards: 0,
     });
-  logger.daily.info("User initial setting:", { userInfo });
+    const membershipStatus =
+      await membershipStatusFacade.membershipStatusService.createOrError({
+        membership_id: membership.id,
+        user_infoId: userInfo.id,
+      });
+    UserListener.emit(UserEvents.SuccessCreate, true);
+    logger.daily.info("User initial setting:", { userInfo });
+  } catch (error) {
+    if (error instanceof Error) UserListener.emit(UserEvents.Error, error);
+  }
 };

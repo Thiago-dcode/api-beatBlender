@@ -21,11 +21,11 @@ export default class SoundFolderRepository {
     });
   }
   async findByIdWithSounds(id: number, includeSounds: boolean = true) {
-    const folder= await this.db.sound_folder.findFirst({
+    const folder = await this.db.sound_folder.findFirst({
       where: { id },
       include: { sounds: includeSounds },
     });
-    return folder
+    return folder;
   }
   async findFirstWhere(where: Where) {
     const sound_folder = await this.db.sound_folder.findFirst({
