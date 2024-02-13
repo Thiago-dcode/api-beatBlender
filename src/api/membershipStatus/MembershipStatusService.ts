@@ -58,7 +58,7 @@ export default class MembershipStatusService {
     }
     if (membership.space < space) {
       throw new MembershipExceedLimitError(
-        `Limit of ${membership.space} space exceeded`,
+        `Limit of ${membership.space}MB in space exceeded`,
         {
           space: "Limit exceeded",
         }
