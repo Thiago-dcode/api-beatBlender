@@ -125,7 +125,7 @@ export default class KeyService {
 
     if (!result) {
       throw new EntityNotFoundError(
-        `Error deleting Sound with ${id} id`,
+        `Error deleting Key with ${id} id`,
         {},
         404
       );
