@@ -18,6 +18,7 @@ export default function soundRoutes(handler: SoundHandler) {
     "/:id",
     verifyToken,
     uploadMiddleware.memory.single("sound"),
+    audioValidationMiddleware,
     handler.update
   );
   router.delete("/:id", verifyToken, handler.destroy);

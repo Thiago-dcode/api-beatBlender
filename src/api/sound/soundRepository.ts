@@ -1,5 +1,4 @@
-import { Prisma, PrismaClient, Sound } from "@prisma/client";
-import { UnknowDbError } from "../../errors/db/db.js";
+import {PrismaClient } from "@prisma/client";
 import { soundToCreate, soundToUpdate } from "./types.js";
 
 export default class SoundRepository {
@@ -23,11 +22,15 @@ export default class SoundRepository {
     return result;
   }
   async updateMany(userId: number, data: soundToUpdate[]) {
-   const result =  await this.db.sound.updateMany({
+    const result = await this.db.sound.updateMany({
       where: { userId },
       data,
     });
-    return result
+    return result;
+  }
+  async create(data: soundToCreate) {
+    const result = await this.db.sound.create({ data });
+    return result;
   }
   async createMany(sounds: soundToCreate[]) {
     const result = await this.db.sound.createMany({ data: sounds });

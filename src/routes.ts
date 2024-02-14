@@ -2,7 +2,7 @@ import logger from "./services/logger/logger.js";
 import { Router } from "express";
 import userRoutes from "./api/user/index.js";
 import authRoutes from "./api/auth/index.js";
-import keyRoutes from "./api/key/routes.js";
+import keyRoutes from "./api/key/index.js";
 import soundRoutes from "./api/sound/index.js";
 import soundFolder from "./api/soundFolder/index.js";
 import userInfoRoute from "./api/userInfo/index.js";

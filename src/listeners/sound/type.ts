@@ -6,6 +6,7 @@ export enum SoundEvents {
   Success = "success",
   Error = "error",
   CreateMany = "onCreateMany",
+  Create = "onCreate",
   Update = "onUpdate",
   Delete = "onDelete",
 }
@@ -13,6 +14,9 @@ export enum SoundEvents {
 // Define types for event data associated with each entity
 interface _SoundEventData {
   [SoundEvents.CreateMany]: {
+    userId: number;
+  };
+  [SoundEvents.Create]: {
     userId: number;
   };
   [SoundEvents.Update]: {

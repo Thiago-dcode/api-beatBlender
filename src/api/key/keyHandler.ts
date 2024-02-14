@@ -1,19 +1,18 @@
 import { NextFunction, Request, Response } from "express";
-import { validateSound } from "./validate.js";
-import SoundService from "./soundService.js";
+import { validateKey, validateKeyOptional } from "./validate.js";
 import { validateUserIdRequest } from "../../utils/utils.js";
-class soundHandler {
-  constructor(private readonly SoundService: SoundService) {
+import KeyService from "./keyService.js";
+export default class keyHandler {
+  constructor(private readonly keyService: KeyService) {
     this.index = this.index.bind(this);
   }
 
   index = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const userId = validateUserIdRequest(req.user?.id);
-      console.log("req.user", req.user);
-      const sounds = await this.SoundService.allByUserOrError(userId);
+      const keys = await this.keyService.allByUserOrError(userId);
       res.json({
-        sounds,
+        keys,
       });
     } catch (error) {
       next(error);
@@ -23,12 +22,9 @@ class soundHandler {
     try {
       const userId = validateUserIdRequest(req.user?.id);
       const id = parseInt(req.params.id);
-      const sound = await this.SoundService.getSoundIfUserIsAuthOrError(
-        id,
-        userId
-      );
+      const key = await this.keyService.getOneByIdOrError(id, userId);
       res.json({
-        sound,
+        key,
       });
     } catch (error) {
       next(error);
@@ -36,26 +32,27 @@ class soundHandler {
   };
   create = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const result = validateSound(req.body);
+      const result = validateKey(req.body);
       if (!result.success) {
         return res.status(422).json(result.error.flatten().fieldErrors);
       }
 
       const userId = validateUserIdRequest(req.user?.id);
-      const sounds = req.files as Express.Multer.File[];
-     
-      const soundsCreated = await this.SoundService.createManyOrError(sounds, {
+      const soundFile = req.file;
+
+      const keyCreated = await this.keyService.createOrError({
         ...result.data,
         userId,
+        soundFile,
       });
-      return res.json(soundsCreated);
+      return res.json(keyCreated);
     } catch (error) {
       next(error);
     }
   };
   update = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const result = validateSound(req.body);
+      const result = validateKeyOptional(req.body);
 
       if (!result.success) {
         return res.status(422).json(result.error.flatten().fieldErrors);
@@ -63,13 +60,13 @@ class soundHandler {
       const userId = validateUserIdRequest(req.user?.id);
       const id = parseInt(req.params.id);
       const soundFile = req.file;
-      const soundUpdated = await this.SoundService.updateOrError(
-        id,
-        { ...result.data, userId },
-        soundFile
-      );
+      const keyUpdated = await this.keyService.updateOrError(id, {
+        ...result.data,
+        userId,
+        soundFile,
+      });
 
-      return res.json(soundUpdated);
+      return res.json(keyUpdated);
     } catch (error) {
       next(error);
     }
@@ -78,7 +75,7 @@ class soundHandler {
     try {
       const id = parseInt(req.params.id);
       const userId = req.user?.id;
-      await this.SoundService.deleteSoundByIdOrError(id, userId);
+      await this.keyService.deleteOrError(id);
       res.status(200).json({
         success: true,
       });
@@ -87,5 +84,3 @@ class soundHandler {
     }
   };
 }
-
-export default soundHandler;

@@ -2,7 +2,6 @@ import path from "path";
 import { EntityNotFoundError } from "../../errors/db/db.js";
 import StorageService from "../../services/logger/storage/storage.js";
 import { S3File } from "../../types/index.js";
-
 import SoundRepository from "./soundRepository.js";
 import { soundToCreate } from "./types.js";
 import { bytesToMB, randomString, sanitizeString } from "../../utils/utils.js";
@@ -79,7 +78,45 @@ export default class SoundService {
     }
     return soundToCheck;
   }
-
+  async createOrError(
+    file: Express.Multer.File,
+    { userId, folderId, name }: SoundRequestData
+  ) {
+    const soundFolder =
+      await this.soundFolderService.getOrCreateDefaultFolderByUserId(userId);
+    const fileSizeInMb = bytesToMB(file.size);
+    //before continue check if user new data meets memebership requirements
+    await this.membershipStatusService.errorIfUserExceedMembership(userId, {
+      increaseSound: 1,
+      increaseSpace: fileSizeInMb,
+    });
+    //store audio in s3
+    const fileName = randomString();
+    const key = `user-${userId}/sounds/${soundFolder.name}/${fileName}`;
+    const storedSound = await this.storeAudioFileOrError({
+      key,
+      body: file.buffer,
+      contentType: file.mimetype,
+    });
+    const soundCreated = await this.SoundRepo.create({
+      size: fileSizeInMb,
+      userId,
+      sound_folderId: folderId || soundFolder.id,
+      name: name || sanitizeString(path.parse(file.originalname).name),
+      path: key,
+    });
+    if (!soundCreated) {
+      throw new EntityNotFoundError(
+        `Error creating Sound with userId ${userId}`,
+        {},
+        404
+      );
+    }
+    SoundListener.emit(SoundEvents.Create, {
+      userId,
+    });
+    return soundCreated;
+  }
   async createManyOrError(
     files: Express.Multer.File[],
     requestData: SoundRequestData

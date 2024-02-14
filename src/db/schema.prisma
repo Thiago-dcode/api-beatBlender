@@ -51,13 +51,12 @@ model Key {
   updatedAt    DateTime    @updatedAt
   letter       String
   userId       Int
-  keyboardId   Int?
   design_keyId Int?
   soundId      Int?
   user         User        @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  Design_key   Design_key? @relation(fields: [design_keyId], references: [id])
-  Keyboard     Keyboard?   @relation(fields: [keyboardId], references: [id])
-  Sound        Sound?      @relation(fields: [soundId], references: [id])
+  design_key   Design_key? @relation(fields: [design_keyId], references: [id])
+  keyboard     Keyboard[]
+  sound        Sound?      @relation(fields: [soundId], references: [id])
   categories   Category[]  @relation("CategoryToKey")
 }
 
@@ -169,6 +168,6 @@ model Membership_status {
   updated_at    DateTime   @updatedAt
   membership    Membership @relation(fields: [membership_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
   membership_id Int        @unique
-  user_info     User_info @relation(fields: [user_infoId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  user_infoId   Int       @unique
+  user_info     User_info  @relation(fields: [user_infoId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  user_infoId   Int        @unique
 }
