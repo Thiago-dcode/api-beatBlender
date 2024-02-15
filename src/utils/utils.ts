@@ -70,11 +70,23 @@ export function validateUserIdRequest(userId: number | undefined) {
 export function bytesToMB(bytes: number) {
   return parseFloat((bytes / 1024 / 1024).toFixed(2));
 }
-export function sanitizeString(input:string) {
+export function sanitizeString(input: string) {
   // 1 Replace spaces with single spaces
   // 2 Replace spaces with dashes
   // 3 Remove any characters that are not alphanumeric or dashes
- return  input.replace(/\s+/g, ' ').replace(/\s+/g,'-').replace(/[^a-zA-Z0-9-]/g, '');
+  return input
+    .replace(/\s+/g, " ")
+    .replace(/\s+/g, "-")
+    .replace(/[^a-zA-Z0-9-]/g, "");
+}
 
+export function extractRoute(path: string): string {
+  // Remove any trailing slashes
+  path = path.replace(/\/+$/, "");
 
+  // Split the path by "/"
+  const parts = path.split("/");
+
+  // Take the first two parts and join them back
+  return "/" + (parts[1]|| '');
 }

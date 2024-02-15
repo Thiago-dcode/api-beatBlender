@@ -113,7 +113,13 @@ export default class UserService {
         resolve(newUser);
       });
       UserListener.on(UserEvents.Error, async (error) => {
-        await this.deleteByUserNameOrError(data.username);
+        try {
+        await this.deleteByUserNameOrError(
+            data.username
+          );
+        } catch (error) {
+          reject(error);
+        }
         reject(error);
       });
     });

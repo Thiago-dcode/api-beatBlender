@@ -21,8 +21,16 @@ export default {
     expire: "1h",
     refreshExpire: "3h",
   },
-  membership:{
-    free: 1,
-
-  }
+  membership: {
+    free:1,
+  },
+  routes: {
+    users: "/users",
+    auth: "/auth",
+    sounds: "/sounds",
+    ["sounds-folder"]: "/sounds-folder",
+    keys: "/keys",
+    keyboards: "/keyboards",
+    ["user-info"]: "/user-info",
+  },
 };

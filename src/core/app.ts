@@ -3,16 +3,13 @@ import routes from "../routes.js";
 import cors from "cors";
 import bodyParser from "body-parser";
 import cookieParser from "cookie-parser";
-import {
-  errorDuringEventMiddleware,
-  errorHandlerMiddleware,
-} from "../middlewares/errorMiddleware.js";
-import { initEvents } from "../listeners/initEvents.js";
+import { errorHandlerMiddleware } from "../middlewares/errorMiddleware.js";
+import { eventMiddleware } from "../middlewares/eventMiddleware.js";
 class AppController {
   app: express.Application;
   constructor() {
     this.app = express();
-    initEvents();
+
     this.beforeMiddlewares();
     this.routes();
     this.afterMiddlewares();
@@ -23,15 +20,16 @@ class AppController {
     this.app.use(cors()); // Enable CORS middleware
     this.app.use(bodyParser.json());
     this.app.use(cookieParser());
-    this.app.use(errorDuringEventMiddleware);
+    this.app.use(eventMiddleware); 
   }
   afterMiddlewares() {
     this.app.use(errorHandlerMiddleware);
   }
 
   routes() {
+  
     for (const route in routes) {
-      console.log(`/${route === "/" ? "" : route}`);
+    
       this.app.use(`/${route === "/" ? "" : route}`, routes[route]);
     }
   }

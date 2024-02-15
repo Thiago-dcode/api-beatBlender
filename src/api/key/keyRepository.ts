@@ -8,10 +8,18 @@ export default class KeyRepository {
     this.db = db;
     this.db.$connect();
   }
-  async findManyByUserId(userId: number) {
+  async findManyByUserId(
+    userId: number,
+    keyboardId: number | undefined = undefined
+  ) {
+    let keyboard = {};
+    if (keyboardId) {
+      keyboard = { some: { id: keyboardId } };
+    }
     return await this.db.key.findMany({
       where: {
         userId,
+        keyboard,
       },
       include: { sound: true },
     });

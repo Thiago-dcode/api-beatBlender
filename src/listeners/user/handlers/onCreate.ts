@@ -10,34 +10,34 @@ import { UserData, UserEvents } from "../type.js";
 
 export default async function onCreate(data: UserData[UserEvents.Create]) {
   const { username, id } = data.user;
-
-  await userFacade.userService.updateOrError(username, {
-    avatar: `free/avatar/avatar`,
-  });
-  await setInitialUserInfo(data.user);
+  try {
+    await userFacade.userService.updateOrError(username, {
+      avatar: `free/avatar/avatar`,
+    });
+    await setInitialUserInfo(data.user);
+  } catch (error) {
+    if (error instanceof Error) UserListener.emit(UserEvents.Error, error);
+  }
 }
 
 const setInitialUserInfo = async (user: User) => {
   //get free membership
-  try {
-    const membership = await membershipFacade.membershipService.getByIdOrError(
-      config.membership.free
-    );
-    //create new user_info related row
-    const userInfo = await userInfoFacade.userInfoService.createOrError({
-      id: user.id,
-      sounds: 0,
-      space: 0,
-      keyboards: 0,
+
+  const membership = await membershipFacade.membershipService.getByIdOrError(
+    config.membership.free
+  );
+  //create new user_info related row
+  const userInfo = await userInfoFacade.userInfoService.createOrError({
+    id: user.id,
+    sounds: 0,
+    space: 0,
+    keyboards: 0,
+  });
+  const membershipStatus =
+    await membershipStatusFacade.membershipStatusService.createOrError({
+      membership_id: membership.id,
+      user_infoId: userInfo.id,
     });
-    const membershipStatus =
-      await membershipStatusFacade.membershipStatusService.createOrError({
-        membership_id: membership.id,
-        user_infoId: userInfo.id,
-      });
-    UserListener.emit(UserEvents.SuccessCreate, true);
-    logger.daily.info("User initial setting:", { userInfo });
-  } catch (error) {
-    if (error instanceof Error) UserListener.emit(UserEvents.Error, error);
-  }
+  UserListener.emit(UserEvents.SuccessCreate, true);
+  logger.daily.info("User initial setting:", { userInfo });
 };

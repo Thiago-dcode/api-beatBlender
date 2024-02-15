@@ -1,18 +1,32 @@
 import { NextFunction, Request, Response } from "express";
-import { validateKey, validateKeyOptional } from "./validate.js";
+import { validateKeyboard, validateKeyboardOptional } from "./validate.js";
 import { validateUserIdRequest } from "../../utils/utils.js";
-import KeyService from "./keyService.js";
-export default class KeyHandler {
-  constructor(private readonly keyService: KeyService) {
+
+import KeyBoardService from "./keyboardService.js";
+export default class KeyboardHandler {
+  constructor(private readonly keyBoardService: KeyBoardService) {
     this.index = this.index.bind(this);
   }
 
   index = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const userId = validateUserIdRequest(req.user?.id);
-      const keys = await this.keyService.allByUserOrError(userId);
+      const categoriesQuery = req.query.categories;
+      let categories: string[] | undefined = undefined;
+      if (Array.isArray(categoriesQuery)) {
+        categories = categoriesQuery.map((category) => {
+          if (typeof category === "string") {
+            return category;
+          }
+          return "";
+        });
+      }
+      const keyboards = await this.keyBoardService.allByUserOrError(
+        userId,
+        categories
+      );
       res.json({
-        keys,
+        keyboards,
       });
     } catch (error) {
       next(error);
@@ -22,9 +36,9 @@ export default class KeyHandler {
     try {
       const userId = validateUserIdRequest(req.user?.id);
       const id = parseInt(req.params.id);
-      const key = await this.keyService.getOneByIdOrError(id, userId);
+      const keyboard = await this.keyBoardService.getOneByIdOrError(id, userId);
       res.json({
-        key,
+        keyboard,
       });
     } catch (error) {
       next(error);
@@ -32,41 +46,35 @@ export default class KeyHandler {
   };
   create = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const result = validateKey(req.body);
+      const result = validateKeyboard(req.body);
       if (!result.success) {
         return res.status(422).json(result.error.flatten().fieldErrors);
       }
-
       const userId = validateUserIdRequest(req.user?.id);
-      const soundFile = req.file;
-
-      const keyCreated = await this.keyService.createOrError({
+      const keyboardCreated = await this.keyBoardService.createOrError({
         ...result.data,
         userId,
-        soundFile,
       });
-      return res.json(keyCreated);
+      return res.json(keyboardCreated);
     } catch (error) {
       next(error);
     }
   };
   update = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const result = validateKeyOptional(req.body);
+      const result = validateKeyboardOptional(req.body);
 
       if (!result.success) {
         return res.status(422).json(result.error.flatten().fieldErrors);
       }
       const userId = validateUserIdRequest(req.user?.id);
       const id = parseInt(req.params.id);
-      const soundFile = req.file;
-      const keyUpdated = await this.keyService.updateOrError(id, {
+      const keyboardUpdated = await this.keyBoardService.updateOrError(id, {
         ...result.data,
         userId,
-        soundFile,
       });
 
-      return res.json(keyUpdated);
+      return res.json(keyboardUpdated);
     } catch (error) {
       next(error);
     }
@@ -75,7 +83,7 @@ export default class KeyHandler {
     try {
       const id = parseInt(req.params.id);
       const userId = req.user?.id;
-      await this.keyService.deleteOrError(id);
+      await this.keyBoardService.deleteOrError(id);
       res.status(200).json({
         success: true,
       });

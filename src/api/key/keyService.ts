@@ -12,7 +12,6 @@ interface KeyToupdateWithFile extends keyToUpdate {
   soundFile: Express.Multer.File | undefined;
 }
 
-
 export default class KeyService {
   private readonly keyRepo;
   private readonly soundService;
@@ -21,9 +20,12 @@ export default class KeyService {
     this.soundService = soundService;
   }
 
-  async allByUserOrError(userId: number | undefined) {
+  async allByUserOrError(
+    userId: number | undefined,
+    keyboardId: number | undefined = undefined
+  ) {
     if (!userId) throw new EntityNotFoundError("User not found", {});
-    const keys = await this.keyRepo.findManyByUserId(userId);
+    const keys = await this.keyRepo.findManyByUserId(userId, keyboardId);
     const keysWithSoundAndSoundUrl: Key[] = await Promise.all(
       keys.map(async (key) => {
         let url = "";
@@ -38,6 +40,7 @@ export default class KeyService {
 
     return keysWithSoundAndSoundUrl;
   }
+
   async getOneByIdOrError(id: number, userId: number) {
     const key = await this.getKeyIfUserIsAuthOrError(id, userId);
     let url = "";
@@ -99,6 +102,10 @@ export default class KeyService {
     id: number,
     { soundFile, soundId, letter, userId, design_keyId }: KeyToupdateWithFile
   ) {
+    const keyToUpdate = await this.keyRepo.findById(id);
+    if (!keyToUpdate) {
+      throw new EntityNotFoundError(`key with ${id} id not found`, {});
+    }
     if (soundFile) {
       const soundCreated = await this.soundService.createOrError(soundFile, {
         userId: userId,
@@ -111,14 +118,14 @@ export default class KeyService {
     }
     const keyUpdated = await this.keyRepo.update(id, {
       soundId,
-      letter: letter?.toLowerCase(),
+      letter: letter?.toLowerCase() || keyToUpdate.letter,
       userId,
       design_keyId,
     });
     if (!keyUpdated) {
       throw new UnknowDbError("Error updating key");
     }
-    return keyUpdated
+    return keyUpdated;
   }
   async deleteOrError(id: number) {
     const result = await this.keyRepo.deleteById(id);

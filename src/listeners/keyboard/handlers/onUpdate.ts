@@ -1,18 +1,17 @@
 import userInfoFacade from "../../../core/facade/userInfoFacade.js";
 import userFacade from "../../../core/facade/userFacade.js";
+import SoundListener from "../KeyboardLIstener.js";
+import { SoundEventData, SoundEvents } from "../type.js";
 import updateUserInfoData from "../../_global/updateUserInfoData.js";
 import Listener from "../../Listener.js";
-import { SoundFolderData, SoundFolderEvents } from "../type.js";
-import SoundFolderListener from "../SoundFolderListener.js";
 
-export default async function onDeleteStorage(
-  data: SoundFolderData[SoundFolderEvents.DeleteStorage]
+export default async function onUpdate(
+  data: SoundEventData[SoundEvents.Update]
 ) {
-  console.log('THIS SHOULD BE PRINTED:',data)
   await updateUserInfoData(
     data.userId,
     userInfoFacade.userInfoService,
     userFacade.userService,
-    SoundFolderListener
+    Listener
   );
 }

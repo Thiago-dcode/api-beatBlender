@@ -6,10 +6,33 @@ import { SoundFolderData, SoundFolderEvents } from "./type.js";
 
 export default class SoundFolderListener extends Listener {
   static events = SoundFolderEvents;
-  static runEvents() {
-    super.event.on(this.events.UpdateStorage, onUpdateStorage);
-    super.event.on(this.events.DeleteStorage, onDeleteStorage);
-
+  static runEvents(method: string) {
+    switch (method.toLowerCase()) {
+      case "post":
+        break;
+      case "patch":
+        super.event.on(this.events.UpdateStorage, onUpdateStorage);
+        break;
+      case "delete":
+        super.event.on(this.events.DeleteStorage, onDeleteStorage);
+        break;
+      default:
+        break;
+    }
+  }
+  static removeEvents(method: string) {
+    switch (method.toLowerCase()) {
+      case "post":
+        break;
+      case "patch":
+        super.event.removeListener(this.events.UpdateStorage, onUpdateStorage);
+        break;
+      case "delete":
+        super.event.removeListener(this.events.DeleteStorage, onDeleteStorage);
+        break;
+      default:
+        break;
+    }
   }
 
   static emit<T extends SoundFolderEvents>(

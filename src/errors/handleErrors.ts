@@ -23,6 +23,7 @@ export const handleError = (error: unknown): errorObj => {
     errorObj.message = error.message;
     errorObj.errors = error.errors;
   } else if (error instanceof Prisma.PrismaClientKnownRequestError) {
+    console.log("PRISMA ERROR", error);
     switch (error.code) {
       case "P2002":
         // Duplicate key violation in the database
@@ -32,6 +33,22 @@ export const handleError = (error: unknown): errorObj => {
         errorObj.errors = {};
         errorObj.message =
           "Duplicate key violation in the database of " + target;
+        errorObj.code = 422;
+        break;
+      case "P2025":
+        // Duplicate key violation in the database
+        let model =
+          typeof error.meta?.modelName !== "string"
+            ? "error"
+            : error.meta?.modelName;
+
+        errorObj.errors = {
+          [model]:
+            typeof error.meta?.cause !== "string"
+              ? error.message
+              : error.meta?.cause,
+        };
+        errorObj.message = error.message;
         errorObj.code = 422;
         break;
       default:
@@ -62,6 +79,6 @@ export function sendErrResponse(
   const err = errorCallback(error);
   return res.status(err.code).json({
     errors: err.errors,
-    message: err.message
+    message: err.message,
   });
 }

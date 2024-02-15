@@ -122,17 +122,14 @@ export default class SoundFolderService {
       id,
       userId
     );
+    const folderHasSounds = soundFolderToDelete.sounds.length > 0;
     //delete folder from S3 if it has sounds
-    if (soundFolderToDelete.sounds.length > 0) {
+    if (folderHasSounds) {
       const folderPath = `user-${userId}/sounds/${soundFolderToDelete.name}`;
       const resultOfDeleting = await this.deleteSoundFolderFileOrError(
         folderPath
       );
-      SoundFolderListener.emit(SoundFolderListener.events.DeleteStorage, {
-        userId,
-      });
     }
-
     //delete folder from db
     const result = await this.soundFolderRepo.deleteById(id);
     if (!result) {
@@ -142,7 +139,12 @@ export default class SoundFolderService {
         404
       );
     }
-   
+    if (folderHasSounds) {
+      SoundFolderListener.emit(SoundFolderListener.events.DeleteStorage, {
+        userId,
+      });
+    }
+
     return result;
   }
   async moveSoundFolderFileOrError(from: string, to: string) {
