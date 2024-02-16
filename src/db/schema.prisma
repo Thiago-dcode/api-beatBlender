@@ -27,6 +27,7 @@ model User {
   sounds        Sound[]
   user_info     User_info?
   // Membership_status Membership_status?
+  Category      Category[]
 }
 
 model Keyboard {
@@ -113,6 +114,8 @@ model Design_key {
 model Category {
   id        Int        @id @default(autoincrement())
   name      String     @unique
+  user      User?      @relation(fields: [userId], references: [id])
+  userId    Int?
   keys      Key[]      @relation("CategoryToKey")
   keyboards Keyboard[] @relation("CategoryToKeyboard")
   Record    Record[]   @relation("CategoryToRecord")

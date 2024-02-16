@@ -1,4 +1,3 @@
-import logger from "./services/logger/logger.js";
 import { Router } from "express";
 import userRoutes from "./api/user/index.js";
 import authRoutes from "./api/auth/index.js";
@@ -10,7 +9,6 @@ import keyboardRoutes from "./api/keyboard/index.js";
 const homeRouter = Router();
 
 homeRouter.get("/", (req, res) => {
-  logger.daily.info("Accessing home page", { hello: "homepage" });
   res.send("HOME");
 });
 

@@ -9,7 +9,6 @@ class AppController {
   app: express.Application;
   constructor() {
     this.app = express();
-
     this.beforeMiddlewares();
     this.routes();
     this.afterMiddlewares();
@@ -27,7 +26,6 @@ class AppController {
   }
 
   routes() {
-  
     for (const route in routes) {
     
       this.app.use(`/${route === "/" ? "" : route}`, routes[route]);
