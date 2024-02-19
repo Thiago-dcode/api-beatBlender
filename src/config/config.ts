@@ -22,7 +22,7 @@ export default {
     refreshExpire: "3h",
   },
   membership: {
-    free:1,
+    free: 1,
   },
   routes: {
     users: "/users",
@@ -32,5 +32,11 @@ export default {
     keys: "/keys",
     keyboards: "/keyboards",
     ["user-info"]: "/user-info",
+  },
+  user: {
+    free: {
+      username: "beatBlender",
+      id: 251,
+    },
   },
 };

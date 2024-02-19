@@ -35,7 +35,7 @@ export function removeEvents(path: string, method: string) {
   if (route === users) {
     UserListener.removeEvents(method);
   }
-  if (route === sounds) {
+  if (route === sounds || route === keys) {
     SoundListener.removeEvents(method);
   }
   if (route === soundFolder) {

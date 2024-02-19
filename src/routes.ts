@@ -6,6 +6,7 @@ import soundRoutes from "./api/sound/index.js";
 import soundFolderRoutes from "./api/soundFolder/index.js";
 import userInfoRoute from "./api/userInfo/index.js";
 import keyboardRoutes from "./api/keyboard/index.js";
+import freeRoutes from "./api/free/index.js";
 const homeRouter = Router();
 
 homeRouter.get("/", (req, res) => {
@@ -21,6 +22,7 @@ const routes: { [key: string]: Router } = {
   keys: keyRoutes,
   keyboards: keyboardRoutes,
   ["user-info"]: userInfoRoute,
+  free: freeRoutes,
 };
 
 export default routes;

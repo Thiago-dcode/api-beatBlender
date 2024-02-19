@@ -33,7 +33,10 @@ export default class KeyBoardService {
     this.membershipStatusService = membershipStatusService;
   }
 
-  async allByUserOrError(userId: number, categories: string[] | undefined) {
+  async allByUserWithKeysOrError(
+    userId: number,
+    categories: string[] | undefined = undefined
+  ) {
     const keyboards = await this.keyboardRepo.findManyByUserId(
       userId,
       categories
@@ -53,6 +56,19 @@ export default class KeyBoardService {
       })
     );
     return keyboardsWithKeySoundUrl;
+  }
+  async allByUserOrError(
+    userId: number,
+    categories: string[] | undefined = undefined,
+    limit: number = 5
+  ) {
+    const keyboards = await this.keyboardRepo.findManyByUserId(
+      userId,
+      categories,
+      limit
+    );
+
+    return keyboards;
   }
   async getOneByIdOrError(id: number, userId: number) {
     const keyboard = await this.getKeyboardIfUserIsAuthOrError(id, userId);

@@ -11,7 +11,8 @@ export default class KeyboardRepository {
   }
   async findManyByUserId(
     userId: number,
-    categoriesArr: string[] | undefined = undefined
+    categoriesArr: string[] | undefined = undefined,
+    limit: number | undefined = undefined
   ) {
     let categories = {};
     if (categoriesArr) {
@@ -25,6 +26,7 @@ export default class KeyboardRepository {
     }
 
     return await this.db.keyboard.findMany({
+      take: limit,
       where: {
         userId,
         categories,
@@ -33,11 +35,11 @@ export default class KeyboardRepository {
     });
   }
   async findById(id: number) {
-    const key = await this.db.keyboard.findFirst({
+    const keyboard = await this.db.keyboard.findFirst({
       where: { id },
       include: { categories: true },
     });
-    return key;
+    return keyboard;
   }
 
   async create(

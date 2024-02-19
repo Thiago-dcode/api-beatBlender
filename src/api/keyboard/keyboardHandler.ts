@@ -21,7 +21,7 @@ export default class KeyboardHandler {
           return "";
         });
       }
-      const keyboards = await this.keyBoardService.allByUserOrError(
+      const keyboards = await this.keyBoardService.allByUserWithKeysOrError(
         userId,
         categories
       );
