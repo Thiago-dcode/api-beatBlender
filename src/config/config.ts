@@ -1,3 +1,4 @@
+import { uuid } from "uuidv4";
 import { env } from "../utils/utils.js";
 
 export default {
@@ -22,7 +23,10 @@ export default {
     refreshExpire: "3h",
   },
   membership: {
-    free: 1,
+    free: {
+      id: 1,
+      name: "free",
+    },
   },
   routes: {
     users: "/users",
@@ -35,8 +39,8 @@ export default {
   },
   user: {
     free: {
-      username: "beatBlender",
-      id: 251,
+      username: "free-beatblender",
+      id: 1,
     },
   },
 };

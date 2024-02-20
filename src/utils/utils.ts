@@ -88,5 +88,5 @@ export function extractRoute(path: string): string {
   const parts = path.split("/");
 
   // Take the first two parts and join them back
-  return "/" + (parts[1]|| '');
+  return "/" + (parts[1] || "");
 }

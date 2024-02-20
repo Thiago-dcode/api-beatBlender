@@ -36,7 +36,7 @@ export default class MembershipStatusService {
     const userInfo = await this.userInfoService.getFirstByUserAuthOrError(
       userId
     );
-
+    if (userInfo.isAdmin) return;
     const membershipStatus = await this.getByUserInfoOrError(userInfo.id);
     const { increaseKeyboards, increaseSpace, increaseSound } =
       UserInfoToUpdate;

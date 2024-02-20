@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "nodemon build/index.js",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "tsc -w"
+    "build": "tsc -w",
+    "seed": "node build/db/seed.js"
   },
   "author": "thiago D.code",
   "license": "MIT",
