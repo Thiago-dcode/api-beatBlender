@@ -24,7 +24,7 @@ const setInitialUserInfo = async (user: User) => {
   //get free membership
 
   const membership = await membershipFacade.membershipService.getByIdOrError(
-    config.membership.free
+    config.membership.free.id
   );
   //create new user_info related row
   const userInfo = await userInfoFacade.userInfoService.createOrError({
