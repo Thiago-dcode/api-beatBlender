@@ -45,18 +45,16 @@ model Keyboard {
 }
 
 model Key {
-  id           Int         @id @default(autoincrement())
-  createdAt    DateTime    @default(now())
-  updatedAt    DateTime    @updatedAt
-  letter       String
-  userId       Int
-  design_keyId Int?
-  soundId      Int?
-  user         User        @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  design_key   Design_key? @relation(fields: [design_keyId], references: [id])
-  keyboard     Keyboard[]
-  sound        Sound?      @relation(fields: [soundId], references: [id])
-  categories   Category[]  @relation("CategoryToKey")
+  id         Int        @id @default(autoincrement())
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+  letter     String
+  userId     Int
+  soundId    Int?
+  user       User       @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  keyboard   Keyboard[]
+  sound      Sound?     @relation(fields: [soundId], references: [id])
+  categories Category[] @relation("CategoryToKey")
 }
 
 model Sound {
@@ -102,13 +100,6 @@ model Design_keyboard {
   keyboards Keyboard[]
 }
 
-model Design_key {
-  id        Int     @id @default(autoincrement())
-  name      String
-  colors    Color[]
-  keyboards Key[]
-}
-
 model Category {
   id        Int        @id @default(autoincrement())
   name      String     @unique
@@ -122,10 +113,8 @@ model Category {
 
 model Color {
   id                Int              @id @default(autoincrement())
-  color             String
+  color             String           @unique
   design_keyboardId Int?
-  design_keyId      Int?
-  Design_key        Design_key?      @relation(fields: [design_keyId], references: [id])
   Design_keyboard   Design_keyboard? @relation(fields: [design_keyboardId], references: [id])
 }
 

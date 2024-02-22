@@ -39,21 +39,7 @@ export const seed = async (prisma: PrismaClient) => {
     soundFolderId: number,
     keyboardName: string,
     s3ListOfObjects: ListObjectsV2CommandOutput,
-    keysLetter = [
-      "q",
-      "w",
-      "e",
-      "r",
-      "u",
-      "i",
-      "o",
-      "p",
-      "a",
-      "s",
-      "d",
-      "f",
-      "g",
-    ]
+    keysLetter = ["q", "w", "e", "u", "i", "o", "a", "s", "d", "j", "k", "l"]
   ) => {
     if (!s3ListOfObjects.Contents) return;
 
