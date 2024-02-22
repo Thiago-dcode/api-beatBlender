@@ -96,6 +96,8 @@ model Record {
 model Design_keyboard {
   id        Int        @id @default(autoincrement())
   name      String     @unique
+  path      String
+  isPremium Boolean    @default(false)
   colors    Color[]
   keyboards Keyboard[]
 }
