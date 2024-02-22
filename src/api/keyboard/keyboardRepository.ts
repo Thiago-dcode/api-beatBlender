@@ -37,7 +37,7 @@ export default class KeyboardRepository {
   async findById(id: number) {
     const keyboard = await this.db.keyboard.findFirst({
       where: { id },
-      include: { categories: true },
+      include: { categories: true, Design_keyboard: true },
     });
     return keyboard;
   }

@@ -28,12 +28,13 @@ export default class DesignKeyboardRepository {
   //   });
   //   return result;
   // }
-  async create(data: designKeyboardToCreate) {
+  async create({ name, path, colors }: designKeyboardToCreate) {
     const result = await this.db.design_keyboard.create({
       data: {
-        name: data.name,
+        name,
+        path,
         colors: {
-          connectOrCreate: data.colors.map((color) => {
+          connectOrCreate: colors.map((color) => {
             return { create: { color }, where: { color } };
           }),
         },
@@ -42,8 +43,8 @@ export default class DesignKeyboardRepository {
     return result;
   }
   async findById(id: number) {
-    const sound = await this.db.design_keyboard.findFirst({ where: { id } });
-    return sound;
+    const design = await this.db.design_keyboard.findFirst({ where: { id } });
+    return design;
   }
   async deleteById(id: number) {
     const result = await this.db.design_keyboard.delete({

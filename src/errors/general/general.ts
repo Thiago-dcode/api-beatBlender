@@ -25,3 +25,16 @@ export class StorageError extends CustomError {
     Object.setPrototypeOf(this, StorageError.prototype);
   }
 }
+
+export class DataMissingError extends CustomError {
+  constructor(
+    message: string,
+    errors: { [key: string]: string },
+    statusCode: number = 400
+  ) {
+    super(message, errors, statusCode);
+
+    // Set the prototype explicitly to ensure the correct behavior
+    Object.setPrototypeOf(this, DataMissingError.prototype);
+  }
+}

@@ -43,4 +43,12 @@ export default {
       id: 1,
     },
   },
+  design: {
+    free: {
+      path: "free/designs",
+    },
+    premium: {
+      path: "premium/designs",
+    },
+  },
 };
