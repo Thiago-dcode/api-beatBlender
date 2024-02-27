@@ -6,7 +6,6 @@ import { db } from "./db.js";
 
 const main = async () => {
   try {
-    await effectsSeeder(db());
     await designKeyboardSeeder(db());
     await freeUserSeeder(db());
     await membershipSeeder(db());

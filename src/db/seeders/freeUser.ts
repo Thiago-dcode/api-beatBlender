@@ -44,18 +44,198 @@ export const seed = async (prisma: PrismaClient) => {
     keyboardName: string,
     s3ListOfObjects: ListObjectsV2CommandOutput,
     keys = [
-      { key: "q", code: 81 },
-      { key: "w", code: 87 },
-      { key: "e", code: 69 },
-      { key: "u", code: 85 },
-      { key: "i", code: 73 },
-      { key: "o", code: 79 },
-      { key: "a", code: 65 },
-      { key: "s", code: 83 },
-      { key: "d", code: 68 },
-      { key: "j", code: 74 },
-      { key: "k", code: 75 },
-      { key: "l", code: 76 },
+      {
+        key: "q",
+        code: 81,
+        loop: {
+          active: false,
+          config: {
+            bpm: 0,
+          },
+        },
+        volume: {
+          active: true,
+          config: {
+            level: 1,
+          },
+        },
+      },
+      {
+        key: "w",
+        code: 87,
+        loop: {
+          active: false,
+          config: {
+            bpm: 0,
+          },
+        },
+        volume: {
+          active: true,
+          config: {
+            level: 1,
+          },
+        },
+      },
+      {
+        key: "e",
+        code: 69,
+        loop: {
+          active: false,
+          config: {
+            bpm: 0,
+          },
+        },
+        volume: {
+          active: true,
+          config: {
+            level: 1,
+          },
+        },
+      },
+      {
+        key: "u",
+        code: 85,
+        loop: {
+          active: false,
+          config: {
+            bpm: 0,
+          },
+        },
+        volume: {
+          active: true,
+          config: {
+            level: 1,
+          },
+        },
+      },
+      {
+        key: "i",
+        code: 73,
+        loop: {
+          active: false,
+          config: {
+            bpm: 0,
+          },
+        },
+        volume: {
+          active: true,
+          config: {
+            level: 1,
+          },
+        },
+      },
+      {
+        key: "o",
+        code: 79,
+        loop: {
+          active: false,
+          config: {
+            bpm: 0,
+          },
+        },
+        volume: {
+          active: true,
+          config: {
+            level: 1,
+          },
+        },
+      },
+      {
+        key: "a",
+        code: 65,
+        loop: {
+          active: false,
+          config: {
+            bpm: 0,
+          },
+        },
+        volume: {
+          active: true,
+          config: {
+            level: 1,
+          },
+        },
+      },
+      {
+        key: "s",
+        code: 83,
+        loop: {
+          active: false,
+          config: {
+            bpm: 0,
+          },
+        },
+        volume: {
+          active: true,
+          config: {
+            level: 1,
+          },
+        },
+      },
+      {
+        key: "d",
+        code: 68,
+        loop: {
+          active: false,
+          config: {
+            bpm: 0,
+          },
+        },
+        volume: {
+          active: true,
+          config: {
+            level: 1,
+          },
+        },
+      },
+      {
+        key: "j",
+        code: 74,
+        loop: {
+          active: false,
+          config: {
+            bpm: 0,
+          },
+        },
+        volume: {
+          active: true,
+          config: {
+            level: 1,
+          },
+        },
+      },
+      {
+        key: "k",
+        code: 75,
+        loop: {
+          active: false,
+          config: {
+            bpm: 0,
+          },
+        },
+        volume: {
+          active: true,
+          config: {
+            level: 1,
+          },
+        },
+      },
+      {
+        key: "l",
+        code: 76,
+        loop: {
+          active: false,
+          config: {
+            bpm: 0,
+          },
+        },
+        volume: {
+          active: true,
+          config: {
+            level: 1,
+          },
+        },
+      },
     ]
   ) => {
     if (!s3ListOfObjects.Contents) return;
@@ -88,10 +268,17 @@ export const seed = async (prisma: PrismaClient) => {
               displayName: _key.key,
               order: i + 1,
               effects: {
-                connect: config.effects
+                create: config.effects
                   .filter((ef) => ef.keys && !ef.isPremium)
-                  .map(({ name }) => {
-                    return { name };
+                  .map(({ name, description, config, isActive }) => {
+                    return {
+                      name,
+                      description,
+                      config:
+                        name === "loop" ? _key.loop.config : _key.volume.config,
+                      isActive:
+                        name === "loop" ? _key.loop.active : _key.volume.active,
+                    };
                   }),
               },
             },
@@ -114,10 +301,10 @@ export const seed = async (prisma: PrismaClient) => {
             }),
         },
         effects: {
-          connect: config.effects
+          create: config.effects
             .filter((ef) => ef.keyboards && !ef.isPremium)
-            .map(({ name }) => {
-              return { name };
+            .map(({ name, description, config, isActive }) => {
+              return { name, description, config, isActive };
             }),
         },
       },
@@ -141,7 +328,201 @@ export const seed = async (prisma: PrismaClient) => {
     userId,
     freeFolder.id,
     "Hip-hop 1",
-    hipHopSounds
+    hipHopSounds,
+    [
+      {
+        key: "q",
+        code: 81,
+        loop: {
+          active: true,
+          config: {
+            bpm: 0,
+          },
+        },
+        volume: {
+          active: true,
+          config: {
+            level: 1,
+          },
+        },
+      },
+      {
+        key: "w",
+        code: 87,
+        loop: {
+          active: false,
+          config: {
+            bpm: 0,
+          },
+        },
+        volume: {
+          active: true,
+          config: {
+            level: 1,
+          },
+        },
+      },
+      {
+        key: "e",
+        code: 69,
+        loop: {
+          active: false,
+          config: {
+            bpm: 0,
+          },
+        },
+        volume: {
+          active: true,
+          config: {
+            level: 0,
+          },
+        },
+      },
+      {
+        key: "u",
+        code: 85,
+        loop: {
+          active: false,
+          config: {
+            bpm: 0,
+          },
+        },
+        volume: {
+          active: true,
+          config: {
+            level: 1,
+          },
+        },
+      },
+      {
+        key: "i",
+        code: 73,
+        loop: {
+          active: false,
+          config: {
+            bpm: 0,
+          },
+        },
+        volume: {
+          active: true,
+          config: {
+            level: 1,
+          },
+        },
+      },
+      {
+        key: "o",
+        code: 79,
+        loop: {
+          active: false,
+          config: {
+            bpm: 0,
+          },
+        },
+        volume: {
+          active: true,
+          config: {
+            level: 1,
+          },
+        },
+      },
+      {
+        key: "a",
+        code: 65,
+        loop: {
+          active: false,
+          config: {
+            bpm: 0,
+          },
+        },
+        volume: {
+          active: true,
+          config: {
+            level: 1,
+          },
+        },
+      },
+      {
+        key: "s",
+        code: 83,
+        loop: {
+          active: false,
+          config: {
+            bpm: 0,
+          },
+        },
+        volume: {
+          active: true,
+          config: {
+            level: 1,
+          },
+        },
+      },
+      {
+        key: "d",
+        code: 68,
+        loop: {
+          active: false,
+          config: {
+            bpm: 0,
+          },
+        },
+        volume: {
+          active: true,
+          config: {
+            level: 1,
+          },
+        },
+      },
+      {
+        key: "j",
+        code: 74,
+        loop: {
+          active: false,
+          config: {
+            bpm: 0,
+          },
+        },
+        volume: {
+          active: true,
+          config: {
+            level: 1,
+          },
+        },
+      },
+      {
+        key: "k",
+        code: 75,
+        loop: {
+          active: false,
+          config: {
+            bpm: 0,
+          },
+        },
+        volume: {
+          active: true,
+          config: {
+            level: 1,
+          },
+        },
+      },
+      {
+        key: "l",
+        code: 76,
+        loop: {
+          active: false,
+          config: {
+            bpm: 0,
+          },
+        },
+        volume: {
+          active: true,
+          config: {
+            level: 1,
+          },
+        },
+      },
+    ]
   );
   const lofiSounds = await storageFacade.storageService.getManyByFolder(
     "free/sounds/lofi"
@@ -151,7 +532,201 @@ export const seed = async (prisma: PrismaClient) => {
     userId,
     freeFolder.id,
     "lofi 1",
-    lofiSounds
+    lofiSounds,
+    [
+      {
+        key: "q",
+        code: 81,
+        loop: {
+          active: false,
+          config: {
+            bpm: 0,
+          },
+        },
+        volume: {
+          active: true,
+          config: {
+            level: 1,
+          },
+        },
+      },
+      {
+        key: "w",
+        code: 87,
+        loop: {
+          active: false,
+          config: {
+            bpm: 0,
+          },
+        },
+        volume: {
+          active: true,
+          config: {
+            level: 1,
+          },
+        },
+      },
+      {
+        key: "e",
+        code: 69,
+        loop: {
+          active: false,
+          config: {
+            bpm: 0,
+          },
+        },
+        volume: {
+          active: true,
+          config: {
+            level: 1,
+          },
+        },
+      },
+      {
+        key: "u",
+        code: 85,
+        loop: {
+          active: false,
+          config: {
+            bpm: 0,
+          },
+        },
+        volume: {
+          active: true,
+          config: {
+            level: 1,
+          },
+        },
+      },
+      {
+        key: "i",
+        code: 73,
+        loop: {
+          active: false,
+          config: {
+            bpm: 0,
+          },
+        },
+        volume: {
+          active: true,
+          config: {
+            level: 1,
+          },
+        },
+      },
+      {
+        key: "o",
+        code: 79,
+        loop: {
+          active: false,
+          config: {
+            bpm: 0,
+          },
+        },
+        volume: {
+          active: true,
+          config: {
+            level: 1,
+          },
+        },
+      },
+      {
+        key: "a",
+        code: 65,
+        loop: {
+          active: false,
+          config: {
+            bpm: 0,
+          },
+        },
+        volume: {
+          active: true,
+          config: {
+            level: 1,
+          },
+        },
+      },
+      {
+        key: "s",
+        code: 83,
+        loop: {
+          active: false,
+          config: {
+            bpm: 0,
+          },
+        },
+        volume: {
+          active: true,
+          config: {
+            level: 1,
+          },
+        },
+      },
+      {
+        key: "d",
+        code: 68,
+        loop: {
+          active: false,
+          config: {
+            bpm: 0,
+          },
+        },
+        volume: {
+          active: true,
+          config: {
+            level: 1,
+          },
+        },
+      },
+      {
+        key: "j",
+        code: 74,
+        loop: {
+          active: true,
+          config: {
+            bpm: 0,
+          },
+        },
+        volume: {
+          active: true,
+          config: {
+            level: 1,
+          },
+        },
+      },
+      {
+        key: "k",
+        code: 75,
+        loop: {
+          active: false,
+          config: {
+            bpm: 0,
+          },
+        },
+        volume: {
+          active: true,
+          config: {
+            level: 0,
+          },
+        },
+      },
+      {
+        key: "l",
+        code: 76,
+        loop: {
+          active: false,
+          config: {
+            bpm: 0,
+          },
+        },
+        volume: {
+          active: true,
+          config: {
+            level: 0,
+          },
+        },
+      },
+    ]
   );
   console.log("FREE USER SEED COMPLETED");
 };

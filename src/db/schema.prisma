@@ -98,14 +98,17 @@ model Record {
 }
 
 model Effect {
-  id          Int        @id @default(autoincrement())
-  name        String     @unique
+  id          Int     @id @default(autoincrement())
+  name        String
   description String
-  isActive    Boolean    @default(false)
-  isPremium   Boolean    @default(false)
+  isActive    Boolean @default(false)
+  isPremium   Boolean @default(false)
   config      Json
-  keys        Key[]
-  Keyboard    Keyboard[]
+
+  Keyboard   Keyboard? @relation(fields: [keyboardId], references: [id])
+  keyboardId Int?
+  Key        Key?      @relation(fields: [keyId], references: [id])
+  keyId      Int?
 }
 
 model Design_keyboard {
