@@ -21,7 +21,7 @@ export default class KeyRepository {
         userId,
         keyboard,
       },
-      include: { sound: true },
+      include: { sound: true, effects: true },
     });
   }
   async update(id: number, data: keyToUpdate) {
@@ -39,7 +39,7 @@ export default class KeyRepository {
   async findById(id: number) {
     const key = await this.db.key.findFirst({
       where: { id },
-      include: { sound: true },
+      include: { sound: true, effects: true },
     });
     return key;
   }

@@ -48,7 +48,7 @@ export default class SoundFolderService {
     //Url
     const soundsWithUrl = await Promise.all(
       soundFolder.sounds.map(async (sound) => {
-        const soundUrl = await this.storage.get(sound.path);
+        const soundUrl = await this.storage.getUrl(sound.path);
         return { ...sound, soundUrl };
       })
     );

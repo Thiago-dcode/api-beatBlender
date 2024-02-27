@@ -34,21 +34,32 @@ export default class DesignKeyboardRepository {
         name,
         path,
         colors: {
-          connectOrCreate: colors.map((color) => {
-            return { create: { color }, where: { color } };
+          connect: colors.map((color) => {
+            return { color };
           }),
         },
       },
     });
     return result;
   }
-  async findById(id: number) {
-    const design = await this.db.design_keyboard.findFirst({ where: { id } });
+  async createMany(data: designKeyboardToCreate[]) {
+    const result = await this.db.design_keyboard.createMany({
+      data: data.map((obj) => {
+        return {
+          name: obj.name,
+          path: obj.path,
+        };
+      }),
+    });
+    return result;
+  }
+  async findByName(name: string) {
+    const design = await this.db.design_keyboard.findFirst({ where: { name } ,include:{colors:true}});
     return design;
   }
-  async deleteById(id: number) {
+  async deleteByName(name: string) {
     const result = await this.db.design_keyboard.delete({
-      where: { id },
+      where: { name },
     });
     return result;
   }

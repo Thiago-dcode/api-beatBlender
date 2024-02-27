@@ -210,7 +210,7 @@ export default class UserService {
   }
   async getAvatarUrlOrError(avatar: string) {
     try {
-      const url = await this.storage.get(avatar);
+      const url = await this.storage.getUrl(avatar);
       return url;
     } catch (error) {
       console.log(

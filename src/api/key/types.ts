@@ -1,11 +1,13 @@
 export interface keyToCreate {
-  letter: string;
+  key: string;
   userId: number;
+  displayName: string;
   design_keyId?: number;
   soundId?: number;
 }
 export interface keyToUpdate {
-  letter?: string;
+  key?: string;
+  displayName?: string;
   userId: number;
   design_keyId?: number;
   soundId?: number;

@@ -31,13 +31,13 @@ export default class KeyboardRepository {
         userId,
         categories,
       },
-      include: { categories: true },
+      include: { categories: true, effects: true },
     });
   }
   async findById(id: number) {
     const keyboard = await this.db.keyboard.findFirst({
       where: { id },
-      include: { categories: true, Design_keyboard: true },
+      include: { categories: true, effects: true },
     });
     return keyboard;
   }

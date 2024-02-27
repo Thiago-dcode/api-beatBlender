@@ -74,7 +74,8 @@ export default class KeyService {
     userId,
     soundFile,
     soundId,
-    letter,
+    key,
+    displayName,
     design_keyId,
   }: KeyTocreateWithFile) {
     if (soundFile) {
@@ -90,9 +91,11 @@ export default class KeyService {
     const keyCreated = await this.keyRepo.create({
       userId,
       soundId,
-      letter: letter.toLowerCase(),
+      key: key.toLowerCase(),
+      displayName,
       design_keyId,
     });
+    //assign default effects
     if (!keyCreated) {
       throw new UnknowDbError("Error creating key");
     }
@@ -100,7 +103,14 @@ export default class KeyService {
   }
   async updateOrError(
     id: number,
-    { soundFile, soundId, letter, userId, design_keyId }: KeyToupdateWithFile
+    {
+      soundFile,
+      soundId,
+      key,
+      displayName,
+      userId,
+      design_keyId,
+    }: KeyToupdateWithFile
   ) {
     const keyToUpdate = await this.keyRepo.findById(id);
     if (!keyToUpdate) {
@@ -118,8 +128,9 @@ export default class KeyService {
     }
     const keyUpdated = await this.keyRepo.update(id, {
       soundId,
-      letter: letter?.toLowerCase() || keyToUpdate.letter,
+      key: key?.toLowerCase() || keyToUpdate.key,
       userId,
+      displayName: displayName || keyToUpdate.displayName,
       design_keyId,
     });
     if (!keyUpdated) {

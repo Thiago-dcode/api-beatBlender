@@ -83,8 +83,15 @@ class StorageService {
     const result = await this.s3.send(command);
     return result;
   }
-
-  async get(key: string) {
+  async get(key: string){
+    const command = new GetObjectCommand({
+      Bucket: this.bucketName,
+      Key: key,
+    });
+    const result = await this.s3.send(command)
+    return result
+  }
+  async getUrl(key: string) {
     const command = new GetObjectCommand({
       Bucket: this.bucketName,
       Key: key,

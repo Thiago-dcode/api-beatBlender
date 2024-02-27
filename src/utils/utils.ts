@@ -90,3 +90,7 @@ export function extractRoute(path: string): string {
   // Take the first two parts and join them back
   return "/" + (parts[1] || "");
 }
+export function getRandomValueFromArray<t>(array: t[]): t {
+  const random = Math.floor(Math.random() * array.length);
+  return array[random];
+}

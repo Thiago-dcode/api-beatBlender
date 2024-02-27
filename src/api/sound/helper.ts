@@ -11,7 +11,7 @@ export function extractFolderAndFileName(path: string): PathSegments {
   const foldername = segments.pop() || ""; // Remove and return the second-to-last segment (folder name)
   if (!filename || !foldername)
     throw new CustomError(
-      "Error in: extractFolderAndFileName(), should return a filename and a foldername",
+      "Error in: extractFolderAndFileName(), should return a filename and a foldername path: " + path,
       {},
       500
     );

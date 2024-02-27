@@ -46,9 +46,36 @@ export default {
   design: {
     free: {
       path: "free/designs",
+      names: ["classic", "classic-1"],
     },
     premium: {
       path: "premium/designs",
     },
   },
+
+  effects: [
+    {
+      name: "volume",
+      description: "Modify the volume",
+      keys: true,
+      keyboards: true,
+      isPremium: false,
+      isActive: true,
+      config: {
+        level: 1,
+      },
+    },
+    {
+      name: "loop",
+      description:
+        "Play a audio in a loop. By default the audio will start again after it ends, you can set a specific BPM",
+      keys: true,
+      isActive: false,
+      keyboards: false,
+      isPremium: false,
+      config: {
+        bpm: 0,
+      },
+    },
+  ],
 };

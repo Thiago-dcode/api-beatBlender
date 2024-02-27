@@ -278,7 +278,7 @@ export default class SoundService {
   }
   async getAudioFileUrlOrError(sound: string) {
     try {
-      const url = await this.storage.get(sound);
+      const url = await this.storage.getUrl(sound);
       return url;
     } catch (error) {
       console.log(

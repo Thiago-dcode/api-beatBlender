@@ -2,13 +2,13 @@ import { z } from "zod";
 
 const Key = z.object({
   name: z.string().refine((name) => /^[a-zA-Z0-9-. ]+$/.test(name), {
-    message: "Name must only contain letters, numbers, and '-'"
+    message: "Name must only contain letters, numbers, and '-'",
   }),
   keys: z.number().array().optional(),
-  keysToDelete:z.number().array().optional(),
-  categoriesToDelete:z.string().array().optional(),
+  keysToDelete: z.number().array().optional(),
+  categoriesToDelete: z.string().array().optional(),
   categories: z.string().array().optional(),
-  design_keyId: z.coerce.number().int().optional(),
+  design_keyboardName: z.coerce.string().optional(),
 });
 
 export const validateKeyboard = (data: unknown) => {

@@ -1,7 +1,11 @@
 import { ListObjectsV2CommandOutput } from "@aws-sdk/client-s3";
 import { extractFolderAndFileName } from "../../api/sound/helper.js";
 import storageFacade from "../../core/facade/services/storageFacade.js";
-import { bytesToMB, hashPassword } from "../../utils/utils.js";
+import {
+  bytesToMB,
+  getRandomValueFromArray,
+  hashPassword,
+} from "../../utils/utils.js";
 import { PrismaClient } from "@prisma/client";
 import config from "../../config/config.js";
 
@@ -39,12 +43,25 @@ export const seed = async (prisma: PrismaClient) => {
     soundFolderId: number,
     keyboardName: string,
     s3ListOfObjects: ListObjectsV2CommandOutput,
-    keysLetter = ["q", "w", "e", "u", "i", "o", "a", "s", "d", "j", "k", "l"]
+    keys = [
+      { key: "q", code: 81 },
+      { key: "w", code: 87 },
+      { key: "e", code: 69 },
+      { key: "u", code: 85 },
+      { key: "i", code: 73 },
+      { key: "o", code: 79 },
+      { key: "a", code: 65 },
+      { key: "s", code: 83 },
+      { key: "d", code: 68 },
+      { key: "j", code: 74 },
+      { key: "k", code: 75 },
+      { key: "l", code: 76 },
+    ]
   ) => {
     if (!s3ListOfObjects.Contents) return;
 
     const soundIds = await Promise.all(
-      s3ListOfObjects.Contents.map(async (object) => {
+      s3ListOfObjects.Contents.filter((obj) => obj.Size).map(async (object) => {
         const path = object?.Key;
         if (!path) return undefined;
         const sound = await prisma.sound.create({
@@ -61,16 +78,25 @@ export const seed = async (prisma: PrismaClient) => {
     );
 
     let keyIds: number[] = await Promise.all(
-      keysLetter.map(async (letter, i) => {
+      keys.map(async (_key, i) => {
         if (soundIds[i]) {
-          const key = await prisma.key.create({
+          const keyCreated = await prisma.key.create({
             data: {
               soundId: soundIds[i],
-              letter,
+              key: _key.key,
               userId,
+              displayName: _key.key,
+              order: i + 1,
+              effects: {
+                connect: config.effects
+                  .filter((ef) => ef.keys && !ef.isPremium)
+                  .map(({ name }) => {
+                    return { name };
+                  }),
+              },
             },
           });
-          return key.id;
+          return keyCreated.id;
         }
         return 0;
       })
@@ -79,11 +105,19 @@ export const seed = async (prisma: PrismaClient) => {
       data: {
         userId,
         name: keyboardName,
+        design_keyboardName: getRandomValueFromArray(config.design.free.names),
         keys: {
           connect: keyIds
             .filter((id) => id !== 0)
             .map((id) => {
               return { id };
+            }),
+        },
+        effects: {
+          connect: config.effects
+            .filter((ef) => ef.keyboards && !ef.isPremium)
+            .map(({ name }) => {
+              return { name };
             }),
         },
       },
@@ -109,6 +143,15 @@ export const seed = async (prisma: PrismaClient) => {
     "Hip-hop 1",
     hipHopSounds
   );
-
+  const lofiSounds = await storageFacade.storageService.getManyByFolder(
+    "free/sounds/lofi"
+  );
+  console.log(lofiSounds.Contents);
+  await createKeyboardFromSoundStorage(
+    userId,
+    freeFolder.id,
+    "lofi 1",
+    lofiSounds
+  );
   console.log("FREE USER SEED COMPLETED");
 };

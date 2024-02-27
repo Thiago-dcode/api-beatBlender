@@ -1,0 +1,5 @@
+-- AlterTable
+ALTER TABLE "Key" ADD COLUMN     "order" INTEGER NOT NULL DEFAULT 999;
+
+-- AlterTable
+ALTER TABLE "Keyboard" ADD COLUMN     "max_keys" INTEGER NOT NULL DEFAULT 25;

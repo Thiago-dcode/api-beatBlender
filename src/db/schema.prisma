@@ -29,32 +29,36 @@ model User {
 }
 
 model Keyboard {
-  id        Int      @id @default(autoincrement())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  name      String
-  private   Boolean  @default(false)
-
-  keys              Key[]
-  records           Record[]
-  categories        Category[]       @relation("CategoryToKeyboard")
-  user              User             @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  userId            Int
-  Design_keyboard   Design_keyboard? @relation(fields: [design_keyboardId], references: [id])
-  design_keyboardId Int?
+  id                  Int              @id @default(autoincrement())
+  createdAt           DateTime         @default(now())
+  updatedAt           DateTime         @updatedAt
+  name                String
+  private             Boolean          @default(false)
+  max_keys            Int              @default(25)
+  keys                Key[]
+  records             Record[]
+  categories          Category[]       @relation("CategoryToKeyboard")
+  user                User             @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  userId              Int
+  design_keyboard     Design_keyboard? @relation(fields: [design_keyboardName], references: [name])
+  design_keyboardName String?
+  effects             Effect[]
 }
 
 model Key {
-  id         Int        @id @default(autoincrement())
-  createdAt  DateTime   @default(now())
-  updatedAt  DateTime   @updatedAt
-  letter     String
-  userId     Int
-  soundId    Int?
-  user       User       @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  keyboard   Keyboard[]
-  sound      Sound?     @relation(fields: [soundId], references: [id])
-  categories Category[] @relation("CategoryToKey")
+  id          Int        @id @default(autoincrement())
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  order       Int        @default(999)
+  key         String
+  displayName String
+  userId      Int
+  soundId     Int?
+  user        User       @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  keyboard    Keyboard[]
+  sound       Sound?     @relation(fields: [soundId], references: [id])
+  categories  Category[] @relation("CategoryToKey")
+  effects     Effect[]
 }
 
 model Sound {
@@ -93,9 +97,19 @@ model Record {
   categories Category[] @relation("CategoryToRecord")
 }
 
+model Effect {
+  id          Int        @id @default(autoincrement())
+  name        String     @unique
+  description String
+  isActive    Boolean    @default(false)
+  isPremium   Boolean    @default(false)
+  config      Json
+  keys        Key[]
+  Keyboard    Keyboard[]
+}
+
 model Design_keyboard {
-  id        Int        @id @default(autoincrement())
-  name      String     @unique
+  name      String     @id @unique
   path      String
   isPremium Boolean    @default(false)
   colors    Color[]
@@ -114,10 +128,9 @@ model Category {
 }
 
 model Color {
-  id                Int              @id @default(autoincrement())
-  color             String           @unique
-  design_keyboardId Int?
-  Design_keyboard   Design_keyboard? @relation(fields: [design_keyboardId], references: [id])
+  id              Int               @id @default(autoincrement())
+  color           String            @unique
+  Design_keyboard Design_keyboard[]
 }
 
 model User_info {

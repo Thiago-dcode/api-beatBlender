@@ -1,12 +1,8 @@
 import { z } from "zod";
 
 const Key = z.object({
-  letter: z
-    .string()
-    .length(1)
-    .refine((name) => /^[a-zA-Z0-9]+$/.test(name), {
-      message: "Letter must only a number or a letter",
-    }),
+  key: z.string(),
+  displayName: z.string(),
   soundId: z.coerce.number().int().optional(),
   design_keyId: z.coerce.number().int().optional(),
 });

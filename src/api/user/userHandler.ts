@@ -4,7 +4,7 @@ import { handleError, sendErrResponse } from "../../errors/handleErrors.js";
 import UserService from "./userService.js";
 
 class UserHandler {
-  constructor(readonly userService: UserService) {
+  constructor(private readonly userService: UserService) {
     this.index = this.index.bind(this);
     this.create = this.create.bind(this);
   }

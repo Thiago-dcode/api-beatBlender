@@ -29,7 +29,7 @@ export default class DesignKeyboardService {
       throw new DataMissingError("Not css file provided", {});
     }
     const { premium, free } = config.design;
-    const path = `${isPremium ? premium.path : free.path}/${name}`;
+    const path = `${isPremium ? premium.path : free.path}/${name}.css`;
     const designCreated = await this.designKeyboardRepo.create({
       name,
       colors,
@@ -45,13 +45,13 @@ export default class DesignKeyboardService {
 
     return designCreated;
   }
-  async getOneOrError(id: number) {
-    const design = await this.designKeyboardRepo.findById(id);
+  async getOneOrError(name: string) {
+    const design = await this.designKeyboardRepo.findByName(name);
     if (!design) {
-      throw new EntityNotFoundError("Design keyboard not found", {});
+      throw new EntityNotFoundError(`Design keyboard (${name}) not found`, {});
     }
     // get the css file from s3
-    const designUrl = await this.storage.get(design?.path);
+    const designUrl = await this.storage.getUrl(design.path);
     return {
       ...design,
       designUrl,

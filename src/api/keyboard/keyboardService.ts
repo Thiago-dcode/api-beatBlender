@@ -7,6 +7,9 @@ import KeyboardRepository from "./keyboardRepository.js";
 import KeyService from "../key/keyService.js";
 import MembershipStatusService from "../membershipStatus/MembershipStatusService.js";
 import KeyboardListener from "../../listeners/keyboard/KeyboardLIstener.js";
+import config from "../../config/config.js";
+import DesignKeyboardService from "../designKeyboard/designKeyboardService.js";
+import { getRandomValueFromArray } from "../../utils/utils.js";
 
 interface keyboardToCreateWithKeysAndCategories extends keyboardToCreate {
   keys?: number[];
@@ -22,15 +25,18 @@ interface keyboardToUpdateeWithKeysAndCategories extends keyboardToUpdate {
 export default class KeyBoardService {
   private readonly keyboardRepo;
   private readonly keyService;
+  private readonly designkeyboardService;
   private readonly membershipStatusService;
   constructor(
     keyboardRepo: KeyboardRepository,
     keyService: KeyService,
-    membershipStatusService: MembershipStatusService
+    membershipStatusService: MembershipStatusService,
+    designkeyboardService: DesignKeyboardService
   ) {
     this.keyboardRepo = keyboardRepo;
     this.keyService = keyService;
     this.membershipStatusService = membershipStatusService;
+    this.designkeyboardService = designkeyboardService;
   }
 
   async allByUserWithKeysOrError(
@@ -74,8 +80,15 @@ export default class KeyBoardService {
     const keyboard = await this.getKeyboardIfUserIsAuthOrError(id, userId);
 
     const keys = await this.keyService.allByUserOrError(userId, keyboard.id);
-
-    return { ...keyboard, keys };
+    const design = await this.designkeyboardService.getOneOrError(
+      keyboard.design_keyboardName ||
+        getRandomValueFromArray(config.design.free.names)
+    );
+    return {
+      ...keyboard,
+      keys: keys.sort((a, b) => a.order - b.order),
+      design,
+    };
   }
   async getKeyboardIfUserIsAuthOrError(
     id: number | undefined,
@@ -99,7 +112,7 @@ export default class KeyBoardService {
   async createOrError({
     userId,
     name,
-    design_keyboardId,
+    design_keyboardName,
     keys,
     categories,
   }: keyboardToCreateWithKeysAndCategories) {
@@ -111,7 +124,9 @@ export default class KeyBoardService {
       {
         name,
         userId,
-        design_keyboardId,
+        design_keyboardName:
+          design_keyboardName ||
+          getRandomValueFromArray(config.design.free.names),
       },
       keys ? keys : [],
       categories ? categories : []
@@ -119,6 +134,7 @@ export default class KeyBoardService {
     if (!keyboardCreated) {
       throw new UnknowDbError("Error creating keyboard");
     }
+    //assign default effects(volumen...)
     KeyboardListener.emit(KeyboardListener.events.Create, {
       userId,
       keyboard: keyboardCreated,
@@ -130,7 +146,7 @@ export default class KeyBoardService {
     {
       userId,
       name,
-      design_keyboardId,
+      design_keyboardName,
       keys,
       keysToDelete,
       categories,
@@ -149,7 +165,10 @@ export default class KeyBoardService {
       {
         name: name ?? keyboardToUpdate.name,
         userId,
-        design_keyboardId,
+        design_keyboardName:
+          design_keyboardName ||
+          keyboardToUpdate.design_keyboardName ||
+          getRandomValueFromArray(config.design.free.names),
       },
       keys,
       keysToDelete ? keysToDelete : [],
