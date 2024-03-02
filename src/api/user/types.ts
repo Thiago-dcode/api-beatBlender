@@ -3,7 +3,7 @@ import { User } from "@prisma/client";
 export interface CreateUser {
   username: string;
   password: string;
-  email?: string;
+  email: string;
   name?: string;
   avatar?: string;
 }

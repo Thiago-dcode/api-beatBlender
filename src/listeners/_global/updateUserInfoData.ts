@@ -3,10 +3,7 @@ import UserInfoService from "../../api/userInfo/userInfoService.js";
 import { CustomError } from "../../errors/CustomError.js";
 import Listener from "../Listener.js";
 import { GlobalEvents } from "../globalTypes.js";
-import SoundListener from "../sound/SoundListener.js";
-import { SoundEvents } from "../sound/type.js";
-import SoundFolderListener from "../soundFolder/SoundFolderListener.js";
-import { SoundFolderEvents } from "../soundFolder/type.js";
+
 
 const updateUserInfoData = async <T extends typeof Listener>(
   userId: number,

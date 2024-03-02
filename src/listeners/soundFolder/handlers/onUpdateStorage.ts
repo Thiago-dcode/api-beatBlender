@@ -1,12 +1,8 @@
-import { extractFolderAndFileName } from "../../../api/sound/helper.js";
-import SoundRepository from "../../../api/sound/soundRepository.js";
-import { db } from "../../../db/db.js";
 import { SoundFolderData, SoundFolderEvents } from "../type.js";
-import SoundFolderListener from "../SoundFolderListener.js";
 import { CustomError } from "../../../errors/CustomError.js";
 import soundFacade from "../../../core/facade/soundFacade.js";
 import Listener from "../../Listener.js";
-const soundRepository = new SoundRepository(db());
+
 export default async function onUpdateStorage(
   data: SoundFolderData[SoundFolderEvents.UpdateStorage]
 ) {

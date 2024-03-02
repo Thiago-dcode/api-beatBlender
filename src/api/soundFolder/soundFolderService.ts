@@ -3,7 +3,7 @@ import { EntityNotFoundError } from "../../errors/db/db.js";
 import { StorageError } from "../../errors/general/general.js";
 import SoundFolderListener from "../../listeners/soundFolder/SoundFolderListener.js";
 import { SoundFolderEvents } from "../../listeners/soundFolder/type.js";
-import StorageService from "../../services/logger/storage/storage.js";
+import StorageService from "../../services/storage/storage.js";
 import { extractFolderAndFileName } from "./helper.js";
 import SoundFolderRepository from "./soundFolderRepository.js";
 

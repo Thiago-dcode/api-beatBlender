@@ -1,11 +1,8 @@
 import config from "../../config/config.js";
 import { EntityNotFoundError } from "../../errors/db/db.js";
 import { DataMissingError } from "../../errors/general/general.js";
-import StorageService from "../../services/logger/storage/storage.js";
-import KeyService from "../key/keyService.js";
-import KeyBoardService from "../keyboard/keyboardService.js";
+import StorageService from "../../services/storage/storage.js";
 import DesignKeyboardRepository from "./designKeyboardRepository.js";
-import { designKeyboardToCreate, designKeyboardToUpdate } from "./types.js";
 
 export default class DesignKeyboardService {
   constructor(

@@ -3,41 +3,17 @@ import { extractFolderAndFileName } from "../../api/sound/helper.js";
 import storageFacade from "../../core/facade/services/storageFacade.js";
 import {
   bytesToMB,
+  getRandomFreeDesign,
   getRandomValueFromArray,
   hashPassword,
 } from "../../utils/utils.js";
 import { PrismaClient } from "@prisma/client";
 import config from "../../config/config.js";
 
-export const seed = async (prisma: PrismaClient) => {
-  const hashedPassword = await hashPassword("pokemon94");
-  const freeUser = await prisma.user.create({
-    data: {
-      username: config.user.free.username,
-      email: "free@beatblender.com",
-      name: "Free Beat Blender",
-      password: hashedPassword,
-      avatar: "free/avatar/avatar",
-    },
-  });
-  const userId = freeUser.id;
-  const userInfo = await prisma.user_info.create({
-    data: {
-      isAdmin: true,
-      id: userId,
-      keyboards: -1,
-      space: -1,
-      sounds: -1,
-    },
-  });
-  const freeFolder = await prisma.sound_folder.create({
-    data: {
-      name: "free",
-      userId,
-      is_default: true,
-    },
-  });
 
+
+export const seed = async (prisma: PrismaClient) => {
+  
   const createKeyboardFromSoundStorage = async (
     userId: number,
     soundFolderId: number,
@@ -256,10 +232,14 @@ export const seed = async (prisma: PrismaClient) => {
         return sound.id;
       })
     );
-
+    const design_keyboardName = getRandomFreeDesign();
     let keyIds: number[] = await Promise.all(
       keys.map(async (_key, i) => {
         if (soundIds[i]) {
+          const colors = config.design.free.designs.filter(
+            (d) => d.name === design_keyboardName
+          )[0].colors;
+          const bgColor = getRandomValueFromArray(colors);
           const keyCreated = await prisma.key.create({
             data: {
               soundId: soundIds[i],
@@ -267,9 +247,13 @@ export const seed = async (prisma: PrismaClient) => {
               userId,
               displayName: _key.key,
               order: i + 1,
+              bgColor,
+              keyColor: getRandomValueFromArray(
+                colors.filter((color) => !color.includes(bgColor))
+              ),
               effects: {
                 create: config.effects
-                  .filter((ef) => ef.keys && !ef.isPremium)
+                  .filter((ef) => ef.keys)
                   .map(({ name, description, config, isActive }) => {
                     return {
                       name,
@@ -292,7 +276,7 @@ export const seed = async (prisma: PrismaClient) => {
       data: {
         userId,
         name: keyboardName,
-        design_keyboardName: getRandomValueFromArray(config.design.free.names),
+        design_keyboardName,
         keys: {
           connect: keyIds
             .filter((id) => id !== 0)
@@ -302,7 +286,7 @@ export const seed = async (prisma: PrismaClient) => {
         },
         effects: {
           create: config.effects
-            .filter((ef) => ef.keyboards && !ef.isPremium)
+            .filter((ef) => ef.keyboards)
             .map(({ name, description, config, isActive }) => {
               return { name, description, config, isActive };
             }),
@@ -312,6 +296,45 @@ export const seed = async (prisma: PrismaClient) => {
 
     return keyboard;
   };
+
+  const hashedPassword = await hashPassword("pokemon94");
+  const freeUser = await prisma.user.create({
+    data: {
+      username: config.user.free.username,
+      email: "free@beatblender.com",
+      name: "Free Beat Blender",
+      password: hashedPassword,
+      avatar: "free/avatar/avatar",
+    },
+  });
+  const userId = freeUser.id;
+  const userInfo = await prisma.user_info.create({
+    data: {
+      isAdmin: true,
+      id: userId,
+      keyboards: -1,
+      space: -1,
+      sounds: -1,
+    },
+  });
+  const freeFolder = await prisma.sound_folder.create({
+    data: {
+      name: "free",
+      userId,
+      is_default: true,
+    },
+  });
+  const beatBlenderFolder = await prisma.sound_folder.create({
+    data: {
+      name: "app",
+      userId,
+      is_default: false,
+    },
+  });
+
+
+
+
   const pianoSounds = await storageFacade.storageService.getManyByFolder(
     "free/sounds/piano"
   );
@@ -319,7 +342,201 @@ export const seed = async (prisma: PrismaClient) => {
     userId,
     freeFolder.id,
     "Piano 1",
-    pianoSounds
+    pianoSounds,
+    [
+      {
+        key: "q",
+        code: 81,
+        loop: {
+          active: true,
+          config: {
+            bpm: 120,
+          },
+        },
+        volume: {
+          active: true,
+          config: {
+            level: 1,
+          },
+        },
+      },
+      {
+        key: "w",
+        code: 87,
+        loop: {
+          active: false,
+          config: {
+            bpm: 0,
+          },
+        },
+        volume: {
+          active: true,
+          config: {
+            level: 1,
+          },
+        },
+      },
+      {
+        key: "e",
+        code: 69,
+        loop: {
+          active: false,
+          config: {
+            bpm: 0,
+          },
+        },
+        volume: {
+          active: true,
+          config: {
+            level: 0,
+          },
+        },
+      },
+      {
+        key: "u",
+        code: 85,
+        loop: {
+          active: false,
+          config: {
+            bpm: 0,
+          },
+        },
+        volume: {
+          active: true,
+          config: {
+            level: 1,
+          },
+        },
+      },
+      {
+        key: "i",
+        code: 73,
+        loop: {
+          active: false,
+          config: {
+            bpm: 0,
+          },
+        },
+        volume: {
+          active: true,
+          config: {
+            level: 1,
+          },
+        },
+      },
+      {
+        key: "o",
+        code: 79,
+        loop: {
+          active: false,
+          config: {
+            bpm: 0,
+          },
+        },
+        volume: {
+          active: true,
+          config: {
+            level: 1,
+          },
+        },
+      },
+      {
+        key: "a",
+        code: 65,
+        loop: {
+          active: true,
+          config: {
+            bpm: 0,
+          },
+        },
+        volume: {
+          active: true,
+          config: {
+            level: 1,
+          },
+        },
+      },
+      {
+        key: "s",
+        code: 83,
+        loop: {
+          active: false,
+          config: {
+            bpm: 0,
+          },
+        },
+        volume: {
+          active: true,
+          config: {
+            level: 1,
+          },
+        },
+      },
+      {
+        key: "d",
+        code: 68,
+        loop: {
+          active: true,
+          config: {
+            bpm: 120,
+          },
+        },
+        volume: {
+          active: true,
+          config: {
+            level: 1,
+          },
+        },
+      },
+      {
+        key: "j",
+        code: 74,
+        loop: {
+          active: false,
+          config: {
+            bpm: 0,
+          },
+        },
+        volume: {
+          active: true,
+          config: {
+            level: 1,
+          },
+        },
+      },
+      {
+        key: "k",
+        code: 75,
+        loop: {
+          active: false,
+          config: {
+            bpm: 0,
+          },
+        },
+        volume: {
+          active: true,
+          config: {
+            level: 1,
+          },
+        },
+      },
+      {
+        key: "l",
+        code: 76,
+        loop: {
+          active: false,
+          config: {
+            bpm: 0,
+          },
+        },
+        volume: {
+          active: true,
+          config: {
+            level: 1,
+          },
+        },
+      },
+    ]
   );
   const hipHopSounds = await storageFacade.storageService.getManyByFolder(
     "free/sounds/hip-hop"
@@ -336,7 +553,7 @@ export const seed = async (prisma: PrismaClient) => {
         loop: {
           active: true,
           config: {
-            bpm: 0,
+            bpm: 120,
           },
         },
         volume: {
@@ -527,7 +744,6 @@ export const seed = async (prisma: PrismaClient) => {
   const lofiSounds = await storageFacade.storageService.getManyByFolder(
     "free/sounds/lofi"
   );
-  console.log(lofiSounds.Contents);
   await createKeyboardFromSoundStorage(
     userId,
     freeFolder.id,
@@ -546,7 +762,7 @@ export const seed = async (prisma: PrismaClient) => {
         volume: {
           active: true,
           config: {
-            level: 1,
+            level: 0.2,
           },
         },
       },
@@ -562,7 +778,7 @@ export const seed = async (prisma: PrismaClient) => {
         volume: {
           active: true,
           config: {
-            level: 1,
+            level: 2,
           },
         },
       },
@@ -570,15 +786,15 @@ export const seed = async (prisma: PrismaClient) => {
         key: "e",
         code: 69,
         loop: {
-          active: false,
+          active: true,
           config: {
-            bpm: 0,
+            bpm: 80,
           },
         },
         volume: {
           active: true,
           config: {
-            level: 1,
+            level: 0.8,
           },
         },
       },
@@ -728,5 +944,150 @@ export const seed = async (prisma: PrismaClient) => {
       },
     ]
   );
+
+  // private keyboards: errors, register, login
+
+ //TODO:
+ 
+  const registerSounds = await storageFacade.storageService.getManyByFolder(
+    "free/sounds/register"
+  );
+  await createKeyboardFromSoundStorage(
+    userId,
+    beatBlenderFolder.id,
+    "register",
+    lofiSounds,
+    [
+      {
+        key: "r",
+        code: 81,
+        loop: {
+          active: false,
+          config: {
+            bpm: 0,
+          },
+        },
+        volume: {
+          active: true,
+          config: {
+            level: 1,
+          },
+        },
+      },
+      {
+        key: "e",
+        code: 87,
+        loop: {
+          active: false,
+          config: {
+            bpm: 0,
+          },
+        },
+        volume: {
+          active: true,
+          config: {
+            level: 1,
+          },
+        },
+      },
+      {
+        key: "g",
+        code: 69,
+        loop: {
+          active: false,
+          config: {
+            bpm: 80,
+          },
+        },
+        volume: {
+          active: true,
+          config: {
+            level: 1,
+          },
+        },
+      },
+      {
+        key: "i",
+        code: 85,
+        loop: {
+          active: false,
+          config: {
+            bpm: 0,
+          },
+        },
+        volume: {
+          active: true,
+          config: {
+            level: 1,
+          },
+        },
+      },
+      {
+        key: "s",
+        code: 73,
+        loop: {
+          active: false,
+          config: {
+            bpm: 0,
+          },
+        },
+        volume: {
+          active: true,
+          config: {
+            level: 1,
+          },
+        },
+      },
+      {
+        key: "t",
+        code: 79,
+        loop: {
+          active: false,
+          config: {
+            bpm: 0,
+          },
+        },
+        volume: {
+          active: true,
+          config: {
+            level: 1,
+          },
+        },
+      },
+      {
+        key: "e",
+        code: 65,
+        loop: {
+          active: false,
+          config: {
+            bpm: 0,
+          },
+        },
+        volume: {
+          active: true,
+          config: {
+            level: 1,
+          },
+        },
+      },
+      {
+        key: "r",
+        code: 83,
+        loop: {
+          active: false,
+          config: {
+            bpm: 0,
+          },
+        },
+        volume: {
+          active: true,
+          config: {
+            level: 1,
+          },
+        },
+      },
+    ]
+  );
+
   console.log("FREE USER SEED COMPLETED");
 };

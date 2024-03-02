@@ -1,7 +1,6 @@
 import userInfoFacade from "../../../core/facade/userInfoFacade.js";
 import userFacade from "../../../core/facade/userFacade.js";
 import updateUserInfoData from "../../_global/updateUserInfoData.js";
-import Listener from "../../Listener.js";
 import { SoundFolderData, SoundFolderEvents } from "../type.js";
 import SoundFolderListener from "../SoundFolderListener.js";
 

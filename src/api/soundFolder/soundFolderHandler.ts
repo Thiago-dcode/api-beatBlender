@@ -1,7 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import { validateSoundFolder } from "./validate.js";
 import SoundFolderService from "./soundFolderService.js";
-import { AuthorizationError } from "../../errors/auth/auth.js";
 import { validateUserIdRequest } from "../../utils/utils.js";
 
 class SoundFolderHandler {

@@ -9,7 +9,7 @@ import MembershipStatusService from "../membershipStatus/MembershipStatusService
 import KeyboardListener from "../../listeners/keyboard/KeyboardLIstener.js";
 import config from "../../config/config.js";
 import DesignKeyboardService from "../designKeyboard/designKeyboardService.js";
-import { getRandomValueFromArray } from "../../utils/utils.js";
+import { getRandomFreeDesign, getRandomValueFromArray } from "../../utils/utils.js";
 
 interface keyboardToCreateWithKeysAndCategories extends keyboardToCreate {
   keys?: number[];
@@ -82,7 +82,7 @@ export default class KeyBoardService {
     const keys = await this.keyService.allByUserOrError(userId, keyboard.id);
     const design = await this.designkeyboardService.getOneOrError(
       keyboard.design_keyboardName ||
-        getRandomValueFromArray(config.design.free.names)
+        getRandomValueFromArray(config.design.free.designs.map((d) => d.name))
     );
     return {
       ...keyboard,
@@ -126,7 +126,7 @@ export default class KeyBoardService {
         userId,
         design_keyboardName:
           design_keyboardName ||
-          getRandomValueFromArray(config.design.free.names),
+          getRandomFreeDesign()
       },
       keys ? keys : [],
       categories ? categories : []
@@ -168,7 +168,7 @@ export default class KeyBoardService {
         design_keyboardName:
           design_keyboardName ||
           keyboardToUpdate.design_keyboardName ||
-          getRandomValueFromArray(config.design.free.names),
+          getRandomFreeDesign()
       },
       keys,
       keysToDelete ? keysToDelete : [],

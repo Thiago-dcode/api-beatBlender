@@ -6,7 +6,7 @@ import {
 import { hashPassword } from "../../utils/utils.js";
 import UserRepository from "./userRepository.js";
 import { CreateUser, Include, UpdateUser, UserWithAvatarUrl } from "./types.js";
-import StorageService from "../../services/logger/storage/storage.js";
+import StorageService from "../../services/storage/storage.js";
 import { StorageError } from "../../errors/general/general.js";
 import { User } from "@prisma/client";
 import { S3File } from "../../types/index.js";
@@ -91,15 +91,17 @@ export default class UserService {
   }
 
   async createOrError(data: CreateUser) {
-    const { username, password } = data;
-    const userExist = await this.userRepo.findFirstWhere({ username });
-    if (userExist) {
-      throw new EntityAlreadyExistsError(
-        `Already exist a username ${data.username},try with another one`,
-        {
-          username: "Already exist",
-        }
-      );
+    const { username, email, password } = data;
+    let errors: { [key: string]: string } = {};
+    const usernameExist = await this.userRepo.findFirstWhere({ username });
+
+    if (usernameExist)
+      errors.username = `Already exist a username ${username},try with another one`;
+    const emailExist = await this.userRepo.findFirstWhere({ email });
+    if (emailExist)
+      errors.email = `This email is not valid, try with another one`;
+    if (Object.keys(errors).length > 0) {
+      throw new EntityAlreadyExistsError(`Entity already exist`, errors);
     }
     const passwordHashed = await hashPassword(data.password);
     data.password = passwordHashed;
@@ -114,9 +116,7 @@ export default class UserService {
       });
       UserListener.on(UserEvents.Error, async (error) => {
         try {
-        await this.deleteByUserNameOrError(
-            data.username
-          );
+          await this.deleteByUserNameOrError(data.username);
         } catch (error) {
           reject(error);
         }

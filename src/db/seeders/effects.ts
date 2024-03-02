@@ -6,7 +6,7 @@ export const seed = async (prisma: PrismaClient) => {
 
   const effectsCreated = await Promise.all(
     effects.map(async (effect) => {
-      const { name, description, isActive, config, isPremium } = effect;
+      const { name, description, isActive, config } = effect;
 
       const effectCreated = await prisma.effect.create({
         data: {
@@ -14,7 +14,6 @@ export const seed = async (prisma: PrismaClient) => {
           description,
           config,
           isActive,
-          isPremium,
         },
       });
       return effectCreated;

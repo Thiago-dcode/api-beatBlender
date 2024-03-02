@@ -29,7 +29,9 @@ class UserHandler {
   create = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const result = validateCreate(req.body);
+   
       if (!result.success) {
+        console.log('result',result.error.flatten().fieldErrors)
         return res.status(422).json(result.error.flatten().fieldErrors);
       }
       const userCreateResult = await this.userService.createOrError(

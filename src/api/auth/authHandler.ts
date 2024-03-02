@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import { validateLoggin } from "./validate.js";
-import { handleError, sendErrResponse } from "../../errors/handleErrors.js";
+
 import AuthService from "./authService.js";
 import { EntityNotFoundError } from "../../errors/db/db.js";
 

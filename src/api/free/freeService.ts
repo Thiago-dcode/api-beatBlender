@@ -1,4 +1,3 @@
-import config from "../../config/config.js";
 import KeyService from "../key/keyService.js";
 import KeyBoardService from "../keyboard/keyboardService.js";
 
@@ -9,7 +8,7 @@ export default class FreeService {
     private readonly keyService: KeyService
   ) {}
 
-  async allKeyboardsOrError(limit: number = 5) {
+  async allKeyboardsOrError(limit: number = 4) {
     const keyboards = await this.keyboardService.allByUserOrError(
       this.freeUserId,
       undefined,

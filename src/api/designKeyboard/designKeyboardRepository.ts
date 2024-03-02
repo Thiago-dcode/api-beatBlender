@@ -1,5 +1,5 @@
 import { PrismaClient } from "@prisma/client";
-import { designKeyboardToCreate, designKeyboardToUpdate } from "./types.js";
+import { designKeyboardToCreate } from "./types.js";
 
 export default class DesignKeyboardRepository {
   db: PrismaClient;

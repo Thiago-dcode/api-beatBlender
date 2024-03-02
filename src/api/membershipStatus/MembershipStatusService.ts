@@ -1,6 +1,5 @@
 import { EntityNotFoundError } from "../../errors/db/db.js";
 import { MembershipExceedLimitError } from "../../errors/membership/membership.js";
-import { UserInfoToUpdate } from "../userInfo/types.js";
 import UserInfoService from "../userInfo/userInfoService.js";
 import MembershipSatusRepository from "./membershipStatusRepository.js";
 import { membershipStatusToCreate } from "./types.js";

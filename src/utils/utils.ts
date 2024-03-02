@@ -1,14 +1,24 @@
-import { config } from "dotenv";
 import bcrypt from "bcryptjs";
 import { Request } from "express";
 import { AuthorizationError } from "../errors/auth/auth.js";
 import { EnvVarNotFoundError } from "../errors/general/general.js";
 import { JwtPayload } from "jsonwebtoken";
 import { v4 as uuidv4 } from "uuid";
+import appConfig from "../config/config.js";
+import { config } from "dotenv";
 config();
 export const env = {
-  get: (key: string): any => {
-    return process.env[key];
+  get: (key: string): string => {
+    
+    const envar = process.env[key];
+    if (!envar) {
+      throw new EnvVarNotFoundError(
+        "Environment variable: " + key + " not found",
+        {},
+        500
+      );
+    }
+    return envar;
   },
 };
 export async function hashPassword(password: string) {
@@ -93,4 +103,9 @@ export function extractRoute(path: string): string {
 export function getRandomValueFromArray<t>(array: t[]): t {
   const random = Math.floor(Math.random() * array.length);
   return array[random];
+}
+export function getRandomFreeDesign() {
+  return getRandomValueFromArray(
+    appConfig.design.free.designs.map((d) => d.name)
+  );
 }

@@ -6,7 +6,7 @@ const User = z.object({
   password: z.string().min(8, {
     message: "Must contain at least 8 character(s)",
   }),
-  email: z.string().email().optional(),
+  email: z.string().email(),
   biography: z.string().optional(),
   avatar: z.string().optional(),
 });

@@ -1,4 +1,4 @@
-import StorageService from "../../../services/logger/storage/storage.js";
+import StorageService from "../../../services/storage/storage.js";
 
 import ResizeService from "../../../services/resize/resize.js";
 

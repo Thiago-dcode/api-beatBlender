@@ -3,7 +3,6 @@ import dotenv from "dotenv";
 import { RedisCommandArgument } from "@redis/client/dist/lib/commands/index.js";
 import { RedisError } from "../errors/db/db.js";
 import { env } from "../utils/utils.js";
-import { error } from "console";
 
 const client: RedisClientType = createClient({
   url: env.get("REDIS_URL"),

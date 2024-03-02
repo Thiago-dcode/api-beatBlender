@@ -1,7 +1,7 @@
 import { PrismaClient } from "@prisma/client";
 
 import { keyboardToCreate, keyboardToUpdate } from "./types.js";
-import { connect } from "http2";
+import config from "../../config/config.js";
 
 export default class KeyboardRepository {
   db: PrismaClient;
@@ -30,6 +30,7 @@ export default class KeyboardRepository {
       where: {
         userId,
         categories,
+        private: false,
       },
       include: { categories: true, effects: true },
     });
@@ -59,6 +60,20 @@ export default class KeyboardRepository {
           connectOrCreate: categories.map((category) => {
             return { create: { name: category }, where: { name: category } };
           }),
+        },
+        effects: {
+          create: config.effects
+            .filter((ef) => {
+              ef.keyboards;
+            })
+            .map(({ name, description, config, isActive }) => {
+              return {
+                name,
+                description,
+                config,
+                isActive,
+              };
+            }),
         },
       },
     });

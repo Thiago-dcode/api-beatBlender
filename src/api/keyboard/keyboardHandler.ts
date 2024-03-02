@@ -2,7 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import { validateKeyboard, validateKeyboardOptional } from "./validate.js";
 import { validateUserIdRequest } from "../../utils/utils.js";
 
-import KeyBoardService from "./keyboardService.js";
+import KeyBoardService from "./keyboardService";
 export default class KeyboardHandler {
   constructor(private readonly keyBoardService: KeyBoardService) {
     this.index = this.index.bind(this);

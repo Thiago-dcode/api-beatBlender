@@ -1,6 +1,7 @@
 import { PrismaClient } from "@prisma/client";
 
 import { keyToCreate, keyToUpdate } from "./types.js";
+import config from "../../config/config.js";
 
 export default class KeyRepository {
   db: PrismaClient;
@@ -33,7 +34,25 @@ export default class KeyRepository {
   }
 
   async create(data: keyToCreate) {
-    const result = await this.db.key.create({ data });
+    const result = await this.db.key.create({
+      data: {
+        ...data,
+        effects: {
+          create: config.effects
+            .filter((ef) => {
+              ef.keys;
+            })
+            .map(({ name, description, config, isActive }) => {
+              return {
+                name,
+                description,
+                config,
+                isActive,
+              };
+            }),
+        },
+      },
+    });
     return result;
   }
   async findById(id: number) {

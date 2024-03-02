@@ -2,7 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import imageType from "image-type";
 import { ImageFileTypeError, AudioFileTypeError } from "../errors/type/type.js";
 import config from "../config/config.js";
-import { EntityNotFoundError } from "../errors/db/db.js";
+
 
 export const imageValidationMiddleware = async (
   req: Request,

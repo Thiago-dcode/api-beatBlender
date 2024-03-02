@@ -1,6 +1,6 @@
 import path from "path";
 import { EntityNotFoundError } from "../../errors/db/db.js";
-import StorageService from "../../services/logger/storage/storage.js";
+import StorageService from "../../services/storage/storage.js";
 import { S3File } from "../../types/index.js";
 import SoundRepository from "./soundRepository.js";
 import { soundToCreate } from "./types.js";

@@ -1,13 +1,13 @@
-import { uuid } from "uuidv4";
-import { env } from "../utils/utils.js";
-
+import { env } from "process";
+import { config } from "dotenv";
+config();
 export default {
   S3Config: {
     credentials: {
-      accessKeyId: env.get("S3_ACCESS_KEY"),
-      secretAccessKey: env.get("S3_SECRET_ACCESS"),
+      accessKeyId: env["S3_ACCESS_KEY"] || "",
+      secretAccessKey: env["S3_SECRET_ACCESS"] || "",
     },
-    region: env.get("S3_BUCKET_REGION"),
+    region: env["S3_BUCKET_REGION"] || "",
   },
   image: {
     maxSize: 5,
@@ -46,7 +46,17 @@ export default {
   design: {
     free: {
       path: "free/designs",
-      names: ["classic", "classic-1"],
+
+      designs: [
+        {
+          name: "classic",
+          colors: ["rgb(38 38 38)", "rgb(245 245 245)"],
+        },
+        {
+          name: "classic-1",
+          colors: ["rgb(38 38 38)", "rgb(245 245 245)"],
+        },
+      ],
     },
     premium: {
       path: "premium/designs",
@@ -59,7 +69,6 @@ export default {
       description: "Modify the volume",
       keys: true,
       keyboards: true,
-      isPremium: false,
       isActive: true,
       config: {
         level: 1,
@@ -72,7 +81,6 @@ export default {
       keys: true,
       isActive: false,
       keyboards: false,
-      isPremium: false,
       config: {
         bpm: 0,
       },
