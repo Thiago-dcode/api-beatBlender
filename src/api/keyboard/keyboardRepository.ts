@@ -2,6 +2,7 @@ import { PrismaClient } from "@prisma/client";
 
 import { keyboardToCreate, keyboardToUpdate } from "./types.js";
 import config from "../../config/config.js";
+import { whereUnique } from "../user/types.js";
 
 export default class KeyboardRepository {
   db: PrismaClient;
@@ -42,7 +43,13 @@ export default class KeyboardRepository {
     });
     return keyboard;
   }
-
+  async findWhere(where: any) {
+    const keyboard = await this.db.keyboard.findFirst({
+      where: where,
+      include: { categories: true, effects: true },
+    });
+    return keyboard;
+  }
   async create(
     keyboardData: keyboardToCreate,
     keys: number[] | [] = [],

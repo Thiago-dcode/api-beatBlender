@@ -24,4 +24,11 @@ export default class FreeService {
     );
     return keyboard;
   }
+  async getOneKeyboardNameOrError(name: string) {
+    const keyboard = await this.keyboardService.getOneByNameOrError(
+      name,
+      this.freeUserId
+    );
+    return keyboard;
+  }
 }

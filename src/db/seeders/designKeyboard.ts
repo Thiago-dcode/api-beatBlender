@@ -11,13 +11,10 @@ export const seed = async (prisma: PrismaClient) => {
   // let colorsMemo: { [key: string]: boolean } = {};
 
   const allColors = free.designs.flatMap((d) => d.colors);
-
+  const uniqueColors = Array.from(new Set(allColors));
   await Promise.all(
-    allColors.map(async (color) => {
-      let colorExist = await colorRepo.findFirstByName(color);
-      if (!colorExist) {
-        colorExist = await colorRepo.create(color);
-      }
+    uniqueColors.map(async (color) => {
+      await colorRepo.create(color);
     })
   );
 

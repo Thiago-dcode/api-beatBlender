@@ -9,7 +9,6 @@ import { config } from "dotenv";
 config();
 export const env = {
   get: (key: string): string => {
-    
     const envar = process.env[key];
     if (!envar) {
       throw new EnvVarNotFoundError(
@@ -108,4 +107,25 @@ export function getRandomFreeDesign() {
   return getRandomValueFromArray(
     appConfig.design.free.designs.map((d) => d.name)
   );
+}
+
+export function getRandomUniqueFromArray<T>(
+  arr: T[] | undefined,
+  num: number
+): T[] {
+  if (!Array.isArray(arr) || arr.length === 0 || num <= 0 || isNaN(num)) {
+    throw new Error(
+      "Invalid input: 'arr' must be a non-empty array and 'num' must be a positive number"
+    );
+  }
+
+  if (num > arr.length) {
+    throw new Error("Number of elements to sample cannot exceed array length");
+  }
+
+  // Shuffle the array to ensure randomness
+  const shuffledArr = arr.slice().sort(() => Math.random() - 0.5);
+
+  // Select the first 'num' elements
+  return shuffledArr.slice(0, num);
 }

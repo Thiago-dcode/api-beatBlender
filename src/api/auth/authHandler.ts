@@ -13,13 +13,13 @@ class AuthHandler {
     try {
       const result = validateLoggin(req.body);
 
+      console.log('req.cookies()',req.headers.cookie)
       if (!result.success) {
         throw new EntityNotFoundError("Invalid credentials",{}, 404);
       }
       const userAuthenticated = await this.authService.authJWT(result.data);
       res.cookie("refresh_token", userAuthenticated.refreshToken, {
         httpOnly: true,
-        sameSite: "strict",
         secure: true,
       });
 
@@ -40,7 +40,6 @@ class AuthHandler {
 
       res.cookie("refresh_token", newRefreshToken, {
         httpOnly: true,
-        sameSite: "strict",
         secure: true,
       });
 

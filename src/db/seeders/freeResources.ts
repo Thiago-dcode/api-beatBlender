@@ -1,238 +1,73 @@
-import { ListObjectsV2CommandOutput } from "@aws-sdk/client-s3";
+import { ListObjectsV2CommandOutput, _Object } from "@aws-sdk/client-s3";
 import { extractFolderAndFileName } from "../../api/sound/helper.js";
 import storageFacade from "../../core/facade/services/storageFacade.js";
 import {
   bytesToMB,
   getRandomFreeDesign,
+  getRandomUniqueFromArray,
   getRandomValueFromArray,
   hashPassword,
 } from "../../utils/utils.js";
 import { PrismaClient } from "@prisma/client";
 import config from "../../config/config.js";
 
+const key = {
+  key: "q",
+  code: 81,
+  loop: {
+    active: false,
+    config: {
+      bpm: 0,
+    },
+  },
+  volume: {
+    active: true,
+    config: {
+      level: 1,
+    },
+  },
+};
 
+type Key = typeof key & {
+  displayName?: string;
+  bgColor?: string;
+  keyColor?: string;
+};
 
 export const seed = async (prisma: PrismaClient) => {
-  
   const createKeyboardFromSoundStorage = async (
     userId: number,
     soundFolderId: number,
-    keyboardName: string,
-    s3ListOfObjects: ListObjectsV2CommandOutput,
-    keys = [
-      {
-        key: "q",
-        code: 81,
-        loop: {
-          active: false,
-          config: {
-            bpm: 0,
-          },
-        },
-        volume: {
-          active: true,
-          config: {
-            level: 1,
-          },
-        },
-      },
-      {
-        key: "w",
-        code: 87,
-        loop: {
-          active: false,
-          config: {
-            bpm: 0,
-          },
-        },
-        volume: {
-          active: true,
-          config: {
-            level: 1,
-          },
-        },
-      },
-      {
-        key: "e",
-        code: 69,
-        loop: {
-          active: false,
-          config: {
-            bpm: 0,
-          },
-        },
-        volume: {
-          active: true,
-          config: {
-            level: 1,
-          },
-        },
-      },
-      {
-        key: "u",
-        code: 85,
-        loop: {
-          active: false,
-          config: {
-            bpm: 0,
-          },
-        },
-        volume: {
-          active: true,
-          config: {
-            level: 1,
-          },
-        },
-      },
-      {
-        key: "i",
-        code: 73,
-        loop: {
-          active: false,
-          config: {
-            bpm: 0,
-          },
-        },
-        volume: {
-          active: true,
-          config: {
-            level: 1,
-          },
-        },
-      },
-      {
-        key: "o",
-        code: 79,
-        loop: {
-          active: false,
-          config: {
-            bpm: 0,
-          },
-        },
-        volume: {
-          active: true,
-          config: {
-            level: 1,
-          },
-        },
-      },
-      {
-        key: "a",
-        code: 65,
-        loop: {
-          active: false,
-          config: {
-            bpm: 0,
-          },
-        },
-        volume: {
-          active: true,
-          config: {
-            level: 1,
-          },
-        },
-      },
-      {
-        key: "s",
-        code: 83,
-        loop: {
-          active: false,
-          config: {
-            bpm: 0,
-          },
-        },
-        volume: {
-          active: true,
-          config: {
-            level: 1,
-          },
-        },
-      },
-      {
-        key: "d",
-        code: 68,
-        loop: {
-          active: false,
-          config: {
-            bpm: 0,
-          },
-        },
-        volume: {
-          active: true,
-          config: {
-            level: 1,
-          },
-        },
-      },
-      {
-        key: "j",
-        code: 74,
-        loop: {
-          active: false,
-          config: {
-            bpm: 0,
-          },
-        },
-        volume: {
-          active: true,
-          config: {
-            level: 1,
-          },
-        },
-      },
-      {
-        key: "k",
-        code: 75,
-        loop: {
-          active: false,
-          config: {
-            bpm: 0,
-          },
-        },
-        volume: {
-          active: true,
-          config: {
-            level: 1,
-          },
-        },
-      },
-      {
-        key: "l",
-        code: 76,
-        loop: {
-          active: false,
-          config: {
-            bpm: 0,
-          },
-        },
-        volume: {
-          active: true,
-          config: {
-            level: 1,
-          },
-        },
-      },
-    ]
+    keyboardData: {
+      name: string;
+      private: boolean;
+      designName?: string;
+    },
+    contents: _Object[] | undefined,
+    keys: Key[]
   ) => {
-    if (!s3ListOfObjects.Contents) return;
+    if (!contents) return;
 
     const soundIds = await Promise.all(
-      s3ListOfObjects.Contents.filter((obj) => obj.Size).map(async (object) => {
-        const path = object?.Key;
-        if (!path) return undefined;
-        const sound = await prisma.sound.create({
-          data: {
-            userId,
-            name: extractFolderAndFileName(path).filename,
-            path,
-            size: bytesToMB(object?.Size || 0),
-            sound_folderId: soundFolderId,
-          },
-        });
-        return sound.id;
-      })
+      contents
+        .filter((obj) => obj.Size)
+        .map(async (object) => {
+          const path = object?.Key;
+          if (!path) return undefined;
+          const sound = await prisma.sound.create({
+            data: {
+              userId,
+              name: extractFolderAndFileName(path).filename,
+              path,
+              size: bytesToMB(object?.Size || 0),
+              sound_folderId: soundFolderId,
+            },
+          });
+          return sound.id;
+        })
     );
-    const design_keyboardName = getRandomFreeDesign();
+    const design_keyboardName =
+      keyboardData.designName || getRandomFreeDesign();
     let keyIds: number[] = await Promise.all(
       keys.map(async (_key, i) => {
         if (soundIds[i]) {
@@ -245,12 +80,14 @@ export const seed = async (prisma: PrismaClient) => {
               soundId: soundIds[i],
               key: _key.key,
               userId,
-              displayName: _key.key,
+              displayName: _key.displayName || _key.key,
               order: i + 1,
-              bgColor,
-              keyColor: getRandomValueFromArray(
-                colors.filter((color) => !color.includes(bgColor))
-              ),
+              bgColor: _key.bgColor || bgColor,
+              keyColor:
+                _key.keyColor ||
+                getRandomValueFromArray(
+                  colors.filter((color) => !color.includes(bgColor))
+                ),
               effects: {
                 create: config.effects
                   .filter((ef) => ef.keys)
@@ -275,8 +112,9 @@ export const seed = async (prisma: PrismaClient) => {
     const keyboard = await prisma.keyboard.create({
       data: {
         userId,
-        name: keyboardName,
+        name: keyboardData.name,
         design_keyboardName,
+        private: keyboardData.private,
         keys: {
           connect: keyIds
             .filter((id) => id !== 0)
@@ -332,17 +170,14 @@ export const seed = async (prisma: PrismaClient) => {
     },
   });
 
-
-
-
   const pianoSounds = await storageFacade.storageService.getManyByFolder(
     "free/sounds/piano"
   );
   await createKeyboardFromSoundStorage(
     userId,
     freeFolder.id,
-    "Piano 1",
-    pianoSounds,
+    { name: "Piano 1", private: false },
+    pianoSounds.Contents,
     [
       {
         key: "q",
@@ -544,8 +379,8 @@ export const seed = async (prisma: PrismaClient) => {
   await createKeyboardFromSoundStorage(
     userId,
     freeFolder.id,
-    "Hip-hop 1",
-    hipHopSounds,
+    { name: "hip-hop 1", private: false },
+    hipHopSounds.Contents,
     [
       {
         key: "q",
@@ -747,8 +582,8 @@ export const seed = async (prisma: PrismaClient) => {
   await createKeyboardFromSoundStorage(
     userId,
     freeFolder.id,
-    "lofi 1",
-    lofiSounds,
+    { name: "lofi 1", private: false },
+    lofiSounds.Contents,
     [
       {
         key: "q",
@@ -947,19 +782,21 @@ export const seed = async (prisma: PrismaClient) => {
 
   // private keyboards: errors, register, login
 
- //TODO:
- 
+  //TODO:
+
   const registerSounds = await storageFacade.storageService.getManyByFolder(
     "free/sounds/register"
   );
   await createKeyboardFromSoundStorage(
     userId,
     beatBlenderFolder.id,
-    "register",
-    lofiSounds,
+    { name: "register", private: true, designName: "minimal" },
+    registerSounds.Contents,
     [
       {
         key: "r",
+        bgColor: "rgb(245 245 245)",
+        keyColor: "rgb(38 38 38)",
         code: 81,
         loop: {
           active: false,
@@ -976,6 +813,8 @@ export const seed = async (prisma: PrismaClient) => {
       },
       {
         key: "e",
+        bgColor: "rgb(245 245 245)",
+        keyColor: "rgb(38 38 38)",
         code: 87,
         loop: {
           active: false,
@@ -992,6 +831,8 @@ export const seed = async (prisma: PrismaClient) => {
       },
       {
         key: "g",
+        bgColor: "rgb(245 245 245)",
+        keyColor: "rgb(38 38 38)",
         code: 69,
         loop: {
           active: false,
@@ -1008,6 +849,8 @@ export const seed = async (prisma: PrismaClient) => {
       },
       {
         key: "i",
+        bgColor: "rgb(245 245 245)",
+        keyColor: "rgb(38 38 38)",
         code: 85,
         loop: {
           active: false,
@@ -1024,6 +867,8 @@ export const seed = async (prisma: PrismaClient) => {
       },
       {
         key: "s",
+        bgColor: "rgb(245 245 245)",
+        keyColor: "rgb(38 38 38)",
         code: 73,
         loop: {
           active: false,
@@ -1040,6 +885,8 @@ export const seed = async (prisma: PrismaClient) => {
       },
       {
         key: "t",
+        bgColor: "rgb(245 245 245)",
+        keyColor: "rgb(38 38 38)",
         code: 79,
         loop: {
           active: false,
@@ -1055,7 +902,10 @@ export const seed = async (prisma: PrismaClient) => {
         },
       },
       {
-        key: "e",
+        key: "f1",
+        bgColor: "rgb(245 245 245)",
+        keyColor: "rgb(38 38 38)",
+        displayName: "e",
         code: 65,
         loop: {
           active: false,
@@ -1071,12 +921,245 @@ export const seed = async (prisma: PrismaClient) => {
         },
       },
       {
-        key: "r",
+        key: "f2",
+        bgColor: "rgb(245 245 245)",
+        keyColor: "rgb(38 38 38)",
+        displayName: "r",
         code: 83,
         loop: {
           active: false,
           config: {
             bpm: 0,
+          },
+        },
+        volume: {
+          active: true,
+          config: {
+            level: 1,
+          },
+        },
+      },
+    ]
+  );
+  const loginSounds = await storageFacade.storageService.getManyByFolder(
+    "free/sounds/login"
+  );
+  await createKeyboardFromSoundStorage(
+    userId,
+    beatBlenderFolder.id,
+    { name: "login", private: true, designName: "minimal" },
+    loginSounds.Contents,
+    [
+      {
+        key: "l",
+        bgColor: "rgb(245 245 245)",
+        keyColor: "rgb(38 38 38)",
+        code: 81,
+        loop: {
+          active: false,
+          config: {
+            bpm: 0,
+          },
+        },
+        volume: {
+          active: true,
+          config: {
+            level: 1,
+          },
+        },
+      },
+      {
+        key: "o",
+        bgColor: "rgb(245 245 245)",
+        keyColor: "rgb(38 38 38)",
+        code: 87,
+        loop: {
+          active: false,
+          config: {
+            bpm: 0,
+          },
+        },
+        volume: {
+          active: true,
+          config: {
+            level: 1,
+          },
+        },
+      },
+      {
+        key: "g",
+        bgColor: "rgb(245 245 245)",
+        keyColor: "rgb(38 38 38)",
+        code: 69,
+        loop: {
+          active: false,
+          config: {
+            bpm: 80,
+          },
+        },
+        volume: {
+          active: true,
+          config: {
+            level: 1,
+          },
+        },
+      },
+      {
+        key: "i",
+        bgColor: "rgb(245 245 245)",
+        keyColor: "rgb(38 38 38)",
+        code: 85,
+        loop: {
+          active: false,
+          config: {
+            bpm: 0,
+          },
+        },
+        volume: {
+          active: true,
+          config: {
+            level: 1,
+          },
+        },
+      },
+      {
+        key: "n",
+        bgColor: "rgb(245 245 245)",
+        keyColor: "rgb(38 38 38)",
+        code: 73,
+        loop: {
+          active: false,
+          config: {
+            bpm: 0,
+          },
+        },
+        volume: {
+          active: true,
+          config: {
+            level: 1,
+          },
+        },
+      },
+     
+    ]
+  );
+  const errorSounds = await storageFacade.storageService.getManyByFolder(
+    "free/sounds/memes/fail"
+  );
+  const error404Sounds = getRandomUniqueFromArray(errorSounds.Contents, 3);
+  await createKeyboardFromSoundStorage(
+    userId,
+    beatBlenderFolder.id,
+    { name: "404", private: true },
+    error404Sounds,
+    [
+      {
+        key: "4",
+
+        code: 81,
+        loop: {
+          active: false,
+          config: {
+            bpm: 0,
+          },
+        },
+        volume: {
+          active: true,
+          config: {
+            level: 1,
+          },
+        },
+      },
+      {
+        key: "0",
+        code: 87,
+        loop: {
+          active: false,
+          config: {
+            bpm: 0,
+          },
+        },
+        volume: {
+          active: true,
+          config: {
+            level: 1,
+          },
+        },
+      },
+      {
+        key: "f4",
+        displayName: "4",
+        code: 69,
+        loop: {
+          active: false,
+          config: {
+            bpm: 80,
+          },
+        },
+        volume: {
+          active: true,
+          config: {
+            level: 1,
+          },
+        },
+      },
+    ]
+  );
+
+  const error500Sounds = getRandomUniqueFromArray(errorSounds.Contents, 3);
+  await createKeyboardFromSoundStorage(
+    userId,
+    beatBlenderFolder.id,
+    { name: "500", private: true, designName: "minimal" },
+    error500Sounds,
+    [
+      {
+        key: "5",
+        code: 81,
+        bgColor: "white",
+        keyColor: "black",
+        displayName: "5",
+        loop: {
+          active: false,
+          config: {
+            bpm: 0,
+          },
+        },
+        volume: {
+          active: true,
+          config: {
+            level: 1,
+          },
+        },
+      },
+      {
+        key: "0",
+        code: 87,
+        bgColor: "white",
+        keyColor: "black",
+        loop: {
+          active: false,
+          config: {
+            bpm: 0,
+          },
+        },
+        volume: {
+          active: true,
+          config: {
+            level: 1,
+          },
+        },
+      },
+      {
+        key: "-",
+        displayName: "0",
+        code: 69,
+        bgColor: "white",
+        keyColor: "black",
+        loop: {
+          active: false,
+          config: {
+            bpm: 80,
           },
         },
         volume: {

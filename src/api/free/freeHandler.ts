@@ -25,9 +25,8 @@ export default class FreeHandler {
   };
   oneKeyboard = async (req: Request, res: Response, next: NextFunction) => {
     try {
-   
-      const id = parseInt(req.params.id);
-      const keyboard = await this.freeService.getOneKeyboardByIdOrError(id);
+      const name = req.params.name;
+      const keyboard = await this.freeService.getOneKeyboardNameOrError(name);
       res.json({
         keyboard,
       });

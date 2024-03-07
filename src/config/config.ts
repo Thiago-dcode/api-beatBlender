@@ -56,6 +56,14 @@ export default {
           name: "classic-1",
           colors: ["rgb(38 38 38)", "rgb(245 245 245)"],
         },
+        {
+          name: "minimal",
+          colors: ["rgb(38 38 38)", "rgb(245 245 245)"],
+        },
+        {
+          name: "minimal-1",
+          colors: ["rgb(38 38 38)", "rgb(245 245 245)"],
+        },
       ],
     },
     premium: {

@@ -9,7 +9,10 @@ import MembershipStatusService from "../membershipStatus/MembershipStatusService
 import KeyboardListener from "../../listeners/keyboard/KeyboardLIstener.js";
 import config from "../../config/config.js";
 import DesignKeyboardService from "../designKeyboard/designKeyboardService.js";
-import { getRandomFreeDesign, getRandomValueFromArray } from "../../utils/utils.js";
+import {
+  getRandomFreeDesign,
+  getRandomValueFromArray,
+} from "../../utils/utils.js";
 
 interface keyboardToCreateWithKeysAndCategories extends keyboardToCreate {
   keys?: number[];
@@ -90,6 +93,24 @@ export default class KeyBoardService {
       design,
     };
   }
+  async getOneByNameOrError(name: string, userId: number) {
+    const keyboard = await this.keyboardRepo.findWhere({ name });
+    if (!keyboard) {
+      throw new EntityNotFoundError("Entity keyboard notfound", {
+        keyboard: `Keyboard with name: ${name} not found`,
+      });
+    }
+    const keys = await this.keyService.allByUserOrError(userId, keyboard.id);
+    const design = await this.designkeyboardService.getOneOrError(
+      keyboard.design_keyboardName ||
+        getRandomValueFromArray(config.design.free.designs.map((d) => d.name))
+    );
+    return {
+      ...keyboard,
+      keys: keys.sort((a, b) => a.order - b.order),
+      design,
+    };
+  }
   async getKeyboardIfUserIsAuthOrError(
     id: number | undefined,
     userId: number | undefined
@@ -124,9 +145,7 @@ export default class KeyBoardService {
       {
         name,
         userId,
-        design_keyboardName:
-          design_keyboardName ||
-          getRandomFreeDesign()
+        design_keyboardName: design_keyboardName || getRandomFreeDesign(),
       },
       keys ? keys : [],
       categories ? categories : []
@@ -168,7 +187,7 @@ export default class KeyBoardService {
         design_keyboardName:
           design_keyboardName ||
           keyboardToUpdate.design_keyboardName ||
-          getRandomFreeDesign()
+          getRandomFreeDesign(),
       },
       keys,
       keysToDelete ? keysToDelete : [],
