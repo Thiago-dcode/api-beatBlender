@@ -91,12 +91,12 @@ class StorageService {
     const result = await this.s3.send(command);
     return result;
   }
-  async getUrl(key: string) {
+  async getUrl(key: string, expiresIn = 900) {
     const command = new GetObjectCommand({
       Bucket: this.bucketName,
       Key: key,
     });
-    const url = await getSignedUrl(this.s3, command, { expiresIn: 900 });
+    const url = await getSignedUrl(this.s3, command, { expiresIn });
     return url;
   }
   async getManyByFolder(folder: string) {

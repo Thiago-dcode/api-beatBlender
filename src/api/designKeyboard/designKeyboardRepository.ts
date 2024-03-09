@@ -1,4 +1,4 @@
-import { PrismaClient } from "@prisma/client";
+import { Prisma, PrismaClient } from "@prisma/client";
 import { designKeyboardToCreate } from "./types.js";
 
 export default class DesignKeyboardRepository {
@@ -54,8 +54,18 @@ export default class DesignKeyboardRepository {
     return result;
   }
   async findByName(name: string) {
-    const design = await this.db.design_keyboard.findFirst({ where: { name } ,include:{colors:true}});
+    const design = await this.db.design_keyboard.findFirst({
+      where: { name },
+      include: { colors: true },
+    });
     return design;
+  }
+  async findMany(where: Prisma.Design_keyboardWhereInput = {}) {
+    const designs = await this.db.design_keyboard.findMany({
+      where,
+      include: { colors: true },
+    });
+    return designs;
   }
   async deleteByName(name: string) {
     const result = await this.db.design_keyboard.delete({

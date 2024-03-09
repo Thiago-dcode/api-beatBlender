@@ -2,6 +2,7 @@
 import { db } from "../../db/db.js";
 import authRepository from "../../api/auth/authRepository.js";
 import AuthService from "../../api/auth/authService.js";
+import userFacade from "./userFacade.js";
 
 /**
  * Facade for interacting with auth information-related functionality.
@@ -20,6 +21,6 @@ class AuthFacade {
 }
 
 // Instantiate AuthFacade with dependencies
-const authFacade = new AuthFacade(new AuthService(new authRepository(db())));
+const authFacade = new AuthFacade(new AuthService(new authRepository(db()), userFacade.userService));
 
 export default authFacade;

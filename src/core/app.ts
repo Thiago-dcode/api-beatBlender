@@ -26,6 +26,7 @@ class AppController {
   }
 
   routes() {
+    console.log(routes)
     for (const route in routes) {
     
       this.app.use(`/${route === "/" ? "" : route}`, routes[route]);

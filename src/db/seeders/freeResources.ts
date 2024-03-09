@@ -27,7 +27,12 @@ const key = {
     },
   },
 };
-
+type KeyboardData = {
+  name: string;
+  private: boolean;
+  description?: string;
+  designName?: string;
+};
 type Key = typeof key & {
   displayName?: string;
   bgColor?: string;
@@ -38,11 +43,7 @@ export const seed = async (prisma: PrismaClient) => {
   const createKeyboardFromSoundStorage = async (
     userId: number,
     soundFolderId: number,
-    keyboardData: {
-      name: string;
-      private: boolean;
-      designName?: string;
-    },
+    keyboardData: KeyboardData,
     contents: _Object[] | undefined,
     keys: Key[]
   ) => {
@@ -109,12 +110,14 @@ export const seed = async (prisma: PrismaClient) => {
         return 0;
       })
     );
+    const { name, private: _private, description } = keyboardData;
     const keyboard = await prisma.keyboard.create({
       data: {
         userId,
-        name: keyboardData.name,
+        name: name,
         design_keyboardName,
-        private: keyboardData.private,
+        description,
+        private: _private,
         keys: {
           connect: keyIds
             .filter((id) => id !== 0)
@@ -176,7 +179,11 @@ export const seed = async (prisma: PrismaClient) => {
   await createKeyboardFromSoundStorage(
     userId,
     freeFolder.id,
-    { name: "Piano 1", private: false },
+    {
+      name: "Piano 1",
+      private: false,
+      description: "Free piano Beat Blender keyboard",
+    },
     pianoSounds.Contents,
     [
       {
@@ -379,7 +386,11 @@ export const seed = async (prisma: PrismaClient) => {
   await createKeyboardFromSoundStorage(
     userId,
     freeFolder.id,
-    { name: "hip-hop 1", private: false },
+    {
+      name: "hip-hop 1",
+      private: false,
+      description: "Free hip-hop Beat Blender keyboard",
+    },
     hipHopSounds.Contents,
     [
       {
@@ -582,7 +593,11 @@ export const seed = async (prisma: PrismaClient) => {
   await createKeyboardFromSoundStorage(
     userId,
     freeFolder.id,
-    { name: "lofi 1", private: false },
+    {
+      name: "lofi 1",
+      private: false,
+      description: "Free lofi Beat Blender keyboard",
+    },
     lofiSounds.Contents,
     [
       {
@@ -1040,7 +1055,6 @@ export const seed = async (prisma: PrismaClient) => {
           },
         },
       },
-     
     ]
   );
   const errorSounds = await storageFacade.storageService.getManyByFolder(

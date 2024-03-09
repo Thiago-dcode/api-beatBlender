@@ -12,10 +12,13 @@ import {
   AuthorizationError,
   PayLoadNotFoundError,
 } from "../../errors/auth/auth.js";
+import UserService from "../user/userService.js";
 export default class AuthService {
-  private authRepo;
-  constructor(authRepo: authRepository) {
+  private readonly authRepo;
+  private readonly userService;
+  constructor(authRepo: authRepository, userService: UserService) {
     this.authRepo = authRepo;
+    this.userService = userService;
   }
 
   async authJWT(data: LogginUser) {
@@ -30,6 +33,9 @@ export default class AuthService {
     if (!validPassword) {
       throw new EntityNotFoundError(`Wrong credentiales`, {}, 404);
     }
+    let avatarUrl = "";
+    if (userExist.avatar)
+      avatarUrl = await this.userService.getAvatarUrlOrError(userExist.avatar);
     const secretKey = getSecretJWTOrError();
     const accessToken = JWT.sign({ id: userExist.id }, secretKey, {
       expiresIn: config.JWT.expire,
@@ -40,7 +46,7 @@ export default class AuthService {
     //set refreshToken to user table
     await this.authRepo.setRefreshToken(userExist.id, refreshToken);
     return {
-      user: userExist,
+      user: { avatarUrl, ...userExist },
       accessToken,
       refreshToken,
     };

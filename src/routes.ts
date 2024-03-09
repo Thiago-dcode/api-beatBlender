@@ -6,6 +6,7 @@ import soundRoutes from "./api/sound/index.js";
 import soundFolderRoutes from "./api/soundFolder/index.js";
 import userInfoRoute from "./api/userInfo/index.js";
 import keyboardRoutes from "./api/keyboard/index.js";
+import designKeyboards from "./api/designKeyboard/index.js";
 import freeRoutes from "./api/free/index.js";
 const homeRouter = Router();
 
@@ -23,6 +24,7 @@ const routes: { [key: string]: Router } = {
   keyboards: keyboardRoutes,
   ["user-info"]: userInfoRoute,
   free: freeRoutes,
+  ["design-keyboard"]: designKeyboards,
 };
 
 export default routes;

@@ -54,4 +54,23 @@ export default class DesignKeyboardService {
       designUrl,
     };
   }
+  async getAllOrError() {
+    const designs = await this.designKeyboardRepo.findMany();
+    if (!designs) {
+      throw new EntityNotFoundError(`Design keyboards not found`, {});
+    }
+    // get the css file from s3
+
+    const designWithUrl = await Promise.all(
+      designs.map(async (design) => {
+        const designUrl = await this.storage.getUrl(design.path, 1800);
+        return {
+          ...design,
+          designUrl,
+        };
+      })
+    );
+
+    return designWithUrl;
+  }
 }
