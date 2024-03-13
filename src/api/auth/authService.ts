@@ -60,7 +60,7 @@ export default class AuthService {
     if (!refreshToken)
       throw new AuthorizationError("No refreshToken given", {}, 403);
     const secretKey = getSecretJWTOrError();
-    const payload = getJWTpayLoadOrError(JWT, refreshToken, secretKey);
+    const payload = getJWTpayLoadOrError(JWT, refreshToken, secretKey, 403);
 
     if (!(typeof payload === "object" && "id" in payload))
       throw new PayLoadNotFoundError("Payload refreshToken not found", {}, 403);

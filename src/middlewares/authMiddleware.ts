@@ -19,12 +19,16 @@ export function verifyToken(
   res: Response,
   next: NextFunction
 ): void {
+
+ 
   try {
+   
     const payload = getJWTpayLoadOrError(
       JWT,
       getTokenFromHeaderOrError(req),
       getSecretJWTOrError()
     );
+  
     if (typeof payload === "object" && payload !== null && "id" in payload) {
       // Assigning to the user property after ensuring it has an 'id' property
       req.user = { id: payload.id };

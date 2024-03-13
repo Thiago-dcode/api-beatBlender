@@ -12,10 +12,10 @@ class AuthHandler {
   loggin = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const result = validateLoggin(req.body);
-
-      console.log('req.cookies()',req.headers.cookie)
+      console.log("result", result, req.body);
+      console.log("req.cookies()", req.headers.cookie);
       if (!result.success) {
-        throw new EntityNotFoundError("Invalid credentials",{}, 404);
+        throw new EntityNotFoundError("Invalid credentials", {}, 404);
       }
       const userAuthenticated = await this.authService.authJWT(result.data);
       res.cookie("refresh_token", userAuthenticated.refreshToken, {
@@ -24,8 +24,9 @@ class AuthHandler {
       });
 
       res.json({
-        user: {...userAuthenticated.user,token:'',password:''},
+        user: { ...userAuthenticated.user, token: "", password: "" },
         accessToken: userAuthenticated.accessToken,
+        refreshToken: userAuthenticated.refreshToken,
       });
     } catch (error) {
       next(error);
@@ -33,18 +34,14 @@ class AuthHandler {
   };
   refreshToken = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const refreshToken = req.cookies?.refresh_token ?? "";
-      console.log("refreshToken", req.cookies);
+      const refreshToken = req.body['refresh-token'];
+      console.log("refreshToken", refreshToken);
       const { newAccessToken, newRefreshToken } =
         await this.authService.refreshToken(refreshToken);
 
-      res.cookie("refresh_token", newRefreshToken, {
-        httpOnly: true,
-        secure: true,
-      });
-
       res.json({
         accessToken: newAccessToken,
+        newRefreshToken,
       });
     } catch (error) {
       next(error);

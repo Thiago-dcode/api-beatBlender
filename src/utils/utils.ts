@@ -6,6 +6,7 @@ import { JwtPayload } from "jsonwebtoken";
 import { v4 as uuidv4 } from "uuid";
 import appConfig from "../config/config.js";
 import { config } from "dotenv";
+
 config();
 export const env = {
   get: (key: string): string => {
@@ -31,6 +32,7 @@ export async function comparePassword(plaintextPassword: string, hash: string) {
 
 export function getTokenFromHeaderOrError(req: Request) {
   const token = req.header("Authorization")?.split(" ")[1];
+
   if (!token) throw new AuthorizationError("Unauthenticated", {}, 401);
 
   return token;
@@ -45,7 +47,8 @@ export function getSecretJWTOrError() {
 export function getJWTpayLoadOrError(
   JWT: JwtPayload,
   token: string,
-  secretKey: string
+  secretKey: string,
+  errorCode = 401
 ) {
   let payload: string | JwtPayload | undefined;
   JWT.verify(
@@ -53,7 +56,7 @@ export function getJWTpayLoadOrError(
     secretKey,
     (err: any, decoded: string | JwtPayload | undefined) => {
       if (err) {
-        throw new AuthorizationError("Token invalid", {});
+        throw new AuthorizationError("Unauthenticated", {}, errorCode);
       }
 
       payload = decoded;

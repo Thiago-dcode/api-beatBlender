@@ -9,7 +9,8 @@ export const eventMiddleware = (
   next: NextFunction
 ) => {
   //init events
-   
+  console.log('COOKIES', req.cookies['jwt-token'])
+  console.log('PAYLOAD',req.headers.authorization)
   const path = req.path;
   console.log(`${req.method}: `,path)
   initEvents(path, req.method);
