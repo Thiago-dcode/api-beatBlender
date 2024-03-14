@@ -64,6 +64,14 @@ export default {
           name: "minimal-1",
           colors: ["rgb(38 38 38)", "rgb(245 245 245)"],
         },
+        {
+          name: "beat-blender",
+          colors: ["#4fbc9c", "#efdc75"],
+        },
+        {
+          name: "beat-blender-1",
+          colors: ["#4fbc9c", "#efdc75"],
+        },
       ],
     },
     premium: {

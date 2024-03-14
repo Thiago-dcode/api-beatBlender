@@ -75,7 +75,14 @@ export const seed = async (prisma: PrismaClient) => {
           const colors = config.design.free.designs.filter(
             (d) => d.name === design_keyboardName
           )[0].colors;
-          const bgColor = getRandomValueFromArray(colors);
+          const bgColor = !keyboardData?.designName
+            ? getRandomValueFromArray(colors)
+            : undefined;
+          const keyColor = bgColor
+            ? getRandomValueFromArray(
+                colors.filter((color) => !color.includes(bgColor))
+              )
+            : undefined;
           const keyCreated = await prisma.key.create({
             data: {
               soundId: soundIds[i],
@@ -84,11 +91,7 @@ export const seed = async (prisma: PrismaClient) => {
               displayName: _key.displayName || _key.key,
               order: i + 1,
               bgColor: _key.bgColor || bgColor,
-              keyColor:
-                _key.keyColor ||
-                getRandomValueFromArray(
-                  colors.filter((color) => !color.includes(bgColor))
-                ),
+              keyColor: _key.keyColor || keyColor,
               effects: {
                 create: config.effects
                   .filter((ef) => ef.keys)
@@ -180,6 +183,7 @@ export const seed = async (prisma: PrismaClient) => {
     userId,
     freeFolder.id,
     {
+      designName: "classic-1",
       name: "Piano 1",
       private: false,
       description: "Free piano Beat Blender keyboard",
@@ -387,6 +391,7 @@ export const seed = async (prisma: PrismaClient) => {
     userId,
     freeFolder.id,
     {
+      designName: "beat-blender",
       name: "hip-hop 1",
       private: false,
       description: "Free hip-hop Beat Blender keyboard",
@@ -594,6 +599,7 @@ export const seed = async (prisma: PrismaClient) => {
     userId,
     freeFolder.id,
     {
+      designName: "minimal",
       name: "lofi 1",
       private: false,
       description: "Free lofi Beat Blender keyboard",
@@ -1046,134 +1052,6 @@ export const seed = async (prisma: PrismaClient) => {
           active: false,
           config: {
             bpm: 0,
-          },
-        },
-        volume: {
-          active: true,
-          config: {
-            level: 1,
-          },
-        },
-      },
-    ]
-  );
-  const errorSounds = await storageFacade.storageService.getManyByFolder(
-    "free/sounds/memes/fail"
-  );
-  const error404Sounds = getRandomUniqueFromArray(errorSounds.Contents, 3);
-  await createKeyboardFromSoundStorage(
-    userId,
-    beatBlenderFolder.id,
-    { name: "404", private: true },
-    error404Sounds,
-    [
-      {
-        key: "4",
-
-        code: 81,
-        loop: {
-          active: false,
-          config: {
-            bpm: 0,
-          },
-        },
-        volume: {
-          active: true,
-          config: {
-            level: 1,
-          },
-        },
-      },
-      {
-        key: "0",
-        code: 87,
-        loop: {
-          active: false,
-          config: {
-            bpm: 0,
-          },
-        },
-        volume: {
-          active: true,
-          config: {
-            level: 1,
-          },
-        },
-      },
-      {
-        key: "f4",
-        displayName: "4",
-        code: 69,
-        loop: {
-          active: false,
-          config: {
-            bpm: 80,
-          },
-        },
-        volume: {
-          active: true,
-          config: {
-            level: 1,
-          },
-        },
-      },
-    ]
-  );
-
-  const error500Sounds = getRandomUniqueFromArray(errorSounds.Contents, 3);
-  await createKeyboardFromSoundStorage(
-    userId,
-    beatBlenderFolder.id,
-    { name: "500", private: true, designName: "minimal" },
-    error500Sounds,
-    [
-      {
-        key: "5",
-        code: 81,
-        bgColor: "white",
-        keyColor: "black",
-        displayName: "5",
-        loop: {
-          active: false,
-          config: {
-            bpm: 0,
-          },
-        },
-        volume: {
-          active: true,
-          config: {
-            level: 1,
-          },
-        },
-      },
-      {
-        key: "0",
-        code: 87,
-        bgColor: "white",
-        keyColor: "black",
-        loop: {
-          active: false,
-          config: {
-            bpm: 0,
-          },
-        },
-        volume: {
-          active: true,
-          config: {
-            level: 1,
-          },
-        },
-      },
-      {
-        key: "-",
-        displayName: "0",
-        code: 69,
-        bgColor: "white",
-        keyColor: "black",
-        loop: {
-          active: false,
-          config: {
-            bpm: 80,
           },
         },
         volume: {
