@@ -1,23 +1,35 @@
 import { EntityNotFoundError, UnknowDbError } from "../../errors/db/db.js";
 import { keyToCreate, keyToUpdate } from "./types.js";
-import { Key } from "@prisma/client";
+import { Key, Sound } from "@prisma/client";
 import { AuthorizationError } from "../../errors/auth/auth.js";
 import KeyRepository from "./keyRepository.js";
 import SoundService from "../sound/soundService.js";
+import EffectService from "../effect/effectService.js";
+import { truncateString } from "../../utils/utils.js";
+import CategoryService from "../category/categoryService.js";
 
 interface KeyTocreateWithFile extends keyToCreate {
   soundFile: Express.Multer.File | undefined;
+  category?: string;
 }
 interface KeyToupdateWithFile extends keyToUpdate {
   soundFile: Express.Multer.File | undefined;
+  category?: string;
 }
 
 export default class KeyService {
   private readonly keyRepo;
   private readonly soundService;
-  constructor(keyRepo: KeyRepository, soundService: SoundService) {
+  private readonly categoryService;
+
+  constructor(
+    keyRepo: KeyRepository,
+    soundService: SoundService,
+    categoryService: CategoryService
+  ) {
     this.keyRepo = keyRepo;
     this.soundService = soundService;
+    this.categoryService = categoryService;
   }
 
   async allByUserOrError(
@@ -26,15 +38,20 @@ export default class KeyService {
   ) {
     if (!userId) throw new EntityNotFoundError("User not found", {});
     const keys = await this.keyRepo.findManyByUserId(userId, keyboardId);
+    console.log(keys[0]);
     const keysWithSoundAndSoundUrl: Key[] = await Promise.all(
       keys.map(async (key) => {
         let url = "";
         const { sound } = key;
+
         if (!sound) return { ...key, sound: null };
         if (sound.path) {
           url = await this.soundService.getAudioFileUrlOrError(sound.path);
         }
-        return { ...key, sound: { ...sound, soundUrl: url } };
+        return {
+          ...key,
+          sound: { ...sound, soundUrl: url },
+        };
       })
     );
 
@@ -72,29 +89,48 @@ export default class KeyService {
 
   async createOrError({
     userId,
+    name,
     soundFile,
     soundId,
     key,
     displayName,
-    design_keyId,
+    bgColor,
+    keyColor,
+    category,
+    order,
   }: KeyTocreateWithFile) {
+    //handle sound
+    let sound: Sound | undefined = undefined;
     if (soundFile) {
       const soundCreated = await this.soundService.createOrError(soundFile, {
         userId: userId,
       });
       soundId = soundCreated.id;
     }
-    if (soundId && !soundFile) {
-      const soundExist = await this.soundService.getOneByIdOrError(soundId);
-      soundId = soundExist.id;
+
+    if (soundId && !sound) {
+      sound = await this.soundService.getOneByIdOrError(soundId);
+      soundId = sound.id;
     }
-    const keyCreated = await this.keyRepo.create({
-      userId,
-      soundId,
-      key: key.toLowerCase(),
-      displayName,
-      design_keyId,
-    });
+    //handle category
+    const { id: categoryId } = await this.categoryService.findByNameOrCreate(
+      category
+    );
+    //handle name
+    if (sound && !name) name = truncateString(sound.name);
+    const keyCreated = await this.keyRepo.create(
+      {
+        userId,
+        name,
+        soundId,
+        key: key.toLowerCase(),
+        displayName,
+        bgColor,
+        keyColor,
+        order: order || 999,
+      },
+      categoryId
+    );
     //assign default effects
     if (!keyCreated) {
       throw new UnknowDbError("Error creating key");
@@ -109,30 +145,46 @@ export default class KeyService {
       key,
       displayName,
       userId,
+      category,
+      name,
       design_keyId,
     }: KeyToupdateWithFile
   ) {
+    // 1: Check if exist a key
     const keyToUpdate = await this.keyRepo.findById(id);
     if (!keyToUpdate) {
       throw new EntityNotFoundError(`key with ${id} id not found`, {});
     }
+    //2: If a sound file is given, create one a assign the soundId
+    let sound: Sound | undefined = undefined;
     if (soundFile) {
       const soundCreated = await this.soundService.createOrError(soundFile, {
         userId: userId,
       });
       soundId = soundCreated.id;
     }
-    if (soundId && !soundFile) {
-      const soundExist = await this.soundService.getOneByIdOrError(soundId);
-      soundId = soundExist.id;
+    //3: If a sound file is NOT given, get one a assign the soundId
+    if (soundId && !sound) {
+      sound = await this.soundService.getOneByIdOrError(soundId);
+      soundId = sound.id;
     }
-    const keyUpdated = await this.keyRepo.update(id, {
-      soundId,
-      key: key?.toLowerCase() || keyToUpdate.key,
-      userId,
-      displayName: displayName || keyToUpdate.displayName,
-      design_keyId,
-    });
+    //4: handle category
+    const { id: categoryId } = await this.categoryService.findByNameOrCreate(
+      category || keyToUpdate.category?.name
+    );
+
+    const keyUpdated = await this.keyRepo.update(
+      id,
+      {
+        name: name || keyToUpdate.name,
+        soundId,
+        key: key?.toLowerCase() || keyToUpdate.key,
+        userId,
+        displayName,
+        design_keyId,
+      },
+      categoryId
+    );
     if (!keyUpdated) {
       throw new UnknowDbError("Error updating key");
     }

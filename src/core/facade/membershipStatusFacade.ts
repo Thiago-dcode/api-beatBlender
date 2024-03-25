@@ -8,20 +8,25 @@ import userInfoFacade from "./userInfoFacade.js";
  * Provides a simplified interface for accessing membership_status information services.
  */
 class MembershipStatusFacade {
-  readonly membershipStatusService: MembershipStatusService;
-
   /**
    * Constructs a new instance of membershipStatusFacade.
    * @param membershipStatusService The membership_status information service to be used.
    */
-  constructor(membershipStatusService: MembershipStatusService) {
-    this.membershipStatusService = membershipStatusService;
-  }
+  constructor(readonly membershipStatusService: MembershipStatusService) {}
 }
 
 // Instantiate membershipStatusFacade with dependencies
-const membershipStatusFacade = new MembershipStatusFacade(
-  new MembershipStatusService(new MembershipSatusRepository(db()),userInfoFacade.userInfoService)
-);
 
-export default membershipStatusFacade;
+let singleton: MembershipStatusFacade;
+
+export default () => {
+  if (!(singleton instanceof MembershipStatusFacade)) {
+    singleton = new MembershipStatusFacade(
+      new MembershipStatusService(
+        new MembershipSatusRepository(db()),
+        userInfoFacade().userInfoService
+      )
+    );
+  }
+  return singleton;
+};

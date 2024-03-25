@@ -9,28 +9,32 @@ import storageFacade from "./services/storageFacade.js";
  * Facade for interacting with sound-related functionality.
  * Provides a simplified interface for accessing sound services.
  */
+console.log("SOUND FACADE");
 class SoundFacade {
-  readonly soundService: SoundService;
-
   /**
    * Constructs a new instance of SoundFacade.
-   * @param soundService The user service to be used.
+   * @param soundService The sound service to be used.
    */
-  constructor(soundService: SoundService) {
-    this.soundService = soundService;
-  }
+
+  constructor(readonly soundService: SoundService) {}
 
   // Add more methods as needed...
 }
 
 // Instantiate SoundFacade with dependencies
-const soundFacade = new SoundFacade(
-  new SoundService(
-    new SoundRepository(db()),
-    storageFacade.storageService,
-    soundFolderFacade.soundFolderService,
-    membershipStatusFacade.membershipStatusService
-  )
-);
 
-export default soundFacade;
+let singleton: SoundFacade;
+
+export default () => {
+  if (!(singleton instanceof SoundFacade)) {
+    singleton = new SoundFacade(
+      new SoundService(
+        new SoundRepository(db()),
+        storageFacade().storageService,
+        soundFolderFacade().soundFolderService,
+        membershipStatusFacade().membershipStatusService
+      )
+    );
+  }
+  return singleton;
+};

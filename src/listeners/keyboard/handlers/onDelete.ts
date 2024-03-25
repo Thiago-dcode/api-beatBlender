@@ -10,8 +10,8 @@ export default async function onDelete(
   console.log('THIS SHOULD BE PRINTEND: ',data)
   await updateUserInfoData(
     data.userId,
-    userInfoFacade.userInfoService,
-    userFacade.userService,
+    userInfoFacade().userInfoService,
+    userFacade().userService,
     KeyboardListener
   );
 }

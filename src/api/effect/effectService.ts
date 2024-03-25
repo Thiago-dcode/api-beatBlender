@@ -12,4 +12,8 @@ export default class EffectService {
     const result = await this.effectRepo.createMany(data);
     return result;
   }
+  async getManyByKey(keyId: number) {
+    const result = await this.effectRepo.findManyWhere({ keyId });
+    return result;
+  }
 }

@@ -20,8 +20,14 @@ class UserInfoFacade {
 }
 
 // Instantiate UserInfoFacade with dependencies
-const userInfoFacade = new UserInfoFacade(
-  new UserInfoService(new UserInfoRepository(db()))
-);
 
-export default userInfoFacade;
+let singleton: UserInfoFacade;
+
+export default () => {
+  if (!(singleton instanceof UserInfoFacade)) {
+    singleton = new UserInfoFacade(
+      new UserInfoService(new UserInfoRepository(db()))
+    );
+  }
+  return singleton;
+};

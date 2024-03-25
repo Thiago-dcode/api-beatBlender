@@ -11,7 +11,7 @@ import { UserData, UserEvents } from "../type.js";
 export default async function onCreate(data: UserData[UserEvents.Create]) {
   const { username, id } = data.user;
   try {
-    await userFacade.userService.updateOrError(username, {
+    await userFacade().userService.updateOrError(username, {
       avatar: `free/avatar/avatar`,
     });
     await setInitialUserInfo(data.user);
@@ -23,18 +23,18 @@ export default async function onCreate(data: UserData[UserEvents.Create]) {
 const setInitialUserInfo = async (user: User) => {
   //get free membership
 
-  const membership = await membershipFacade.membershipService.getByIdOrError(
+  const membership = await membershipFacade().membershipService.getByIdOrError(
     config.membership.free.id
   );
   //create new user_info related row
-  const userInfo = await userInfoFacade.userInfoService.createOrError({
+  const userInfo = await userInfoFacade().userInfoService.createOrError({
     id: user.id,
     sounds: 0,
     space: 0,
     keyboards: 0,
   });
   const membershipStatus =
-    await membershipStatusFacade.membershipStatusService.createOrError({
+    await membershipStatusFacade().membershipStatusService.createOrError({
       membership_id: membership.id,
       user_infoId: userInfo.id,
     });

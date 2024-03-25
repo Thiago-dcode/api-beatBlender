@@ -2,6 +2,7 @@ import { PrismaClient } from "@prisma/client";
 import config from "../../config/config.js";
 
 export const seed = async (prisma: PrismaClient) => {
+try {
   const freeConfig = config.membership.free;
   const freeMembership = await prisma.membership.create({
     data: {
@@ -16,4 +17,7 @@ export const seed = async (prisma: PrismaClient) => {
   });
 
   console.log("MEMBERSHIP SEED COMPLETED");
+} catch (error) {
+  console.log("ERROR SEEDING MEMBERSHIP",error);
+}
 };

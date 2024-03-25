@@ -16,8 +16,8 @@ export default async function onCreate(
 
   await updateUserInfoData(
     data.userId,
-    userInfoFacade.userInfoService,
-    userFacade.userService,
+    userInfoFacade().userInfoService,
+    userFacade().userService,
     KeyboardListener
   );
 }

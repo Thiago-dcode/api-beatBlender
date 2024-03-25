@@ -10,27 +10,25 @@ import designKeyboardFacade from "./designKeyboardFacade.js";
  * Provides a simplified interface for accessing KEY services.
  */
 class KeyboardFacade {
-  readonly keyboardService: KeyBoardService;
-
-  /**
-   * Constructs a new instance of keyboardFacade.
-   * @param keyboardService The keyboard service to be used.
-   */
-  constructor(keyboardService: KeyBoardService) {
-    this.keyboardService = keyboardService;
-  }
+  constructor(readonly keyboardService: KeyBoardService) {}
 
   // Add more methods as needed...
 }
 
 // Instantiate keyboardFacade with dependencies
-const keyboardFacade = new KeyboardFacade(
-  new KeyBoardService(
-    new KeyboardRepository(db()),
-    keyFacade.keyService,
-    membershipStatusFacade.membershipStatusService,
-    designKeyboardFacade.designKeyboardService
-  )
-);
 
-export default keyboardFacade;
+let singleton: KeyboardFacade;
+
+export default () => {
+  if (!(singleton instanceof KeyboardFacade)) {
+    singleton = new KeyboardFacade(
+      new KeyBoardService(
+        new KeyboardRepository(db()),
+        keyFacade().keyService,
+        membershipStatusFacade().membershipStatusService,
+        designKeyboardFacade().designKeyboardService
+      )
+    );
+  }
+  return singleton;
+};

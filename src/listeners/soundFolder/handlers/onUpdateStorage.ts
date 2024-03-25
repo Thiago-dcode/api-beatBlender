@@ -7,7 +7,7 @@ export default async function onUpdateStorage(
   data: SoundFolderData[SoundFolderEvents.UpdateStorage]
 ) {
   try {
-    await soundFacade.soundService.updateManyPathOrError(
+    await soundFacade().soundService.updateManyPathOrError(
       data.sounds,
       data.userId,
       data.foldername

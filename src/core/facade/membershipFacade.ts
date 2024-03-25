@@ -7,20 +7,22 @@ import MembershipService from "../../api/membership/MembershipService.js";
  * Provides a simplified interface for accessing membership information services.
  */
 class MembershipFacade {
-  readonly membershipService: MembershipService;
-
   /**
    * Constructs a new instance of MembershipFacade.
    * @param membershipService The membership information service to be used.
    */
-  constructor(membershipService: MembershipService) {
-    this.membershipService = membershipService;
-  }
+  constructor(readonly membershipService: MembershipService) {}
 }
 
 // Instantiate MembershipFacade with dependencies
-const membershipFacade = new MembershipFacade(
-  new MembershipService(new MembershipRepository(db()))
-);
 
-export default membershipFacade;
+let singleton: MembershipFacade;
+
+export default () => {
+  if (!(singleton instanceof MembershipFacade)) {
+    singleton = new MembershipFacade(
+      new MembershipService(new MembershipRepository(db()))
+    );
+  }
+  return singleton;
+};

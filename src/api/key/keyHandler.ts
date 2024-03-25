@@ -11,9 +11,7 @@ export default class KeyHandler {
     try {
       const userId = validateUserIdRequest(req.user?.id);
       const keys = await this.keyService.allByUserOrError(userId);
-      res.json({
-        keys,
-      });
+      res.json(keys);
     } catch (error) {
       next(error);
     }

@@ -9,8 +9,8 @@ export default async function onUpdate(
 ) {
   await updateUserInfoData(
     data.userId,
-    userInfoFacade.userInfoService,
-    userFacade.userService,
+    userInfoFacade().userInfoService,
+    userFacade().userService,
     Listener
   );
 }

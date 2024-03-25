@@ -10,8 +10,8 @@ export default async function onDeleteStorage(
   console.log('THIS SHOULD BE PRINTED:',data)
   await updateUserInfoData(
     data.userId,
-    userInfoFacade.userInfoService,
-    userFacade.userService,
+    userInfoFacade().userInfoService,
+    userFacade().userService,
     SoundFolderListener
   );
 }

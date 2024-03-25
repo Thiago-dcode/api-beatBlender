@@ -135,6 +135,7 @@ class StorageService {
     );
   }
   async delete(key: string) {
+    console.log('DELETING STORAGE', key)
     const command = new DeleteObjectCommand({
       Bucket: this.bucketName,
       Key: key,
@@ -144,10 +145,12 @@ class StorageService {
     return result;
   }
   async deleteManyByFolder(folder: string) {
-    const objectsToDelete = await this.getManyByFolder(folder);
 
+    const objectsToDelete = await this.getManyByFolder(folder);
+    console.log(objectsToDelete.Contents)
     if (!objectsToDelete.Contents || objectsToDelete.Contents.length < 1)
       return;
+    console.log('SHOULD NEVER BE PRINTED IF !objectsToDelete.Contents')
     objectsToDelete.Contents.forEach(async (object) => {
       if (object.Key) {
         await this.delete(object.Key);

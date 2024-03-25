@@ -19,8 +19,8 @@ export default {
     allowedMimeTypes: ["audio/mpeg", "audio/wav", "audio/ogg", "audio/mp4"],
   },
   JWT: {
-    expire: "30sec",
-    refreshExpire: "3h",
+    expire: "1h",
+    refreshExpire: "24h",
   },
   membership: {
     free: {

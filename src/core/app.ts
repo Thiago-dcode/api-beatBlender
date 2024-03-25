@@ -8,6 +8,7 @@ import { eventMiddleware } from "../middlewares/eventMiddleware.js";
 class AppController {
   app: express.Application;
   constructor() {
+   
     this.app = express();
     
     this.beforeMiddlewares();

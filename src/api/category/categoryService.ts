@@ -15,4 +15,12 @@ export default class CategoryService {
     }
     return membership;
   }
+  async findByNameOrCreate(name: string | undefined) {
+    const categoryName = name || "default";
+
+    const category =
+      (await this.categoryRepo.findFirstWhere({ name: categoryName })) ||
+      (await this.categoryRepo.createByName(categoryName));
+    return category;
+  }
 }

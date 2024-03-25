@@ -32,7 +32,7 @@ export async function comparePassword(plaintextPassword: string, hash: string) {
 
 export function getTokenFromHeaderOrError(req: Request) {
   const token = req.header("Authorization")?.split(" ")[1];
-
+  console.log("TOKEN", token);
   if (!token) throw new AuthorizationError("Unauthenticated", {}, 401);
 
   return token;
@@ -131,4 +131,11 @@ export function getRandomUniqueFromArray<T>(
 
   // Select the first 'num' elements
   return shuffledArr.slice(0, num);
+}
+
+export function truncateString(str: string, length = 10) {
+  let newStr = str;
+  // Check if the string has more than 10 characters
+  if (str.length > length) newStr = str.slice(0, length);
+  return newStr;
 }

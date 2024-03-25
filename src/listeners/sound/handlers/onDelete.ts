@@ -9,8 +9,8 @@ export default async function onDelete(
 ) {
   await updateUserInfoData(
     data.userId,
-    userInfoFacade.userInfoService,
-    userFacade.userService,
+    userInfoFacade().userInfoService,
+    userFacade().userService,
     Listener
   );
 }

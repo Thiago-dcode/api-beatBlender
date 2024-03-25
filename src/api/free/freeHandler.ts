@@ -16,6 +16,7 @@ export default class FreeHandler {
         });
       }
       const keyboards = await this.freeService.allKeyboardsOrError();
+
       res.json({
         keyboards,
       });

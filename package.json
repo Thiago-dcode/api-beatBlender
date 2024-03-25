@@ -8,7 +8,8 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "tsc -w",
     "seed": "node build/db/seed.js",
-    "reset": "prisma migrate reset && npm run seed && npm run dev"
+    "drop": "node build/services/storage/drop.js",
+    "reset": "npm run drop && prisma migrate reset && npm run seed && npm run dev"
   },
   "author": "thiago D.code",
   "license": "MIT",

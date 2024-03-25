@@ -8,23 +8,26 @@ import storageFacade from "./services/storageFacade.js";
  * Facade for interacting with user-related functionality.
  * Provides a simplified interface for accessing user services.
  */
+console.log("USER  FACADE");
 class UserFacade {
-  readonly userService: UserService;
-
   /**
    * Constructs a new instance of UserFacade.
    * @param userService The user service to be used.
    */
-  constructor(userService: UserService) {
-    this.userService = userService;
-  }
+  constructor(readonly userService: UserService) {}
 
   // Add more methods as needed...
 }
 
 // Instantiate UserFacade with dependencies
-const userFacade = new UserFacade(
-  new UserService(new UserRepository(db()), storageFacade.storageService)
-);
 
-export default userFacade;
+let singleton: UserFacade;
+
+export default () => {
+  if (!(singleton instanceof UserFacade)) {
+    singleton = new UserFacade(
+      new UserService(new UserRepository(db()), storageFacade().storageService)
+    );
+  }
+  return singleton;
+};

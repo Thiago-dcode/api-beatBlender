@@ -1,6 +1,6 @@
-import { PrismaClient} from "@prisma/client";
+import { Prisma, PrismaClient } from "@prisma/client";
 
-export default class categoryRepository{
+export default class categoryRepository {
   db: PrismaClient;
   constructor(db: PrismaClient) {
     this.db = db;
@@ -9,5 +9,12 @@ export default class categoryRepository{
 
   async findFirstById(id: number) {
     return await this.db.category.findFirst({ where: { id } });
+  }
+
+  async findFirstWhere(where: Prisma.CategoryWhereUniqueInput) {
+    return await this.db.category.findFirst({ where });
+  }
+  async createByName(name: string) {
+    return await this.db.category.create({ data: { name } });
   }
 }

@@ -75,6 +75,7 @@ export default class SoundFolderService {
     return soundFolder;
   }
   async getOrCreateDefaultFolderByUserId(userId: number) {
+    console.log(userId)
     const defaultFolderExist = await this.soundFolderRepo.findFirstWhere({
       is_default: true,
       userId,

@@ -22,26 +22,30 @@ export default class KeyRepository {
         userId,
         keyboard,
       },
-      include: { sound: true, effects: true },
+      include: { sound: true, effects: true, category: true },
     });
   }
-  async update(id: number, data: keyToUpdate) {
+  async update(id: number, data: keyToUpdate, categoryId: number | undefined) {
     const result = await this.db.key.update({
       where: { id },
-      data,
+      data: {
+        ...data,
+        categoryId,
+      },
     });
     return result;
   }
 
-  async create(data: keyToCreate) {
+  async create(data: keyToCreate, categoryId: number) {
     const result = await this.db.key.create({
       data: {
         ...data,
+        categoryId,
+        name: data.name || "",
+        displayName: data.displayName || data.key.toLowerCase(),
         effects: {
           create: config.effects
-            .filter((ef) => {
-              ef.keys;
-            })
+            .filter((ef) => ef.keys)
             .map(({ name, description, config, isActive }) => {
               return {
                 name,
@@ -52,13 +56,14 @@ export default class KeyRepository {
             }),
         },
       },
+      include: { effects: true, category: true },
     });
     return result;
   }
   async findById(id: number) {
     const key = await this.db.key.findFirst({
       where: { id },
-      include: { sound: true, effects: true },
+      include: { sound: true, effects: true, category: true },
     });
     return key;
   }
