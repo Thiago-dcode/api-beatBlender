@@ -27,7 +27,7 @@ export async function seed(db: PrismaClient, users: User[]) {
         db,
         uniqueSoundFiles,
         user.id,
-        1
+        id
       );
       return userSounds;
     })
@@ -58,6 +58,7 @@ export const createSoundsByContents = async (
             size: bytesToMB(object?.Size || 0),
             sound_folderId: soundFolderId,
           },
+          include: { Sound_folder: true },
         });
         return sound;
       })

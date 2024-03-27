@@ -19,9 +19,7 @@ try {
             key: _keys[i],
             displayName: _keys[i],
             name: truncateString(sound.name),
-            bgColor: "rgb(38,38,38)",
-            keyColor: "rgb(217,217,217)",
-            soundId: sound.id,
+           soundId: sound.id,
             categoryId,
             effects: {
               create: config.effects
