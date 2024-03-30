@@ -12,6 +12,7 @@ export default class SoundRepository {
       where: {
         userId,
       },
+      include: {Sound_folder:true}
     });
   }
   async update(id: number, data: soundToUpdate) {
