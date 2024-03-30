@@ -43,7 +43,7 @@ class soundHandler {
 
       const userId = validateUserIdRequest(req.user?.id);
       const sounds = req.files as Express.Multer.File[];
-     
+
       const soundsCreated = await this.SoundService.createManyOrError(sounds, {
         ...result.data,
         userId,
