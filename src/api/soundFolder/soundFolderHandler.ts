@@ -15,9 +15,7 @@ class SoundFolderHandler {
       const soundsFolder = await this.soundFolderService.allByUserOrError(
         userId
       );
-      res.json({
-        soundsFolder,
-      });
+      res.json(soundsFolder);
     } catch (error) {
       next(error);
     }
@@ -29,9 +27,7 @@ class SoundFolderHandler {
       console.log("req.user", req.user);
       const soundFolder =
         await this.soundFolderService.getByIdIfUserIsAuthOrError(id, userId);
-      res.json({
-        soundFolder,
-      });
+      res.json(soundFolder);
     } catch (error) {
       next(error);
     }

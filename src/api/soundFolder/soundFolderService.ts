@@ -19,21 +19,21 @@ export default class SoundFolderService {
     if (!userId) throw new EntityNotFoundError("User not found", {});
     const soundFolders = await this.soundFolderRepo.findManyByUserId(userId);
 
-    const soundFoldersWithAudioUrl = await Promise.all(soundFolders.map(async(soundFolder)=>{
+    // const soundFoldersWithAudioUrl = await Promise.all(soundFolders.map(async(soundFolder)=>{
 
-      const soundsWithUrl = await Promise.all(
-        soundFolder.sounds.map(async (sound) => {
-          const soundUrl = await this.storage.getUrl(sound.path);
-          return { ...sound, soundUrl };
-        })
-      );
+    //   const soundsWithUrl = await Promise.all(
+    //     soundFolder.sounds.map(async (sound) => {
+    //       const soundUrl = await this.storage.getUrl(sound.path);
+    //       return { ...sound, soundUrl };
+    //     })
+    //   );
 
-      return {
-        ...soundFolder,
-        sounds: soundsWithUrl
-      }
-    }))
-    return soundFoldersWithAudioUrl;
+    //   return {
+    //     ...soundFolder,
+    //     sounds: soundsWithUrl
+    //   }
+    // }))
+    return soundFolders;
   }
   async getIfExistOrDefaultOrError(id: number | undefined, userId: number) {
     const folder = id

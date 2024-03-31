@@ -18,7 +18,7 @@ export default class SoundFolderRepository {
       where: {
         userId,
       },
-      include:{sounds:true}
+  
     });
   }
   async findByIdWithSounds(id: number, includeSounds: boolean = true) {
