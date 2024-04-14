@@ -8,6 +8,7 @@ import userInfoRoute from "./api/userInfo/index.js";
 import keyboardRoutes from "./api/keyboard/index.js";
 import designKeyboards from "./api/designKeyboard/index.js";
 import freeRoutes from "./api/free/index.js";
+import categoryRoutes from "./api/category/index.js";
 const homeRouter = Router();
 
 homeRouter.get("/", (req, res) => {
@@ -25,6 +26,7 @@ const routes: { [key: string]: Router } = {
   ["user-info"]: userInfoRoute,
   free: freeRoutes,
   ["design-keyboard"]: designKeyboards,
+  ["categories"]: categoryRoutes,
 };
 
 export default routes;

@@ -10,6 +10,13 @@ export default class categoryRepository {
   async findFirstById(id: number) {
     return await this.db.category.findFirst({ where: { id } });
   }
+  async findMany(filter: string | undefined = undefined) {
+    return await this.db.category.findMany({
+      where: {
+        name: { contains: filter },
+      },
+    });
+  }
 
   async findFirstWhere(where: Prisma.CategoryWhereUniqueInput) {
     return await this.db.category.findFirst({ where });

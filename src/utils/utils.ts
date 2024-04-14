@@ -135,7 +135,6 @@ export function getRandomUniqueFromArray<T>(
 
 export function truncateString(str: string, length = 10) {
   let newStr = str;
-  // Check if the string has more than 10 characters
   if (str.length > length) newStr = str.slice(0, length);
   return newStr;
 }

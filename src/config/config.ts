@@ -66,11 +66,11 @@ export default {
         },
         {
           name: "beat-blender",
-          colors: ["#4fbc9c", "#efdc75"],
+          colors: ["#4fbc9c", "#efdc75", "rgb(38 38 38)", "rgb(245 245 245)"],
         },
         {
           name: "beat-blender-1",
-          colors: ["#4fbc9c", "#efdc75"],
+          colors: ["#4fbc9c", "#efdc75", "rgb(38 38 38)", "rgb(245 245 245)"],
         },
       ],
     },

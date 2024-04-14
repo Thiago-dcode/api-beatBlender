@@ -15,6 +15,11 @@ export default class CategoryService {
     }
     return membership;
   }
+  async getAll(filter: string | undefined = undefined) {
+    const categories = await this.categoryRepo.findMany(filter);
+
+    return categories;
+  }
   async findByNameOrCreate(name: string | undefined) {
     const categoryName = name || "default";
 

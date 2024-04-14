@@ -16,10 +16,9 @@ export default class FreeHandler {
         });
       }
       const keyboards = await this.freeService.allKeyboardsOrError();
+    
+      res.json(keyboards);
 
-      res.json({
-        keyboards,
-      });
     } catch (error) {
       next(error);
     }
@@ -28,9 +27,7 @@ export default class FreeHandler {
     try {
       const name = req.params.name;
       const keyboard = await this.freeService.getOneKeyboardNameOrError(name);
-      res.json({
-        keyboard,
-      });
+      res.json(keyboard);
     } catch (error) {
       next(error);
     }
