@@ -41,7 +41,7 @@ export const seed = async (prisma: PrismaClient) => {
       })
     );
 
-    console.log("DESIGNKEYBOARD SEEdCOMPLETED", result);
+    console.log("DESIGNKEYBOARD SEEdCOMPLETED");
   } catch (error) {
     console.log("ERROR SEEDING DESIGNKEYBOARD", error);
   }

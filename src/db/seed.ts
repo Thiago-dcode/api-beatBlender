@@ -13,10 +13,10 @@ const main = async () => {
     const users = await usersSeeder(db());
     await userInfosSeeder(db(), users);
     const sounds = await soundsSeeder(db(), users);
-    await keysSeeder(db(), sounds);
-    await designKeyboardSeeder(db());
-    await freeResourcesSeeder(db());
-    await membershipSeeder(db());
+    // await keysSeeder(db(), sounds);
+    // await designKeyboardSeeder(db());
+    // await freeResourcesSeeder(db());
+    // await membershipSeeder(db());
   } catch (error) {
     console.error("---ERROR SEEDING---", error);
   } finally {

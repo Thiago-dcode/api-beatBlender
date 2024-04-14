@@ -12,6 +12,7 @@ import { PrismaClient } from "@prisma/client";
 import config from "../../config/config.js";
 import categoryFacade from "../../core/facade/categoryFacade.js";
 import { createSoundsByContents } from "./sounds.js";
+import { getFreeSoundFolderContent } from "../../services/storage/getFreeResources.js";
 
 const key = {
   key: "q",
@@ -50,11 +51,11 @@ export const seed = async (prisma: PrismaClient) => {
       userId: number,
       soundFolderId: number,
       keyboardData: KeyboardData,
-      contents: _Object[] | undefined,
+      contents: _Object[],
       keys: Key[],
       category: string | undefined = undefined
     ) => {
-      if (!contents) return;
+  
 
       const _category = await categoryFacade().categoryService.findByNameOrCreate(
         category
@@ -181,9 +182,8 @@ export const seed = async (prisma: PrismaClient) => {
       },
     });
 
-    const pianoSounds = await storageService.getManyByFolder(
-      "free/sounds/piano"
-    );
+   const pianoSounds = await getFreeSoundFolderContent('piano')
+
     await createKeyboardFromSoundStorage(
       userId,
       freeFolder.id,
@@ -193,7 +193,7 @@ export const seed = async (prisma: PrismaClient) => {
         private: false,
         description: "Free piano Beat Blender keyboard",
       },
-      pianoSounds.Contents,
+      pianoSounds,
       [
         {
           key: "q",
@@ -390,9 +390,7 @@ export const seed = async (prisma: PrismaClient) => {
       ],
       "piano"
     );
-    const hipHopSounds = await storageService.getManyByFolder(
-      "free/sounds/hip-hop"
-    );
+    const hipHopSounds = await getFreeSoundFolderContent('hip-hop')
     await createKeyboardFromSoundStorage(
       userId,
       freeFolder.id,
@@ -402,7 +400,7 @@ export const seed = async (prisma: PrismaClient) => {
         private: false,
         description: "Free hip-hop Beat Blender keyboard",
       },
-      hipHopSounds.Contents,
+      hipHopSounds,
       [
         {
           key: "q",
@@ -599,9 +597,7 @@ export const seed = async (prisma: PrismaClient) => {
       ],
       "hip-hop"
     );
-    const lofiSounds = await storageService.getManyByFolder(
-      "free/sounds/lofi"
-    );
+    const lofiSounds = await getFreeSoundFolderContent('lofi')
     await createKeyboardFromSoundStorage(
       userId,
       freeFolder.id,
@@ -611,7 +607,7 @@ export const seed = async (prisma: PrismaClient) => {
         private: false,
         description: "Free lofi Beat Blender keyboard",
       },
-      lofiSounds.Contents,
+      lofiSounds,
       [
         {
           key: "q",
@@ -808,19 +804,12 @@ export const seed = async (prisma: PrismaClient) => {
       ],
       "lofi"
     );
-
-    // private keyboards: errors, register, login
-
-    //TODO:
-
-    const registerSounds = await storageService.getManyByFolder(
-      "free/sounds/register"
-    );
+    const registerSounds = await getFreeSoundFolderContent('register')
     await createKeyboardFromSoundStorage(
       userId,
       beatBlenderFolder.id,
       { name: "register", private: true, designName: "minimal" },
-      registerSounds.Contents,
+      registerSounds,
       [
         {
           key: "r",
@@ -971,14 +960,12 @@ export const seed = async (prisma: PrismaClient) => {
       ],
       "memes"
     );
-    const loginSounds = await storageService.getManyByFolder(
-      "free/sounds/login"
-    );
+    const loginSounds =  await getFreeSoundFolderContent('login')
     await createKeyboardFromSoundStorage(
       userId,
       beatBlenderFolder.id,
       { name: "login", private: true, designName: "minimal" },
-      loginSounds.Contents,
+      loginSounds,
       [
         {
           key: "l",
