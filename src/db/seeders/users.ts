@@ -3,7 +3,7 @@ import { hashPassword } from "../../utils/utils.js";
 
 export async function seed(db: PrismaClient) {
   const password = await hashPassword("12345678");
-  const arrData = [
+  const users = [
     {
       name: "thiago",
       password: password,
@@ -13,7 +13,7 @@ export async function seed(db: PrismaClient) {
   ];
 
   const usersCreated = await Promise.all(
-    arrData.map(async (data) => {
+    users.map(async (data) => {
       const user = await db.user.create({
         data,
       });
@@ -21,6 +21,6 @@ export async function seed(db: PrismaClient) {
       return user;
     })
   );
-  console.log('---USER SEEDER FINISH---')
+
   return usersCreated
 }

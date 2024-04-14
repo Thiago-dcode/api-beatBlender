@@ -13,6 +13,7 @@ import config from "../../config/config.js";
 import categoryFacade from "../../core/facade/categoryFacade.js";
 import { createSoundsByContents } from "./sounds.js";
 import { getFreeSoundFolderContent } from "../../services/storage/getFreeResources.js";
+import { FreeResourceObj } from "../../types/index.js";
 
 const key = {
   key: "q",
@@ -43,10 +44,13 @@ type Key = typeof key & {
   keyColor?: string;
 };
 
-export const seed = async (prisma: PrismaClient) => {
+export const seed = async (
+  prisma: PrismaClient,
+  freeResources: FreeResourceObj
+) => {
   try {
-    const storageService = storageFacade().storageService
- 
+    const storageService = storageFacade().storageService;
+
     const createKeyboardFromSoundStorage = async (
       userId: number,
       soundFolderId: number,
@@ -55,18 +59,15 @@ export const seed = async (prisma: PrismaClient) => {
       keys: Key[],
       category: string | undefined = undefined
     ) => {
-  
-
-      const _category = await categoryFacade().categoryService.findByNameOrCreate(
-        category
-      );
+      const _category =
+        await categoryFacade().categoryService.findByNameOrCreate(category);
       const sounds = await createSoundsByContents(
         prisma,
         contents,
         userId,
         soundFolderId
       );
-    const design_keyboardName =
+      const design_keyboardName =
         keyboardData.designName || getRandomFreeDesign();
       let keyIds: number[] = await Promise.all(
         keys.map(async (_key, i) => {
@@ -182,7 +183,7 @@ export const seed = async (prisma: PrismaClient) => {
       },
     });
 
-   const pianoSounds = await getFreeSoundFolderContent('piano')
+    const pianoSounds = freeResources["piano"];
 
     await createKeyboardFromSoundStorage(
       userId,
@@ -390,7 +391,7 @@ export const seed = async (prisma: PrismaClient) => {
       ],
       "piano"
     );
-    const hipHopSounds = await getFreeSoundFolderContent('hip-hop')
+    const hipHopSounds =  freeResources["hip-hop"];
     await createKeyboardFromSoundStorage(
       userId,
       freeFolder.id,
@@ -597,7 +598,7 @@ export const seed = async (prisma: PrismaClient) => {
       ],
       "hip-hop"
     );
-    const lofiSounds = await getFreeSoundFolderContent('lofi')
+    const lofiSounds =  freeResources["lofi"];
     await createKeyboardFromSoundStorage(
       userId,
       freeFolder.id,
@@ -804,7 +805,7 @@ export const seed = async (prisma: PrismaClient) => {
       ],
       "lofi"
     );
-    const registerSounds = await getFreeSoundFolderContent('register')
+    const registerSounds =  freeResources["register"];
     await createKeyboardFromSoundStorage(
       userId,
       beatBlenderFolder.id,
@@ -960,7 +961,7 @@ export const seed = async (prisma: PrismaClient) => {
       ],
       "memes"
     );
-    const loginSounds =  await getFreeSoundFolderContent('login')
+    const loginSounds =  freeResources["login"];
     await createKeyboardFromSoundStorage(
       userId,
       beatBlenderFolder.id,
@@ -1060,8 +1061,6 @@ export const seed = async (prisma: PrismaClient) => {
       ],
       "memes"
     );
-
-    console.log("FREE RESOURCES SEED COMPLETED");
   } catch (error) {
     console.error("ERROR SEEDING FREE RESOURCES", error);
   }

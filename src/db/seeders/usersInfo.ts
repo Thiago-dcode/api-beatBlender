@@ -19,6 +19,6 @@ export async function seed(db: PrismaClient, users: User[]) {
       return userInfo;
     })
   );
-  console.log('---USERINFO SEEDER FINISH---')
+
   return usersInfo;
 }

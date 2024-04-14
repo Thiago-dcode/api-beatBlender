@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "nodemon build/index.js",
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "vitest",
     "build": "tsc -w",
     "seed": "node build/db/seed.js",
     "drop": "node build/services/storage/drop.js",
@@ -26,7 +26,7 @@
     "cookie-parser": "^1.4.6",
     "cors": "^2.8.5",
     "dotenv": "^16.4.1",
-    "express": "4.18.2",
+    "express": "^4.19.2",
     "image-type": "^5.2.0",
     "jsonwebtoken": "^9.0.2",
     "multer": "^1.4.5-lts.1",
@@ -57,6 +57,7 @@
     "prisma": "^5.8.1",
     "ts-node": "^10.9.2",
     "ts-node-dev": "^2.0.0",
-    "typescript": "^5.3.3"
+    "typescript": "^5.3.3",
+    "vitest": "^1.5.0"
   }
 }

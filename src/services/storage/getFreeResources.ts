@@ -1,8 +1,12 @@
 import { _Object } from "@aws-sdk/client-s3";
-import storageFacade from "../../core/facade/services/storageFacade";
-import { StorageError } from "../../errors/general/general";
+import storageFacade from "../../core/facade/services/storageFacade.js";
+import { StorageError } from "../../errors/general/general.js";
+import { FreeResourceObj } from "../../types/index.js";
 
 export const getFreeSoundFolderContent = async (soundFolder: string) => {
+  if (!soundFolder) {
+    throw new StorageError("Sound folder cannot be empty", {});
+  }
   const resource = await storageFacade().storageService.getManyByFolder(
     `free/sounds/${soundFolder}`
   );
@@ -16,7 +20,10 @@ export const getFreeSoundFolderContent = async (soundFolder: string) => {
 };
 export const getManyFreeSoundFolderContent = async (
   soundFolders: string[]
-): Promise<[folder: string, contents: _Object[]][]> => {
+): Promise<FreeResourceObj> => {
+  if (!soundFolders.length) {
+    throw new StorageError("SoundFolders cannot be empty", {});
+  }
   const result = await Promise.all(
     soundFolders.map(
       async (folder): Promise<[folder: string, contents: _Object[]]> => {
@@ -26,5 +33,11 @@ export const getManyFreeSoundFolderContent = async (
       }
     )
   );
-  return result;
+  return result.reduce<FreeResourceObj>(
+    (acc: FreeResourceObj, [folder, contents]) => {
+      acc[folder] = contents;
+      return acc;
+    },
+    {}
+  );
 };
